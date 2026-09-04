@@ -1,0 +1,24 @@
+{
+  "startLocations": ["Fire Station 3", "Fire Station 7", "Downtown EMS Base"],
+  "hospitals": ["City General", "St. Mary's Medical Center", "Riverside Hospital"],
+  "routeOptions": [
+    {
+      "name": "Route A - Main St",
+      "baseMinutes": 8,
+      "passesSchoolZone": true,
+      "passesHighway": false
+    },
+    {
+      "name": "Route B - Highway Bypass",
+      "baseMinutes": 11,
+      "passesSchoolZone": false,
+      "passesHighway": true
+    },
+    {
+      "name": "Route C - Residential Shortcut",
+      "baseMinutes": 13,
+      "passesSchoolZone": false,
+      "passesHighway": false
+    }
+  ]
+}
