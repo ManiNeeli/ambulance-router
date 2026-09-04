@@ -11,6 +11,13 @@ import { playSirenSound, stopSirenSound, speakDispatch } from './utils/sirenAudi
 import { Map, Activity, Radio, BarChart3, ShieldCheck } from 'lucide-react';
 
 export default function App() {
+  const [theme, setTheme] = useState(() => localStorage.getItem('cad-theme') || 'cobalt');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('cad-theme', theme);
+  }, [theme]);
+
   const [startLocations, setStartLocations] = useState([
     "Fire Station 3", "Fire Station 7", "Downtown EMS Base"
   ]);
@@ -45,7 +52,7 @@ export default function App() {
   const [eventLogs, setEventLogs] = useState([]);
 
   // Vehicle Position & Navigation State
-  const [simProgress, setSimProgress] = useState(0); // 0.0 to 1.0
+  const [simProgress, setSimProgress] = useState(0);
   const [ambulancePos, setAmbulancePos] = useState(null);
   const [currentManeuver, setCurrentManeuver] = useState(null);
   const [telemetry, setTelemetry] = useState({
@@ -363,7 +370,11 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-deep)' }}>
-      <Header apiOnline={apiOnline} />
+      <Header
+        apiOnline={apiOnline}
+        currentTheme={theme}
+        onThemeChange={(newTheme) => setTheme(newTheme)}
+      />
 
       <main style={{
         flex: 1,
@@ -417,11 +428,11 @@ export default function App() {
           <div style={{
             display: 'flex',
             gap: '0.4rem',
-            background: 'rgba(9, 14, 26, 0.85)',
+            background: 'var(--bg-surface)',
             backdropFilter: 'blur(10px)',
             padding: '0.35rem',
             borderRadius: '10px',
-            border: '1px solid rgba(59, 130, 246, 0.25)',
+            border: '1px solid var(--border-subtle)',
             flexWrap: 'wrap'
           }}>
             <button
@@ -517,11 +528,11 @@ export default function App() {
         textAlign: 'center',
         padding: '1.2rem',
         fontSize: '0.75rem',
-        color: '#64748b',
-        borderTop: '1px solid rgba(51, 72, 114, 0.3)',
-        background: '#060911'
+        color: 'var(--text-muted)',
+        borderTop: '1px solid var(--border-subtle)',
+        background: 'var(--bg-deep)'
       }}>
-        Ambulance Router Dispatch Intelligence System • Dynamic Green Wave Preemption (EVP) • Real-World GIS Telemetry • High-End CAD Command Station
+        Ambulance Router Dispatch Intelligence System • Dynamic Green Wave Preemption (EVP) • Multi-Palette Tactical CAD Workstation
       </footer>
     </div>
   );
