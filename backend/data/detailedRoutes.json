@@ -1,0 +1,110 @@
+{
+  "stations": {
+    "Fire Station 3": { "coords": [37.7858, -122.4285], "name": "Fire Station 3 (Station HQ)", "address": "1067 Post St" },
+    "Fire Station 7": { "coords": [37.7632, -122.4365], "name": "Fire Station 7 (Mission Division)", "address": "2300 Folsom St" },
+    "Downtown EMS Base": { "coords": [37.7915, -122.4035], "name": "Downtown EMS Base", "address": "500 Sansome St" }
+  },
+  "hospitals": {
+    "City General": { "coords": [37.7558, -122.4045], "name": "City General Hospital (Level 1 Trauma)", "address": "1001 Potrero Ave" },
+    "St. Mary's Medical Center": { "coords": [37.7725, -122.4535], "name": "St. Mary's Medical Center", "address": "450 Stanyan St" },
+    "Riverside Hospital": { "coords": [37.7885, -122.3895], "name": "Riverside Medical Bay", "address": "Embarcadero Emergency Dock" }
+  },
+  "schoolZone": {
+    "name": "Oakridge Elementary District Zone",
+    "speedLimitMph": 20,
+    "activeHours": "07:30 - 09:00 & 14:30 - 16:00",
+    "polygon": [
+      [37.7775, -122.4205],
+      [37.7775, -122.4115],
+      [37.7690, -122.4115],
+      [37.7690, -122.4205]
+    ]
+  },
+  "corridors": {
+    "route-a-main-st": {
+      "id": "route-a-main-st",
+      "name": "Route A - Main St",
+      "distanceMiles": 3.2,
+      "baseMinutes": 8,
+      "waypoints": [
+        [37.7858, -122.4285],
+        [37.7830, -122.4250],
+        [37.7800, -122.4210],
+        [37.7760, -122.4170],
+        [37.7735, -122.4150],
+        [37.7710, -122.4130],
+        [37.7660, -122.4100],
+        [37.7610, -122.4075],
+        [37.7558, -122.4045]
+      ],
+      "signals": [
+        { "id": "SIG-101", "name": "Post & Van Ness", "coords": [37.7830, -122.4250], "crossStreet": "Van Ness Ave", "carsQueued": 14, "defaultState": "red" },
+        { "id": "SIG-102", "name": "Van Ness & Geary", "coords": [37.7800, -122.4210], "crossStreet": "Geary Blvd", "carsQueued": 22, "defaultState": "red" },
+        { "id": "SIG-103", "name": "Market & 8th (School Approach)", "coords": [37.7760, -122.4170], "crossStreet": "8th St", "carsQueued": 28, "defaultState": "red", "inSchoolZone": true },
+        { "id": "SIG-104", "name": "Mission & 10th", "coords": [37.7710, -122.4130], "crossStreet": "10th St", "carsQueued": 19, "defaultState": "red" },
+        { "id": "SIG-105", "name": "Potrero & 16th", "coords": [37.7610, -122.4075], "crossStreet": "16th St", "carsQueued": 11, "defaultState": "red" }
+      ],
+      "maneuvers": [
+        { "step": 1, "text": "Depart Fire Station 3 eastbound on Post St", "dist": "0.3 mi", "coords": [37.7858, -122.4285] },
+        { "step": 2, "text": "Turn right onto Van Ness Ave corridor", "dist": "0.6 mi", "coords": [37.7830, -122.4250] },
+        { "step": 3, "text": "Approaching Oakridge School Crossing (Signal #103)", "dist": "0.8 mi", "coords": [37.7760, -122.4170] },
+        { "step": 4, "text": "Straight on Potrero Ave through Mission District", "dist": "1.1 mi", "coords": [37.7710, -122.4130] },
+        { "step": 5, "text": "Arrive at City General Hospital Emergency Trauma Bay", "dist": "0.4 mi", "coords": [37.7558, -122.4045] }
+      ]
+    },
+    "route-b-highway-bypass": {
+      "id": "route-b-highway-bypass",
+      "name": "Route B - Highway Bypass",
+      "distanceMiles": 4.6,
+      "baseMinutes": 11,
+      "waypoints": [
+        [37.7858, -122.4285],
+        [37.7875, -122.4200],
+        [37.7865, -122.4050],
+        [37.7800, -122.3950],
+        [37.7700, -122.3920],
+        [37.7600, -122.3960],
+        [37.7570, -122.4010],
+        [37.7558, -122.4045]
+      ],
+      "signals": [
+        { "id": "SIG-201", "name": "Post & Taylor", "coords": [37.7875, -122.4200], "crossStreet": "Taylor St", "carsQueued": 16, "defaultState": "red" },
+        { "id": "SIG-202", "name": "I-80 Ramp Meter 101", "coords": [37.7865, -122.4050], "crossStreet": "Expressway Entrance", "carsQueued": 35, "defaultState": "red" },
+        { "id": "SIG-203", "name": "Exit 14 Off-Ramp Junction", "coords": [37.7600, -122.3960], "crossStreet": "Cesar Chavez Blvd", "carsQueued": 24, "defaultState": "red" },
+        { "id": "SIG-204", "name": "Potrero & 18th", "coords": [37.7570, -122.4010], "crossStreet": "18th St", "carsQueued": 8, "defaultState": "red" }
+      ],
+      "maneuvers": [
+        { "step": 1, "text": "Depart Fire Station 3 east to Taylor St", "dist": "0.5 mi", "coords": [37.7858, -122.4285] },
+        { "step": 2, "text": "Merge onto I-80 Expressway arterial southbound", "dist": "2.4 mi", "coords": [37.7865, -122.4050] },
+        { "step": 3, "text": "Take Exit 14 for Potrero Ave / Hospital corridor", "dist": "1.2 mi", "coords": [37.7600, -122.3960] },
+        { "step": 4, "text": "Arrive at City General Hospital Emergency Trauma Bay", "dist": "0.5 mi", "coords": [37.7558, -122.4045] }
+      ]
+    },
+    "route-c-residential-shortcut": {
+      "id": "route-c-residential-shortcut",
+      "name": "Route C - Residential Shortcut",
+      "distanceMiles": 3.7,
+      "baseMinutes": 13,
+      "waypoints": [
+        [37.7858, -122.4285],
+        [37.7810, -122.4330],
+        [37.7750, -122.4340],
+        [37.7680, -122.4310],
+        [37.7620, -122.4240],
+        [37.7580, -122.4140],
+        [37.7558, -122.4045]
+      ],
+      "signals": [
+        { "id": "SIG-301", "name": "Gough & Ellis", "coords": [37.7810, -122.4330], "crossStreet": "Ellis St", "carsQueued": 7, "defaultState": "red" },
+        { "id": "SIG-302", "name": "Gough & Hayes", "coords": [37.7750, -122.4340], "crossStreet": "Hayes St", "carsQueued": 9, "defaultState": "red" },
+        { "id": "SIG-303", "name": "Valencia & 14th", "coords": [37.7620, -122.4240], "crossStreet": "14th St", "carsQueued": 12, "defaultState": "red" }
+      ],
+      "maneuvers": [
+        { "step": 1, "text": "Depart Fire Station 3 southwest on Gough St", "dist": "0.7 mi", "coords": [37.7858, -122.4285] },
+        { "step": 2, "text": "Continue south past Hayes Valley residential zone", "dist": "1.1 mi", "coords": [37.7750, -122.4340] },
+        { "step": 3, "text": "Turn east onto 14th St toward Mission/Potrero", "dist": "1.2 mi", "coords": [37.7620, -122.4240] },
+        { "step": 4, "text": "Arrive at City General Hospital Emergency Trauma Bay", "dist": "0.7 mi", "coords": [37.7558, -122.4045] }
+      ]
+    }
+  }
+}
