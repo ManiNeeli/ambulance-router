@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Heart, Wind, ShieldAlert, User, Droplets, AlertCircle } from 'lucide-react';
+import { Activity, Heart, Wind, Droplets, AlertCircle, User } from 'lucide-react';
 
-export default function PatientVitalsMonitor({ patientCondition = 'critical', inSchoolZone = false }) {
+export default function PatientVitalsMonitor({ patientCondition = 'critical' }) {
   const isCritical = patientCondition === 'critical';
   const isEmergent = patientCondition === 'emergent';
 
@@ -9,7 +9,6 @@ export default function PatientVitalsMonitor({ patientCondition = 'critical', in
   const [spo2, setSpo2] = useState(isCritical ? 93 : 98);
   const [pulseScale, setPulseScale] = useState(1);
 
-  // Gentle vitals oscillation for realism
   useEffect(() => {
     const interval = setInterval(() => {
       setPulseScale(1.25);
@@ -25,109 +24,105 @@ export default function PatientVitalsMonitor({ patientCondition = 'critical', in
 
   return (
     <div className="panel-card" style={{
-      border: isCritical ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(59, 130, 246, 0.3)',
-      background: 'linear-gradient(180deg, rgba(16, 24, 43, 0.9) 0%, rgba(9, 14, 26, 0.95) 100%)'
+      border: isCritical ? '1.5px solid var(--alert-red)' : '1px solid var(--border-subtle)'
     }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #1c273e', paddingBottom: '0.65rem', marginBottom: '0.85rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.65rem', marginBottom: '0.85rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Activity size={17} color={isCritical ? '#ef4444' : '#38bdf8'} />
-          <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.01em' }}>
+          <Activity size={17} color={isCritical ? 'var(--alert-red)' : 'var(--accent-cyan)'} />
+          <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-primary)' }}>
             PATIENT BIOMETRIC TELEMETRY & ON-BOARD VITALS
           </h3>
         </div>
         <span style={{
-          background: isCritical ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)',
-          color: isCritical ? '#fca5a5' : '#6ee7b7',
-          border: isCritical ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(16, 185, 129, 0.4)',
+          background: isCritical ? 'var(--alert-red-soft)' : 'var(--signal-green-soft)',
+          color: isCritical ? 'var(--alert-red)' : 'var(--signal-green)',
+          border: `1px solid ${isCritical ? 'var(--alert-red)' : 'var(--signal-green)'}`,
           fontSize: '0.7rem',
-          fontWeight: 700,
+          fontWeight: 800,
           padding: '0.15rem 0.5rem',
           borderRadius: '4px'
         }}>
-          {isCritical ? 'CODE 3: CRITICAL ACUITY' : isEmergent ? 'CODE 2: URGENT' : 'CODE 1: STABLE'}
+          {isCritical ? 'CODE 3: CRITICAL' : isEmergent ? 'CODE 2: URGENT' : 'CODE 1: STABLE'}
         </span>
       </div>
 
       {/* Main Vitals Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '0.85rem' }}>
         {/* Heart Rate */}
-        <div style={{ background: '#090e1a', border: '1px solid #1c2842', borderRadius: '8px', padding: '0.6rem 0.75rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.65rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', textTransform: 'uppercase' }}>
-            <Heart size={13} color="#ef4444" style={{ transform: `scale(${pulseScale})`, transition: 'transform 0.15s ease' }} />
+        <div className="cad-well" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', textTransform: 'uppercase', fontWeight: 700 }}>
+            <Heart size={13} color="var(--alert-red)" style={{ transform: `scale(${pulseScale})`, transition: 'transform 0.15s ease' }} />
             HEART RATE
           </div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, color: isCritical ? '#f87171' : '#f8fafc', fontFamily: 'var(--font-mono)' }}>
-            {bpm} <span style={{ fontSize: '0.75rem', color: '#64748b' }}>BPM</span>
+          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: isCritical ? 'var(--alert-red)' : 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+            {bpm} <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>BPM</span>
           </div>
-          <div style={{ fontSize: '0.65rem', color: isCritical ? '#f87171' : '#6ee7b7' }}>
+          <div style={{ fontSize: '0.65rem', color: isCritical ? 'var(--alert-red)' : 'var(--signal-green)', fontWeight: 600 }}>
             {isCritical ? 'Sinus Tachycardia' : 'Normal Sinus Rhythm'}
           </div>
         </div>
 
         {/* Blood Pressure */}
-        <div style={{ background: '#090e1a', border: '1px solid #1c2842', borderRadius: '8px', padding: '0.6rem 0.75rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.65rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', textTransform: 'uppercase' }}>
-            <Droplets size={13} color="#38bdf8" />
+        <div className="cad-well" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', textTransform: 'uppercase', fontWeight: 700 }}>
+            <Droplets size={13} color="var(--accent-cyan)" />
             NIBP
           </div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)' }}>
             {isCritical ? '142/92' : '120/80'}
           </div>
-          <div style={{ fontSize: '0.65rem', color: '#64748b' }}>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
             mmHg (Mean: 108)
           </div>
         </div>
 
         {/* SpO2 */}
-        <div style={{ background: '#090e1a', border: '1px solid #1c2842', borderRadius: '8px', padding: '0.6rem 0.75rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.65rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', textTransform: 'uppercase' }}>
-            <Wind size={13} color="#10b981" />
+        <div className="cad-well" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', textTransform: 'uppercase', fontWeight: 700 }}>
+            <Wind size={13} color="var(--signal-green)" />
             O2 SAT (SpO2)
           </div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, color: spo2 < 95 ? '#fbbf24' : '#10b981', fontFamily: 'var(--font-mono)' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: spo2 < 95 ? 'var(--caution-amber)' : 'var(--signal-green)', fontFamily: 'var(--font-mono)' }}>
             {spo2}%
           </div>
-          <div style={{ fontSize: '0.65rem', color: '#64748b' }}>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
             15L Non-Rebreather
           </div>
         </div>
 
         {/* Glasgow Coma Scale */}
-        <div style={{ background: '#090e1a', border: '1px solid #1c2842', borderRadius: '8px', padding: '0.6rem 0.75rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.65rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', textTransform: 'uppercase' }}>
-            <AlertCircle size={13} color="#a855f7" />
+        <div className="cad-well" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', textTransform: 'uppercase', fontWeight: 700 }}>
+            <AlertCircle size={13} color="var(--accent-cyan)" />
             GCS SCORE
           </div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#c084fc', fontFamily: 'var(--font-mono)' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)' }}>
             {isCritical ? '13/15' : '15/15'}
           </div>
-          <div style={{ fontSize: '0.65rem', color: '#64748b' }}>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
             Eye: 4 • Verbal: 4 • Motor: 5
           </div>
         </div>
       </div>
 
       {/* Electrocardiogram (ECG) Animated Tracing */}
-      <div style={{
-        background: '#04070e',
-        border: '1px solid #1a233a',
-        borderRadius: '8px',
-        padding: '0.5rem 0.75rem',
+      <div className="cad-well" style={{
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        padding: '0.5rem 0.75rem'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: '#64748b', marginBottom: '0.2rem', fontFamily: 'var(--font-mono)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--text-muted)', marginBottom: '0.2rem', fontFamily: 'var(--font-mono)' }}>
           <span>LEAD II • 25mm/s • 10mm/mV • FILTER: DIAGNOSTIC</span>
-          <span style={{ color: '#10b981' }}>● LIVE SYNCHRONOUS TRACE</span>
+          <span style={{ color: 'var(--signal-green)', fontWeight: 700 }}>● LIVE SYNCHRONOUS TRACE</span>
         </div>
 
         <svg width="100%" height="52" viewBox="0 0 600 52" style={{ display: 'block' }}>
           <defs>
             <linearGradient id="ecgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
-              <stop offset="85%" stopColor="#10b981" stopOpacity="1" />
-              <stop offset="100%" stopColor="#34d399" stopOpacity="1" />
+              <stop offset="0%" stopColor="var(--signal-green)" stopOpacity="0.3" />
+              <stop offset="85%" stopColor="var(--signal-green)" stopOpacity="1" />
+              <stop offset="100%" stopColor="var(--accent-cyan)" stopOpacity="1" />
             </linearGradient>
             <filter id="ecgGlow">
               <feGaussianBlur stdDeviation="2" result="blur" />
@@ -135,10 +130,8 @@ export default function PatientVitalsMonitor({ patientCondition = 'critical', in
             </filter>
           </defs>
 
-          {/* Grid lines */}
-          <line x1="0" y1="26" x2="600" y2="26" stroke="#131e33" strokeWidth="1" strokeDasharray="3 3" />
+          <line x1="0" y1="26" x2="600" y2="26" stroke="var(--border-subtle)" strokeWidth="1" strokeDasharray="3 3" />
 
-          {/* Repeating ECG Waveform Path */}
           <path
             d="
               M 0 26 L 30 26 L 35 24 L 40 26 L 45 26 L 50 10 L 55 46 L 60 22 L 65 26 L 80 26 L 88 19 L 98 26 L 120 26
@@ -157,14 +150,14 @@ export default function PatientVitalsMonitor({ patientCondition = 'critical', in
       </div>
 
       {/* Crew Info Bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.65rem', fontSize: '0.72rem', color: '#94a3b8' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.65rem', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          <User size={13} color="#38bdf8" />
-          <span><b>PARAMEDIC IN CHARGE:</b> Officer J. Morales (EMS ID #4810)</span>
+          <User size={13} color="var(--accent-cyan)" />
+          <span><b>PARAMEDIC IN CHARGE:</b> Officer J. Morales (EMS #4810)</span>
         </div>
         <div>
-          <span style={{ color: '#64748b' }}>RIG: </span>
-          <span style={{ color: '#e2e8f0', fontWeight: 700 }}>MEDIC-41 (TYPE-I ADULT ADVANCED LIFE SUPPORT)</span>
+          <span style={{ color: 'var(--text-muted)' }}>UNIT: </span>
+          <span style={{ color: 'var(--text-primary)', fontWeight: 800 }}>MEDIC-41 (TYPE-I ALS AMBULANCE)</span>
         </div>
       </div>
     </div>

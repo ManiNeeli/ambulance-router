@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigation, AlertTriangle, CloudRain, Car, Clock, Zap, MapPin, Building2, Flame } from 'lucide-react';
+import { Navigation, AlertTriangle, CloudRain, Car, Clock, Zap, MapPin, Building2 } from 'lucide-react';
 
 export default function DispatchForm({
   formData,
@@ -17,90 +17,83 @@ export default function DispatchForm({
   };
 
   const urgencyOptions = [
-    { value: 'critical', label: 'Code 3: Critical', desc: 'Lights & Siren (Life-threatening)', color: '#ef4444' },
-    { value: 'emergent', label: 'Code 2: Emergent', desc: 'Urgent transit, no sirens', color: '#f59e0b' },
-    { value: 'routine', label: 'Code 1: Routine', desc: 'Stable patient transfer', color: '#10b981' }
+    { value: 'critical', label: 'Code 3: Critical Priority', desc: 'Lights & Sirens (Immediate life-threat)', color: 'var(--alert-red)' },
+    { value: 'emergent', label: 'Code 2: Emergent Urgent', desc: 'Urgent transit, no sirens required', color: 'var(--caution-amber)' },
+    { value: 'routine', label: 'Code 1: Routine Transfer', desc: 'Stable patient transport / non-acute', color: 'var(--signal-green)' }
   ];
 
   return (
-    <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #1f2d48', paddingBottom: '0.75rem' }}>
-        <h2 style={{ fontSize: '1rem', fontWeight: 700, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Navigation size={18} color="#3b82f6" />
-          DISPATCH CALL PARAMETERS
+    <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.75rem' }}>
+        <h2 style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Navigation size={17} color="var(--accent-cyan)" />
+          DISPATCH INCIDENT PARAMETERS
         </h2>
-        <span style={{ fontSize: '0.75rem', color: '#64748b' }}>CAD INCIDENT #941</span>
+        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>CAD #941</span>
       </div>
 
       {/* Quick Test Presets */}
       <div>
-        <label style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
+        <label style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, display: 'block', marginBottom: '0.45rem' }}>
           Simulated Emergency Scenarios:
         </label>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.4rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.45rem' }}>
           <button
             type="button"
             onClick={() => applyPreset({ timeOfDay: '08:15', weather: 'clear', traffic: 'moderate', patientCondition: 'critical' })}
+            className="cad-well"
             style={{
-              background: '#151f33',
-              border: '1px solid #263859',
-              color: '#93c5fd',
-              padding: '0.45rem 0.5rem',
-              borderRadius: '6px',
-              fontSize: '0.75rem',
+              color: 'var(--text-primary)',
               cursor: 'pointer',
-              textAlign: 'left'
+              textAlign: 'left',
+              padding: '0.5rem 0.65rem'
             }}
           >
-            🏫 <b>08:15 AM School Rush</b>
+            <div style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-cyan)' }}>🏫 08:15 AM School Rush</div>
+            <div style={{ fontSize: '0.66rem', color: 'var(--text-muted)' }}>Active 20 MPH geofence</div>
           </button>
           <button
             type="button"
             onClick={() => applyPreset({ timeOfDay: '17:30', weather: 'rain', traffic: 'heavy', patientCondition: 'critical' })}
+            className="cad-well"
             style={{
-              background: '#151f33',
-              border: '1px solid #263859',
-              color: '#93c5fd',
-              padding: '0.45rem 0.5rem',
-              borderRadius: '6px',
-              fontSize: '0.75rem',
+              color: 'var(--text-primary)',
               cursor: 'pointer',
-              textAlign: 'left'
+              textAlign: 'left',
+              padding: '0.5rem 0.65rem'
             }}
           >
-            🌧️ <b>Rain & Highway Jam</b>
+            <div style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-cyan)' }}>🌧️ Rain & Highway Jam</div>
+            <div style={{ fontSize: '0.66rem', color: 'var(--text-muted)' }}>Hydroplaning & gridlock</div>
           </button>
           <button
             type="button"
             onClick={() => applyPreset({ timeOfDay: '15:00', weather: 'snow', traffic: 'moderate', patientCondition: 'emergent' })}
+            className="cad-well"
             style={{
-              background: '#151f33',
-              border: '1px solid #263859',
-              color: '#93c5fd',
-              padding: '0.45rem 0.5rem',
-              borderRadius: '6px',
-              fontSize: '0.75rem',
+              color: 'var(--text-primary)',
               cursor: 'pointer',
-              textAlign: 'left'
+              textAlign: 'left',
+              padding: '0.5rem 0.65rem'
             }}
           >
-            ❄️ <b>Winter Slush Pickup</b>
+            <div style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-cyan)' }}>❄️ Winter Slush Run</div>
+            <div style={{ fontSize: '0.66rem', color: 'var(--text-muted)' }}>Black ice hazards</div>
           </button>
           <button
             type="button"
             onClick={() => applyPreset({ timeOfDay: '02:30', weather: 'clear', traffic: 'light', patientCondition: 'critical' })}
+            className="cad-well"
             style={{
-              background: '#151f33',
-              border: '1px solid #263859',
-              color: '#93c5fd',
-              padding: '0.45rem 0.5rem',
-              borderRadius: '6px',
-              fontSize: '0.75rem',
+              color: 'var(--text-primary)',
               cursor: 'pointer',
-              textAlign: 'left'
+              textAlign: 'left',
+              padding: '0.5rem 0.65rem'
             }}
           >
-            🌙 <b>02:30 AM Night Express</b>
+            <div style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-cyan)' }}>🌙 02:30 AM Night Run</div>
+            <div style={{ fontSize: '0.66rem', color: 'var(--text-muted)' }}>Rapid open corridors</div>
           </button>
         </div>
       </div>
@@ -108,8 +101,8 @@ export default function DispatchForm({
       {/* Origin & Destination */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
         <div>
-          <label style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
-            <MapPin size={14} color="#ef4444" /> ORIGIN
+          <label style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
+            <MapPin size={14} color="var(--alert-red)" /> ORIGIN STATION
           </label>
           <select
             className="form-select"
@@ -123,8 +116,8 @@ export default function DispatchForm({
         </div>
 
         <div>
-          <label style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
-            <Building2 size={14} color="#3b82f6" /> DESTINATION
+          <label style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
+            <Building2 size={14} color="var(--accent-cyan)" /> DESTINATION
           </label>
           <select
             className="form-select"
@@ -138,9 +131,9 @@ export default function DispatchForm({
         </div>
       </div>
 
-      {/* Patient Urgency */}
+      {/* Patient Urgency Radio Buttons */}
       <div>
-        <label style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, display: 'block', marginBottom: '0.45rem' }}>
+        <label style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 700, display: 'block', marginBottom: '0.45rem' }}>
           PATIENT ACUITY / DISPATCH CODE
         </label>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
@@ -150,30 +143,28 @@ export default function DispatchForm({
               <div
                 key={opt.value}
                 onClick={() => setFormData({ ...formData, patientCondition: opt.value })}
+                className="cad-well"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '0.55rem 0.85rem',
-                  borderRadius: '8px',
-                  border: isSelected ? `2px solid ${opt.color}` : '1px solid #1f2d48',
-                  background: isSelected ? `${opt.color}15` : '#0a0f1d',
                   cursor: 'pointer',
-                  transition: 'all 0.15s'
+                  border: isSelected ? `1.5px solid ${opt.color}` : '1px solid var(--border-subtle)',
+                  background: isSelected ? 'var(--bg-well-active)' : 'var(--bg-well)'
                 }}
               >
                 <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: isSelected ? '#ffffff' : '#cbd5e1' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                     {opt.label}
                   </div>
-                  <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{opt.desc}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{opt.desc}</div>
                 </div>
                 <input
                   type="radio"
                   name="patientCondition"
                   checked={isSelected}
                   onChange={() => {}}
-                  style={{ accentColor: opt.color, width: '16px', height: '16px' }}
+                  style={{ accentColor: opt.color, width: '16px', height: '16px', cursor: 'pointer' }}
                 />
               </div>
             );
@@ -184,8 +175,8 @@ export default function DispatchForm({
       {/* Environmental & Temporal Controls */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.65rem' }}>
         <div>
-          <label style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.3rem' }}>
-            <Clock size={13} color="#38bdf8" /> TIME
+          <label style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.3rem' }}>
+            <Clock size={13} color="var(--accent-cyan)" /> TIME
           </label>
           <input
             type="time"
@@ -196,8 +187,8 @@ export default function DispatchForm({
         </div>
 
         <div>
-          <label style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.3rem' }}>
-            <CloudRain size={13} color="#60a5fa" /> WEATHER
+          <label style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.3rem' }}>
+            <CloudRain size={13} color="var(--accent-cyan)" /> WEATHER
           </label>
           <select
             className="form-select"
@@ -212,8 +203,8 @@ export default function DispatchForm({
         </div>
 
         <div>
-          <label style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.3rem' }}>
-            <Car size={13} color="#fbbf24" /> TRAFFIC
+          <label style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.3rem' }}>
+            <Car size={13} color="var(--caution-amber)" /> TRAFFIC
           </label>
           <select
             className="form-select"
@@ -228,7 +219,7 @@ export default function DispatchForm({
         </div>
       </div>
 
-      {/* Dispatch Action */}
+      {/* Submit Action */}
       <button
         type="button"
         className="btn-dispatch"

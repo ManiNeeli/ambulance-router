@@ -1,124 +1,124 @@
 @import "leaflet/dist/leaflet.css";
 
 /* ==========================================================================
-   AI-Assisted Emergency Dispatch System (CAD-ITS)
-   Multi-Palette Dynamic Theme System & Visual Styling
+   CAD-ITS Unified Design System & Harmonious Color Palette
    ========================================================================== */
 
-/* 1. Default Theme: High-Tech Cobalt Cyberpunk */
-:root, [data-theme="cobalt"] {
-  --bg-deep: #050814;
-  --bg-surface: #091024;
-  --bg-surface-elevated: #101c3d;
-  --bg-card: rgba(14, 25, 55, 0.82);
-  --bg-card-hover: rgba(20, 36, 78, 0.9);
-  --bg-input: rgba(7, 12, 28, 0.9);
+:root, [data-theme="aurora"] {
+  /* Surface & Depth */
+  --bg-deep: #07090e;
+  --bg-surface: #0c111d;
+  --bg-surface-elevated: #111827;
+  --bg-card: rgba(14, 21, 37, 0.75);
+  --bg-card-hover: rgba(20, 30, 52, 0.85);
+  --bg-well: rgba(7, 11, 20, 0.85);
+  --bg-well-active: rgba(0, 242, 254, 0.08);
 
-  --border-subtle: rgba(56, 189, 248, 0.25);
-  --border-card: rgba(56, 189, 248, 0.35);
-  --border-focus: #38bdf8;
+  /* Harmonious Accents */
+  --accent-cyan: #00f2fe;
+  --accent-blue: #3b82f6;
+  --accent-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  --accent-glow: rgba(0, 242, 254, 0.35);
 
-  --text-primary: #f8fafc;
-  --text-secondary: #93c5fd;
-  --text-muted: #60a5fa99;
+  /* Status Colors (Curated & Luminous) */
+  --alert-red: #ff3366;
+  --alert-red-glow: rgba(255, 51, 102, 0.4);
+  --alert-red-soft: rgba(255, 51, 102, 0.12);
 
-  --accent-primary: #06b6d4;
-  --accent-secondary: #3b82f6;
-  --accent-highlight: #38bdf8;
-  --accent-glow: rgba(6, 182, 212, 0.4);
+  --signal-green: #00e676;
+  --signal-green-glow: rgba(0, 230, 118, 0.4);
+  --signal-green-soft: rgba(0, 230, 118, 0.12);
+
+  --caution-amber: #ffb300;
+  --caution-amber-glow: rgba(255, 179, 0, 0.35);
+  --caution-amber-soft: rgba(255, 179, 0, 0.12);
+
+  /* Borders & Dividers */
+  --border-subtle: rgba(148, 163, 184, 0.14);
+  --border-card: rgba(56, 189, 248, 0.22);
+  --border-highlight: rgba(0, 242, 254, 0.55);
+
+  /* Typography */
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Glassmorphism */
+  --glass-blur: blur(14px);
+}
+
+/* 2. Cyberpunk Cobalt Theme */
+[data-theme="cobalt"] {
+  --bg-deep: #030712;
+  --bg-surface: #0a1128;
+  --bg-surface-elevated: #0f1c3f;
+  --bg-card: rgba(13, 24, 53, 0.8);
+  --bg-card-hover: rgba(19, 34, 73, 0.9);
+  --bg-well: rgba(6, 12, 28, 0.9);
+  --bg-well-active: rgba(59, 130, 246, 0.12);
+
+  --accent-cyan: #38bdf8;
+  --accent-blue: #2563eb;
+  --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+  --accent-glow: rgba(56, 189, 248, 0.35);
 
   --alert-red: #ef4444;
   --signal-green: #10b981;
   --caution-amber: #f59e0b;
-
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-  --glass-blur: blur(14px);
 }
 
-/* 2. Tactical Emerald (Matrix / Tactical Night Vision) */
+/* 3. Tactical Mint Emerald Theme */
 [data-theme="emerald"] {
-  --bg-deep: #030805;
-  --bg-surface: #06150c;
-  --bg-surface-elevated: #0b2416;
-  --bg-card: rgba(9, 32, 20, 0.84);
-  --bg-card-hover: rgba(14, 48, 30, 0.9);
-  --bg-input: rgba(4, 18, 10, 0.92);
+  --bg-deep: #020805;
+  --bg-surface: #05150d;
+  --bg-surface-elevated: #092416;
+  --bg-card: rgba(8, 32, 20, 0.82);
+  --bg-card-hover: rgba(12, 46, 29, 0.9);
+  --bg-well: rgba(4, 16, 10, 0.9);
+  --bg-well-active: rgba(16, 185, 129, 0.15);
 
-  --border-subtle: rgba(16, 185, 129, 0.25);
-  --border-card: rgba(16, 185, 129, 0.4);
-  --border-focus: #10b981;
-
-  --text-primary: #f0fdf4;
-  --text-secondary: #86efac;
-  --text-muted: #4ade8099;
-
-  --accent-primary: #10b981;
-  --accent-secondary: #059669;
-  --accent-highlight: #34d399;
-  --accent-glow: rgba(16, 185, 129, 0.45);
+  --accent-cyan: #10b981;
+  --accent-blue: #059669;
+  --accent-gradient: linear-gradient(135deg, #34d399 0%, #059669 100%);
+  --accent-glow: rgba(16, 185, 129, 0.4);
 
   --alert-red: #f43f5e;
   --signal-green: #00ff9d;
-  --caution-amber: #eab308;
-}
-
-/* 3. Crimson Apex (High-Intensity Emergency Response) */
-[data-theme="crimson"] {
-  --bg-deep: #0d0406;
-  --bg-surface: #18090d;
-  --bg-surface-elevated: #280f16;
-  --bg-card: rgba(38, 14, 21, 0.85);
-  --bg-card-hover: rgba(56, 20, 31, 0.9);
-  --bg-input: rgba(18, 5, 9, 0.92);
-
-  --border-subtle: rgba(239, 68, 68, 0.25);
-  --border-card: rgba(239, 68, 68, 0.45);
-  --border-focus: #ef4444;
-
-  --text-primary: #fff1f2;
-  --text-secondary: #fca5a5;
-  --text-muted: #f8717199;
-
-  --accent-primary: #ef4444;
-  --accent-secondary: #dc2626;
-  --accent-highlight: #ff4757;
-  --accent-glow: rgba(239, 68, 68, 0.45);
-
-  --alert-red: #ff3366;
-  --signal-green: #10b981;
   --caution-amber: #f59e0b;
 }
 
-/* 4. Nordic Clean Hospital (Daylight Clinical Light Mode) */
+/* 4. Nordic Clean Daylight Theme */
 [data-theme="light"] {
-  --bg-deep: #f1f5f9;
+  --bg-deep: #f8fafc;
   --bg-surface: #ffffff;
-  --bg-surface-elevated: #e2e8f0;
+  --bg-surface-elevated: #f1f5f9;
   --bg-card: rgba(255, 255, 255, 0.95);
-  --bg-card-hover: rgba(248, 250, 252, 1);
-  --bg-input: #f8fafc;
+  --bg-card-hover: rgba(241, 245, 249, 1);
+  --bg-well: #f1f5f9;
+  --bg-well-active: rgba(37, 99, 235, 0.08);
+
+  --accent-cyan: #2563eb;
+  --accent-blue: #1d4ed8;
+  --accent-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  --accent-glow: rgba(37, 99, 235, 0.2);
+
+  --alert-red: #e11d48;
+  --signal-green: #059669;
+  --caution-amber: #d97706;
 
   --border-subtle: rgba(148, 163, 184, 0.35);
   --border-card: rgba(148, 163, 184, 0.5);
-  --border-focus: #2563eb;
+  --border-highlight: rgba(37, 99, 235, 0.5);
 
   --text-primary: #0f172a;
   --text-secondary: #334155;
   --text-muted: #64748b;
-
-  --accent-primary: #2563eb;
-  --accent-secondary: #0284c7;
-  --accent-highlight: #3b82f6;
-  --accent-glow: rgba(37, 99, 235, 0.25);
-
-  --alert-red: #dc2626;
-  --signal-green: #059669;
-  --caution-amber: #d97706;
 }
 
 /* ==========================================================================
-   Global Base & Typography
+   Global Reset & Base Styling
    ========================================================================== */
 
 * {
@@ -134,10 +134,14 @@ body {
   line-height: 1.5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(0, 242, 254, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.06) 0%, transparent 50%);
+  background-attachment: fixed;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -147,7 +151,7 @@ body {
 }
 ::-webkit-scrollbar-thumb {
   background: var(--border-subtle);
-  border-radius: 3px;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border-card);
@@ -158,17 +162,17 @@ body {
 }
 
 /* ==========================================================================
-   Animations
+   Tactical Animation Keyframes
    ========================================================================== */
 
 @keyframes strobe-red {
-  0%, 100% { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 10px #ef4444); }
+  0%, 100% { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 10px var(--alert-red)); }
   50% { opacity: 0.15; transform: scale(0.9); filter: none; }
 }
 
 @keyframes strobe-blue {
   0%, 100% { opacity: 0.15; transform: scale(0.9); filter: none; }
-  50% { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 10px #38bdf8); }
+  50% { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 10px var(--accent-cyan)); }
 }
 
 .strobe-red {
@@ -205,7 +209,7 @@ body {
 
 .wave-bar {
   width: 3px;
-  background: var(--accent-primary);
+  background: var(--accent-cyan);
   border-radius: 2px;
   animation: audio-wave 0.8s ease-in-out infinite alternate;
 }
@@ -226,28 +230,42 @@ body {
 }
 
 /* ==========================================================================
-   Surfaces & Card System
+   Harmonious UI Component Classes
    ========================================================================== */
 
+/* Main Card */
 .panel-card {
   background: var(--bg-card);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-subtle);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 1.25rem;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
 }
 
 .panel-card:hover {
   border-color: var(--border-card);
 }
 
-/* Modern Form Controls */
+/* Recessed Wells (Telemetry boxes, stat cards, metric displays) */
+.cad-well {
+  background: var(--bg-well);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.cad-well:hover {
+  border-color: var(--border-card);
+}
+
+/* Form Controls */
 .form-input, .form-select {
   width: 100%;
-  background: var(--bg-input);
+  background: var(--bg-well);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
   padding: 0.65rem 0.85rem;
@@ -258,34 +276,34 @@ body {
 }
 
 .form-input:focus, .form-select:focus {
-  border-color: var(--border-focus);
+  border-color: var(--accent-cyan);
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-/* Emergency Action Button */
+/* Primary Dispatch Action Button */
 .btn-dispatch {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
   width: 100%;
-  background: linear-gradient(135deg, var(--alert-red) 0%, #b91c1c 100%);
+  background: linear-gradient(135deg, var(--alert-red) 0%, #d91448 100%);
   color: #ffffff;
   border: none;
-  border-radius: 8px;
+  border-radius: 9px;
   padding: 0.85rem 1.25rem;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.95rem;
   letter-spacing: 0.03em;
   cursor: pointer;
-  box-shadow: 0 4px 18px rgba(239, 68, 68, 0.45);
+  box-shadow: 0 4px 20px var(--alert-red-glow);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .btn-dispatch:hover:not(:disabled) {
-  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
-  box-shadow: 0 6px 24px rgba(239, 68, 68, 0.65);
+  filter: brightness(1.12);
+  box-shadow: 0 6px 26px var(--alert-red-glow);
   transform: translateY(-1px);
 }
 
@@ -298,15 +316,15 @@ body {
   cursor: not-allowed;
 }
 
-/* Tab Navigation Switcher */
+/* Tab Switcher Buttons */
 .tab-btn {
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   color: var(--text-secondary);
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 0.55rem 1rem;
-  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -316,16 +334,17 @@ body {
 
 .tab-btn:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .tab-btn.active {
-  background: var(--accent-glow);
-  color: var(--accent-highlight);
-  border: 1px solid var(--border-card);
+  background: var(--bg-well-active);
+  color: var(--accent-cyan);
+  border-color: var(--border-highlight);
+  box-shadow: 0 0 12px var(--accent-glow);
 }
 
-/* Leaflet Container Customization */
+/* Leaflet Container & Tooltips */
 .leaflet-container {
   background: var(--bg-deep) !important;
   font-family: var(--font-sans);
@@ -339,7 +358,7 @@ body {
   font-size: 11px !important;
   padding: 6px 10px !important;
   backdrop-filter: blur(8px) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6) !important;
 }
 
 .leaflet-popup-content-wrapper {

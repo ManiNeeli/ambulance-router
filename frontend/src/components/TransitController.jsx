@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, ShieldAlert, Zap, Radio, Bell, FastForward } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, ShieldAlert, Zap, Radio } from 'lucide-react';
 
 export default function TransitController({
   isSimulating,
@@ -18,21 +18,21 @@ export default function TransitController({
 }) {
   return (
     <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #1f2d48', paddingBottom: '0.65rem' }}>
-        <h3 style={{ fontSize: '0.92rem', fontWeight: 700, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-          <Zap size={16} color="#ef4444" />
-          EMERGENCY TRANSIT & TRAFFIC PREEMPTION CONTROLLER
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.65rem' }}>
+        <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+          <Zap size={16} color="var(--alert-red)" />
+          TRANSIT & TRAFFIC PREEMPTION CONTROLLER
         </h3>
         <span style={{
-          background: isSimulating ? '#ef444422' : '#1e293b',
-          color: isSimulating ? '#f87171' : '#94a3b8',
-          border: isSimulating ? '1px solid #ef444455' : '1px solid #334155',
+          background: isSimulating ? 'var(--alert-red-soft)' : 'var(--bg-well)',
+          color: isSimulating ? 'var(--alert-red)' : 'var(--text-secondary)',
+          border: isSimulating ? '1px solid var(--alert-red)' : '1px solid var(--border-subtle)',
           fontSize: '0.68rem',
-          fontWeight: 700,
+          fontWeight: 800,
           padding: '0.15rem 0.5rem',
           borderRadius: '4px'
         }}>
-          {isSimulating ? '🚨 CODE 3 IN TRANSIT' : 'STANDBY'}
+          {isSimulating ? '🚨 CODE 3 IN TRANSIT' : 'STANDBY READY'}
         </span>
       </div>
 
@@ -44,8 +44,8 @@ export default function TransitController({
             className="btn-dispatch"
             onClick={onStart}
             style={{
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
+              background: 'linear-gradient(135deg, var(--signal-green) 0%, #059669 100%)',
+              boxShadow: '0 4px 18px var(--signal-green-glow)',
               padding: '0.7rem 1rem'
             }}
           >
@@ -57,8 +57,8 @@ export default function TransitController({
             className="btn-dispatch"
             onClick={onPause}
             style={{
-              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-              boxShadow: '0 4px 14px rgba(245, 158, 11, 0.4)',
+              background: 'linear-gradient(135deg, var(--caution-amber) 0%, #d97706 100%)',
+              boxShadow: '0 4px 18px var(--caution-amber-glow)',
               padding: '0.7rem 1rem'
             }}
           >
@@ -69,13 +69,11 @@ export default function TransitController({
         <button
           type="button"
           onClick={onReset}
+          className="cad-well"
           style={{
-            background: '#152033',
-            border: '1px solid #283a5c',
-            color: '#cbd5e1',
-            borderRadius: '8px',
+            color: 'var(--text-secondary)',
             fontSize: '0.8rem',
-            fontWeight: 600,
+            fontWeight: 700,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -89,13 +87,12 @@ export default function TransitController({
         <button
           type="button"
           onClick={onForceClearAll}
+          className="cad-well"
           style={{
-            background: '#132e26',
-            border: '1px solid #10b98188',
-            color: '#6ee7b7',
-            borderRadius: '8px',
+            borderColor: 'var(--signal-green)',
+            color: 'var(--signal-green)',
             fontSize: '0.75rem',
-            fontWeight: 700,
+            fontWeight: 800,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -103,17 +100,17 @@ export default function TransitController({
             gap: '0.35rem',
             textAlign: 'center'
           }}
-          title="Force all traffic signals along route to Green"
+          title="Force all traffic signals along corridor to Green"
         >
-          <ShieldAlert size={14} color="#10b981" /> Clear All
+          <ShieldAlert size={14} color="var(--signal-green)" /> Clear All
         </button>
       </div>
 
       {/* Speed & Automation Options */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem', background: '#090e1a', padding: '0.65rem', borderRadius: '8px', border: '1px solid #1c273e' }}>
+      <div className="cad-well" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem', padding: '0.65rem' }}>
         {/* Speed Multiplier */}
         <div>
-          <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: 600 }}>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '0.3rem', fontWeight: 700 }}>
             SIMULATION SPEED:
           </div>
           <div style={{ display: 'flex', gap: '0.3rem' }}>
@@ -124,13 +121,13 @@ export default function TransitController({
                 onClick={() => onChangeSpeed(speed)}
                 style={{
                   flex: 1,
-                  background: simSpeed === speed ? '#3b82f6' : '#151f33',
-                  border: simSpeed === speed ? '1px solid #60a5fa' : '1px solid #23334f',
-                  color: simSpeed === speed ? '#ffffff' : '#94a3b8',
+                  background: simSpeed === speed ? 'var(--accent-cyan)' : 'var(--bg-well)',
+                  border: simSpeed === speed ? '1px solid var(--accent-cyan)' : '1px solid var(--border-subtle)',
+                  color: simSpeed === speed ? '#04101e' : 'var(--text-secondary)',
                   padding: '0.3rem 0.4rem',
-                  borderRadius: '4px',
+                  borderRadius: '5px',
                   fontSize: '0.75rem',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   cursor: 'pointer'
                 }}
               >
@@ -142,7 +139,7 @@ export default function TransitController({
 
         {/* Auto Preemption Toggle */}
         <div>
-          <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: 600 }}>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '0.3rem', fontWeight: 700 }}>
             GREEN WAVE MODE:
           </div>
           <button
@@ -150,13 +147,13 @@ export default function TransitController({
             onClick={onToggleAutoPreempt}
             style={{
               width: '100%',
-              background: autoPreempt ? '#10b98122' : '#151f33',
-              border: autoPreempt ? '1px solid #10b981' : '1px solid #23334f',
-              color: autoPreempt ? '#34d399' : '#94a3b8',
+              background: autoPreempt ? 'var(--signal-green-soft)' : 'var(--bg-well)',
+              border: autoPreempt ? '1px solid var(--signal-green)' : '1px solid var(--border-subtle)',
+              color: autoPreempt ? 'var(--signal-green)' : 'var(--text-secondary)',
               padding: '0.3rem 0.4rem',
-              borderRadius: '4px',
+              borderRadius: '5px',
               fontSize: '0.75rem',
-              fontWeight: 700,
+              fontWeight: 800,
               cursor: 'pointer'
             }}
           >
@@ -166,7 +163,7 @@ export default function TransitController({
 
         {/* Siren Audio Toggle */}
         <div>
-          <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: 600 }}>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '0.3rem', fontWeight: 700 }}>
             SIREN AUDIO:
           </div>
           <button
@@ -174,13 +171,13 @@ export default function TransitController({
             onClick={onToggleAudio}
             style={{
               width: '100%',
-              background: audioEnabled ? '#ef444422' : '#151f33',
-              border: audioEnabled ? '1px solid #ef4444' : '1px solid #23334f',
-              color: audioEnabled ? '#f87171' : '#94a3b8',
+              background: audioEnabled ? 'var(--alert-red-soft)' : 'var(--bg-well)',
+              border: audioEnabled ? '1px solid var(--alert-red)' : '1px solid var(--border-subtle)',
+              color: audioEnabled ? 'var(--alert-red)' : 'var(--text-secondary)',
               padding: '0.3rem 0.4rem',
-              borderRadius: '4px',
+              borderRadius: '5px',
               fontSize: '0.75rem',
-              fontWeight: 700,
+              fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -195,7 +192,7 @@ export default function TransitController({
 
         {/* Voice Guidance Toggle */}
         <div>
-          <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: 600 }}>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '0.3rem', fontWeight: 700 }}>
             VOICE GUIDANCE:
           </div>
           <button
@@ -203,13 +200,13 @@ export default function TransitController({
             onClick={onToggleVoice}
             style={{
               width: '100%',
-              background: voiceEnabled ? '#3b82f622' : '#151f33',
-              border: voiceEnabled ? '1px solid #3b82f6' : '1px solid #23334f',
-              color: voiceEnabled ? '#60a5fa' : '#94a3b8',
+              background: voiceEnabled ? 'rgba(0, 242, 254, 0.12)' : 'var(--bg-well)',
+              border: voiceEnabled ? '1px solid var(--accent-cyan)' : '1px solid var(--border-subtle)',
+              color: voiceEnabled ? 'var(--accent-cyan)' : 'var(--text-secondary)',
               padding: '0.3rem 0.4rem',
-              borderRadius: '4px',
+              borderRadius: '5px',
               fontSize: '0.75rem',
-              fontWeight: 700,
+              fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Mic, Radio, Volume2, Shield, PhoneCall, Send } from 'lucide-react';
+import { Radio, Send } from 'lucide-react';
 import { speakDispatch } from '../utils/sirenAudio.js';
 
-export default function RadioIntercom({ onBroadcastLog, activeRouteName = 'Active Route' }) {
+export default function RadioIntercom({ onBroadcastLog }) {
   const [activeChannel, setActiveChannel] = useState('CH 1');
   const [isTransmitting, setIsTransmitting] = useState(false);
   const [customMsg, setCustomMsg] = useState('');
@@ -40,11 +40,11 @@ export default function RadioIntercom({ onBroadcastLog, activeRouteName = 'Activ
 
   return (
     <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-      {/* Intercom Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #1c273e', paddingBottom: '0.65rem' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.65rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Radio size={17} color="#06b6d4" />
-          <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#f8fafc' }}>
+          <Radio size={17} color="var(--accent-cyan)" />
+          <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-primary)' }}>
             CAD TACTICAL RADIO & DISPATCH INTERCOM
           </h3>
         </div>
@@ -60,14 +60,14 @@ export default function RadioIntercom({ onBroadcastLog, activeRouteName = 'Activ
               <span className="wave-bar" />
             </div>
           ) : (
-            <span style={{ fontSize: '0.7rem', color: '#64748b', fontFamily: 'var(--font-mono)' }}>IDLE / MONITORING</span>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>MONITORING</span>
           )}
           <span style={{
-            background: isTransmitting ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)',
-            color: isTransmitting ? '#f87171' : '#34d399',
-            border: isTransmitting ? '1px solid #ef4444' : '1px solid #10b981',
+            background: isTransmitting ? 'var(--alert-red-soft)' : 'var(--signal-green-soft)',
+            color: isTransmitting ? 'var(--alert-red)' : 'var(--signal-green)',
+            border: `1px solid ${isTransmitting ? 'var(--alert-red)' : 'var(--signal-green)'}`,
             fontSize: '0.68rem',
-            fontWeight: 700,
+            fontWeight: 800,
             padding: '0.15rem 0.45rem',
             borderRadius: '4px'
           }}>
@@ -83,30 +83,29 @@ export default function RadioIntercom({ onBroadcastLog, activeRouteName = 'Activ
             key={ch.id}
             type="button"
             onClick={() => setActiveChannel(ch.id)}
+            className="cad-well"
             style={{
               flex: 1,
-              background: activeChannel === ch.id ? 'rgba(59, 130, 246, 0.25)' : '#090e1a',
-              border: activeChannel === ch.id ? '1px solid #3b82f6' : '1px solid #1f2d48',
-              color: activeChannel === ch.id ? '#93c5fd' : '#94a3b8',
-              padding: '0.4rem 0.5rem',
-              borderRadius: '6px',
-              fontSize: '0.75rem',
-              fontWeight: 700,
+              borderColor: activeChannel === ch.id ? 'var(--accent-cyan)' : 'var(--border-subtle)',
+              background: activeChannel === ch.id ? 'var(--bg-well-active)' : 'var(--bg-well)',
               cursor: 'pointer',
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center'
+              alignItems: 'center',
+              padding: '0.45rem 0.5rem'
             }}
           >
-            <span>{ch.id}: {ch.name}</span>
-            <span style={{ fontSize: '0.62rem', color: '#64748b' }}>{ch.freq}</span>
+            <span style={{ color: activeChannel === ch.id ? 'var(--accent-cyan)' : 'var(--text-primary)', fontWeight: 800, fontSize: '0.75rem' }}>
+              {ch.id}: {ch.name}
+            </span>
+            <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)' }}>{ch.freq}</span>
           </button>
         ))}
       </div>
 
       {/* Preset Tactical Radio Transmissions */}
       <div>
-        <div style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem', fontWeight: 600 }}>
+        <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '0.35rem', fontWeight: 700 }}>
           Direct Dispatch Tactical Broadcasts:
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.4rem' }}>
@@ -116,17 +115,14 @@ export default function RadioIntercom({ onBroadcastLog, activeRouteName = 'Activ
               type="button"
               onClick={() => transmitMessage(p.text)}
               disabled={isTransmitting}
+              className="cad-well"
               style={{
-                background: '#0a101d',
-                border: '1px solid #1c2b48',
-                color: '#e2e8f0',
-                padding: '0.45rem 0.65rem',
-                borderRadius: '6px',
+                color: 'var(--text-primary)',
                 fontSize: '0.75rem',
-                fontWeight: 600,
+                fontWeight: 700,
                 textAlign: 'left',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease'
+                padding: '0.5rem 0.7rem'
               }}
             >
               {p.label}
@@ -135,7 +131,7 @@ export default function RadioIntercom({ onBroadcastLog, activeRouteName = 'Activ
         </div>
       </div>
 
-      {/* Custom Push-to-Talk Message Input */}
+      {/* Custom Message Input */}
       <form onSubmit={handleCustomSend} style={{ display: 'flex', gap: '0.5rem' }}>
         <input
           type="text"
@@ -149,9 +145,9 @@ export default function RadioIntercom({ onBroadcastLog, activeRouteName = 'Activ
           type="submit"
           disabled={!customMsg.trim() || isTransmitting}
           style={{
-            background: '#2563eb',
+            background: 'var(--accent-gradient)',
             border: 'none',
-            color: '#ffffff',
+            color: '#04101e',
             borderRadius: '8px',
             padding: '0 1rem',
             cursor: 'pointer',
@@ -159,7 +155,8 @@ export default function RadioIntercom({ onBroadcastLog, activeRouteName = 'Activ
             alignItems: 'center',
             gap: '0.35rem',
             fontSize: '0.8rem',
-            fontWeight: 700
+            fontWeight: 800,
+            boxShadow: '0 0 12px var(--accent-glow)'
           }}
         >
           <Send size={14} /> Transmit

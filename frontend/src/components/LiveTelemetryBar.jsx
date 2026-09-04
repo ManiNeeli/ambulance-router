@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gauge, Radio, ShieldCheck, Clock, Navigation, CheckCircle2, AlertTriangle, ArrowRight, CornerUpRight, CornerUpLeft } from 'lucide-react';
+import { Gauge, Radio, ShieldCheck, Clock, Navigation, CornerUpRight, CornerUpLeft, ArrowRight } from 'lucide-react';
 
 export default function LiveTelemetryBar({
   telemetry = {},
@@ -23,152 +23,128 @@ export default function LiveTelemetryBar({
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  // Turn arrow icon resolver
   const getTurnIcon = (text = '') => {
     const lower = text.toLowerCase();
-    if (lower.includes('right')) return <CornerUpRight size={18} color="#38bdf8" />;
-    if (lower.includes('left')) return <CornerUpLeft size={18} color="#38bdf8" />;
-    return <ArrowRight size={18} color="#38bdf8" />;
+    if (lower.includes('right')) return <CornerUpRight size={18} color="var(--accent-cyan)" />;
+    if (lower.includes('left')) return <CornerUpLeft size={18} color="var(--accent-cyan)" />;
+    return <ArrowRight size={18} color="var(--accent-cyan)" />;
   };
 
   return (
     <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {/* Top Telemetry Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem' }}>
-        {/* Speedometer Card with Glow */}
-        <div style={{
-          background: inSchoolZone ? 'rgba(239, 68, 68, 0.12)' : 'rgba(10, 16, 29, 0.85)',
-          border: inSchoolZone ? '1.5px solid #ef4444' : '1px solid #1f2d48',
-          borderRadius: '10px',
-          padding: '0.75rem 0.85rem',
+        {/* Speedometer */}
+        <div className="cad-well" style={{
           textAlign: 'center',
-          boxShadow: inSchoolZone ? '0 0 16px rgba(239, 68, 68, 0.3)' : 'none',
-          transition: 'all 0.25s ease'
+          borderColor: inSchoolZone ? 'var(--alert-red)' : 'var(--border-subtle)',
+          boxShadow: inSchoolZone ? '0 0 16px var(--alert-red-glow)' : 'none'
         }}>
-          <div style={{ fontSize: '0.65rem', color: inSchoolZone ? '#fca5a5' : '#94a3b8', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', fontWeight: 700 }}>
-            <Gauge size={14} color={inSchoolZone ? '#ef4444' : '#38bdf8'} />
+          <div style={{ fontSize: '0.65rem', color: inSchoolZone ? 'var(--alert-red)' : 'var(--text-secondary)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', fontWeight: 800 }}>
+            <Gauge size={14} color={inSchoolZone ? 'var(--alert-red)' : 'var(--accent-cyan)'} />
             {inSchoolZone ? 'SCHOOL LIMIT (20)' : 'TRANSIT SPEED'}
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 900, color: inSchoolZone ? '#ef4444' : '#f8fafc', fontFamily: 'var(--font-mono)', lineHeight: 1.15, margin: '0.2rem 0' }}>
-            {speedMph} <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b' }}>MPH</span>
+          <div style={{ fontSize: '1.75rem', fontWeight: 900, color: inSchoolZone ? 'var(--alert-red)' : 'var(--text-primary)', fontFamily: 'var(--font-mono)', lineHeight: 1.15, margin: '0.2rem 0' }}>
+            {speedMph} <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>MPH</span>
           </div>
-          <div style={{ fontSize: '0.68rem', color: inSchoolZone ? '#fca5a5' : '#10b981', fontWeight: 600 }}>
+          <div style={{ fontSize: '0.68rem', color: inSchoolZone ? 'var(--alert-red)' : 'var(--signal-green)', fontWeight: 700 }}>
             {inSchoolZone ? '⚠️ Speed Throttled' : 'Code 3 Sirens Clear'}
           </div>
         </div>
 
         {/* ETA Countdown */}
-        <div style={{
-          background: 'rgba(10, 16, 29, 0.85)',
-          border: '1px solid #1f2d48',
-          borderRadius: '10px',
-          padding: '0.75rem 0.85rem',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', fontWeight: 700 }}>
-            <Clock size={14} color="#38bdf8" />
+        <div className="cad-well" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', fontWeight: 800 }}>
+            <Clock size={14} color="var(--accent-cyan)" />
             TRANSIT ETA
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#38bdf8', fontFamily: 'var(--font-mono)', lineHeight: 1.15, margin: '0.2rem 0' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)', lineHeight: 1.15, margin: '0.2rem 0' }}>
             {formatTime(etaSeconds)}
           </div>
-          <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
             {distanceRemainingMiles.toFixed(1)} mi remaining
           </div>
         </div>
 
         {/* Green Wave Preemption Counter */}
-        <div style={{
-          background: 'rgba(16, 185, 129, 0.08)',
-          border: '1px solid rgba(16, 185, 129, 0.35)',
-          borderRadius: '10px',
-          padding: '0.75rem 0.85rem',
+        <div className="cad-well" style={{
           textAlign: 'center',
-          boxShadow: '0 0 16px rgba(16, 185, 129, 0.15)'
+          borderColor: 'rgba(0, 230, 118, 0.35)',
+          background: 'var(--signal-green-soft)'
         }}>
-          <div style={{ fontSize: '0.65rem', color: '#6ee7b7', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', fontWeight: 700 }}>
-            <ShieldCheck size={14} color="#10b981" />
+          <div style={{ fontSize: '0.65rem', color: 'var(--signal-green)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', fontWeight: 800 }}>
+            <ShieldCheck size={14} color="var(--signal-green)" />
             GREEN WAVE CLEARANCE
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#10b981', fontFamily: 'var(--font-mono)', lineHeight: 1.15, margin: '0.2rem 0' }}>
-            {preemptedCount} <span style={{ fontSize: '0.9rem', color: '#64748b' }}>/ {totalSignals}</span>
+          <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--signal-green)', fontFamily: 'var(--font-mono)', lineHeight: 1.15, margin: '0.2rem 0' }}>
+            {preemptedCount} <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>/ {totalSignals}</span>
           </div>
-          <div style={{ fontSize: '0.68rem', color: '#34d399', fontWeight: 600 }}>
+          <div style={{ fontSize: '0.68rem', color: 'var(--signal-green)', fontWeight: 700 }}>
             {vehiclesCleared} vehicles cleared to curb
           </div>
         </div>
 
         {/* Transit Progress */}
-        <div style={{
-          background: 'rgba(10, 16, 29, 0.85)',
-          border: '1px solid #1f2d48',
-          borderRadius: '10px',
-          padding: '0.75rem 0.85rem',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', fontWeight: 700 }}>
-            <Navigation size={14} color="#38bdf8" />
+        <div className="cad-well" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', fontWeight: 800 }}>
+            <Navigation size={14} color="var(--accent-cyan)" />
             ROUTE PROGRESS
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#f8fafc', fontFamily: 'var(--font-mono)', lineHeight: 1.15, margin: '0.2rem 0' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', lineHeight: 1.15, margin: '0.2rem 0' }}>
             {progressPercent}%
           </div>
-          <div style={{ fontSize: '0.68rem', color: progressPercent >= 100 ? '#10b981' : '#64748b', fontWeight: 600 }}>
+          <div style={{ fontSize: '0.68rem', color: progressPercent >= 100 ? 'var(--signal-green)' : 'var(--text-muted)', fontWeight: 700 }}>
             {progressPercent >= 100 ? '✓ Arrived at Emergency Bay' : 'En Route Emergency'}
           </div>
         </div>
       </div>
 
       {/* Progress Track Bar */}
-      <div style={{ width: '100%', height: '8px', background: '#090e1a', borderRadius: '9999px', overflow: 'hidden', border: '1px solid #1f2d48', position: 'relative' }}>
+      <div style={{ width: '100%', height: '8px', background: 'var(--bg-well)', borderRadius: '9999px', overflow: 'hidden', border: '1px solid var(--border-subtle)', position: 'relative' }}>
         <div style={{
           width: `${progressPercent}%`,
           height: '100%',
-          background: 'linear-gradient(90deg, #3b82f6 0%, #10b981 100%)',
-          boxShadow: '0 0 12px #10b981',
+          background: 'var(--accent-gradient)',
+          boxShadow: '0 0 14px var(--accent-glow)',
           transition: 'width 0.2s linear'
         }} />
       </div>
 
       {/* Turn-by-Turn Instruction Banner */}
       {currentManeuver && (
-        <div style={{
-          background: 'linear-gradient(90deg, rgba(30, 58, 138, 0.25) 0%, rgba(15, 23, 42, 0.4) 100%)',
-          border: '1px solid rgba(59, 130, 246, 0.4)',
-          borderRadius: '10px',
-          padding: '0.75rem 1.1rem',
+        <div className="cad-well" style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: '1rem',
-          backdropFilter: 'blur(8px)'
+          border: '1.5px solid var(--border-card)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
             <div style={{
-              background: '#2563eb',
-              color: '#ffffff',
+              background: 'var(--accent-cyan)',
+              color: '#04101e',
               borderRadius: '8px',
               width: '36px',
               height: '36px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 0 10px rgba(37, 99, 235, 0.5)'
+              boxShadow: '0 0 12px var(--accent-glow)'
             }}>
               {getTurnIcon(currentManeuver.text)}
             </div>
             <div>
-              <div style={{ fontSize: '0.7rem', color: '#93c5fd', fontWeight: 700, textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '0.7rem', color: 'var(--accent-cyan)', fontWeight: 800, textTransform: 'uppercase' }}>
                 NEXT DISPATCH MANEUVER • STEP {currentManeuver.step}
               </div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#ffffff' }}>
+              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                 {currentManeuver.text}
               </div>
             </div>
           </div>
           <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>SEGMENT</div>
-            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>SEGMENT</div>
+            <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)' }}>
               {currentManeuver.dist}
             </div>
           </div>
@@ -177,30 +153,27 @@ export default function LiveTelemetryBar({
 
       {/* Live CAD Radio Incident Log */}
       <div>
-        <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          <Radio size={14} color="#ef4444" className="strobe-red" />
+        <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <Radio size={14} color="var(--alert-red)" className="strobe-red" />
           DISPATCH RADIO & SIGNAL PREEMPTION INCIDENT FEED
         </div>
-        <div style={{
+        <div className="cad-well" style={{
           maxHeight: '110px',
           overflowY: 'auto',
-          background: '#070b14',
-          border: '1px solid #1a253c',
-          borderRadius: '8px',
-          padding: '0.55rem 0.85rem',
           fontFamily: 'var(--font-mono)',
           fontSize: '0.72rem',
           display: 'flex',
           flexDirection: 'column-reverse',
-          gap: '0.35rem'
+          gap: '0.35rem',
+          padding: '0.65rem 0.85rem'
         }}>
           {eventLogs.map((log, index) => (
             <div key={index} style={{
-              color: log.type === 'preempt' ? '#34d399' : log.type === 'alert' ? '#f87171' : log.type === 'arrive' ? '#38bdf8' : '#cbd5e1',
+              color: log.type === 'preempt' ? 'var(--signal-green)' : log.type === 'alert' ? 'var(--alert-red)' : log.type === 'arrive' ? 'var(--accent-cyan)' : 'var(--text-secondary)',
               display: 'flex',
               gap: '0.6rem'
             }}>
-              <span style={{ color: '#64748b' }}>[{log.time}]</span>
+              <span style={{ color: 'var(--text-muted)' }}>[{log.time}]</span>
               <span>{log.message}</span>
             </div>
           ))}
