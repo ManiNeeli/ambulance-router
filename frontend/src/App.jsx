@@ -4,9 +4,11 @@ import DispatchForm from './components/DispatchForm.jsx';
 import InteractiveLeafletMap from './components/InteractiveLeafletMap.jsx';
 import TransitController from './components/TransitController.jsx';
 import LiveTelemetryBar from './components/LiveTelemetryBar.jsx';
+import PatientVitalsMonitor from './components/PatientVitalsMonitor.jsx';
+import RadioIntercom from './components/RadioIntercom.jsx';
 import RecommendationDisplay from './components/RecommendationDisplay.jsx';
 import { playSirenSound, stopSirenSound, speakDispatch } from './utils/sirenAudio.js';
-import { Navigation, MapPin, Layers } from 'lucide-react';
+import { Map, Activity, Radio, BarChart3, ShieldCheck } from 'lucide-react';
 
 export default function App() {
   const [startLocations, setStartLocations] = useState([
@@ -29,6 +31,9 @@ export default function App() {
   const [activeRouteId, setActiveRouteId] = useState('route-a-main-st');
   const [loading, setLoading] = useState(false);
   const [apiOnline, setApiOnline] = useState(false);
+
+  // Active View Tab: 'map' | 'vitals' | 'radio' | 'matrix'
+  const [activeTab, setActiveTab] = useState('map');
 
   // Transit Simulation State
   const [isSimulating, setIsSimulating] = useState(false);
@@ -54,13 +59,11 @@ export default function App() {
     inSchoolZone: false
   });
 
-  // Track active corridor & waypoints
   const activeCorridor = corridorData?.corridors?.[activeRouteId];
 
-  // Helper to add radio event logs
   const addLog = (message, type = 'info') => {
     const time = new Date().toLocaleTimeString();
-    setEventLogs(prev => [{ time, message, type }, ...prev.slice(0, 40)]);
+    setEventLogs(prev => [{ time, message, type }, ...prev.slice(0, 50)]);
   };
 
   // 1. Initial Load: Fetch corridor & routes data
@@ -84,7 +87,7 @@ export default function App() {
           setApiOnline(true);
         }
       } catch (err) {
-        console.warn("Error initializing data:", err);
+        console.warn("Initialization fetch error:", err);
       }
       handleEvaluate();
     }
@@ -105,7 +108,6 @@ export default function App() {
     });
     setSimProgress(0);
 
-    // Reset signal states
     const initSignals = {};
     activeCorridor.signals?.forEach(s => {
       initSignals[s.id] = s.defaultState || 'red';
@@ -144,7 +146,7 @@ export default function App() {
         const topId = data.recommendedRoute?.id;
         if (topId) {
           setActiveRouteId(topId);
-          addLog(`AI Recommendation updated: ${data.recommendedRoute.name} (${data.recommendedRoute.adjustedMinutes}m ETA)`, 'arrive');
+          addLog(`AI Recommendation: ${data.recommendedRoute.name} (${data.recommendedRoute.adjustedMinutes}m ETA)`, 'arrive');
         }
         setApiOnline(true);
       }
@@ -169,7 +171,7 @@ export default function App() {
 
     addLog(`SIGNAL PREEMPTION: ${sig?.name || sigId} switched to GREEN WAVE. ${clearedCars} vehicles cleared.`, 'preempt');
     if (voiceEnabled) {
-      speakDispatch(`Traffic signal ${sig?.crossStreet || ''} cleared. Green wave locked.`);
+      speakDispatch(`Signal at ${sig?.crossStreet || ''} cleared. Green wave locked.`);
     }
 
     try {
@@ -189,7 +191,7 @@ export default function App() {
     let totalCars = 0;
     activeCorridor.signals.forEach(s => {
       updated[s.id] = 'preempted';
-      totalCars += (s.carsQueued || 12);
+      totalCars += (s.carsQueued || 14);
     });
     setSignalStates(updated);
     setTelemetry(prev => ({
@@ -199,7 +201,7 @@ export default function App() {
     }));
     addLog(`DISPATCH OVERRIDE: All corridor traffic signals forced to GREEN WAVE. Complete corridor cleared.`, 'preempt');
     if (voiceEnabled) {
-      speakDispatch("All traffic signals along route preempted. Full green corridor cleared.");
+      speakDispatch("All traffic signals along corridor preempted. Full green wave corridor cleared.");
     }
   };
 
@@ -223,15 +225,13 @@ export default function App() {
     if (waypoints.length < 2) return;
 
     const totalSegments = waypoints.length - 1;
-    const intervalMs = 60; // 16-20 updates/sec
+    const intervalMs = 60;
 
     simIntervalRef.current = setInterval(() => {
       setSimProgress(prevProgress => {
-        // Increment progress based on speed
         const progressIncrement = (0.0008 * simSpeed);
         const nextProgress = Math.min(1.0, prevProgress + progressIncrement);
 
-        // Calculate position along multi-segment polyline
         const exactIndex = nextProgress * totalSegments;
         const segIdx = Math.min(totalSegments - 1, Math.floor(exactIndex));
         const segFrac = exactIndex - segIdx;
@@ -245,7 +245,6 @@ export default function App() {
 
         setAmbulancePos({ lat: curLat, lng: curLng, bearing });
 
-        // School Zone Check
         const inSchool = isPointInSchoolZone(curLat, curLng, corridorData?.schoolZone?.polygon);
         const currentSpeed = inSchool ? 20 : (48 + Math.floor(Math.sin(nextProgress * 20) * 5));
 
@@ -253,7 +252,6 @@ export default function App() {
         if (autoPreempt && activeCorridor?.signals) {
           activeCorridor.signals.forEach(sig => {
             const distKm = getDistanceFromLatLonInKm(curLat, curLng, sig.coords[0], sig.coords[1]);
-            // Preempt if within 400m (~0.4km)
             setSignalStates(currentStates => {
               if (distKm <= 0.45 && currentStates[sig.id] !== 'preempted') {
                 const cleared = sig.carsQueued || 16;
@@ -273,7 +271,7 @@ export default function App() {
           });
         }
 
-        // Maneuver index check
+        // Maneuver check
         if (activeCorridor?.maneuvers) {
           const maneuverIdx = Math.min(activeCorridor.maneuvers.length - 1, Math.floor(nextProgress * activeCorridor.maneuvers.length));
           const m = activeCorridor.maneuvers[maneuverIdx];
@@ -286,7 +284,6 @@ export default function App() {
           });
         }
 
-        // Telemetry calculation
         const totalDist = activeCorridor.distanceMiles || 3.5;
         const distRemaining = Math.max(0, totalDist * (1 - nextProgress));
         const totalTimeSecs = (activeCorridor.baseMinutes || 10) * 60;
@@ -301,7 +298,6 @@ export default function App() {
           inSchoolZone: inSchool
         }));
 
-        // Completion Check
         if (nextProgress >= 1.0) {
           setIsSimulating(false);
           stopSirenSound();
@@ -366,17 +362,17 @@ export default function App() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#0b0f19' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-deep)' }}>
       <Header apiOnline={apiOnline} />
 
       <main style={{
         flex: 1,
-        maxWidth: '1600px',
+        maxWidth: '1680px',
         width: '100%',
         margin: '0 auto',
         padding: '1.2rem',
         display: 'grid',
-        gridTemplateColumns: 'minmax(340px, 400px) 1fr',
+        gridTemplateColumns: 'minmax(340px, 420px) 1fr',
         gap: '1.25rem',
         alignItems: 'start'
       }}>
@@ -408,50 +404,129 @@ export default function App() {
           />
         </section>
 
-        {/* Right Column: Map, Telemetry, and Recommendations */}
+        {/* Right Column: Telemetry & Multi-View Modules */}
         <section style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          {/* Real-time Telemetry Dashboard */}
+          {/* Real-time Telemetry Dashboard (Always visible) */}
           <LiveTelemetryBar
             telemetry={telemetry}
             currentManeuver={currentManeuver}
             eventLogs={eventLogs}
           />
 
-          {/* Interactive Leaflet Map with Traffic Signals & Preemption */}
-          <InteractiveLeafletMap
-            corridorData={corridorData}
-            activeRouteId={activeRouteId}
-            ambulancePosition={ambulancePos}
-            signalStates={signalStates}
-            onSignalClick={handlePreemptSignal}
-            onSelectRoute={(rId) => setActiveRouteId(rId)}
-            isSimulating={isSimulating}
-          />
+          {/* View Mode Tabs */}
+          <div style={{
+            display: 'flex',
+            gap: '0.4rem',
+            background: 'rgba(9, 14, 26, 0.85)',
+            backdropFilter: 'blur(10px)',
+            padding: '0.35rem',
+            borderRadius: '10px',
+            border: '1px solid rgba(59, 130, 246, 0.25)',
+            flexWrap: 'wrap'
+          }}>
+            <button
+              type="button"
+              onClick={() => setActiveTab('map')}
+              className={`tab-btn ${activeTab === 'map' ? 'active' : ''}`}
+            >
+              <Map size={15} /> 🗺️ Tactical GIS Map & EVP
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('vitals')}
+              className={`tab-btn ${activeTab === 'vitals' ? 'active' : ''}`}
+            >
+              <Activity size={15} /> 🩺 Patient ECG Telemetry
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('radio')}
+              className={`tab-btn ${activeTab === 'radio' ? 'active' : ''}`}
+            >
+              <Radio size={15} /> 📻 CAD Tactical Intercom
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('matrix')}
+              className={`tab-btn ${activeTab === 'matrix' ? 'active' : ''}`}
+            >
+              <BarChart3 size={15} /> 📊 Route Tradeoff Matrix
+            </button>
+          </div>
 
-          {/* AI Recommendation Briefing & Route Comparison */}
-          <RecommendationDisplay
-            recommendationData={recommendationData}
-            selectedRouteId={activeRouteId}
-            onSelectRoute={(rId) => setActiveRouteId(rId)}
-          />
+          {/* Active Tab View Rendering */}
+          {activeTab === 'map' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <InteractiveLeafletMap
+                corridorData={corridorData}
+                activeRouteId={activeRouteId}
+                ambulancePosition={ambulancePos}
+                signalStates={signalStates}
+                onSignalClick={handlePreemptSignal}
+                onSelectRoute={(rId) => setActiveRouteId(rId)}
+                isSimulating={isSimulating}
+                weather={formData.weather}
+              />
+              <RecommendationDisplay
+                recommendationData={recommendationData}
+                selectedRouteId={activeRouteId}
+                onSelectRoute={(rId) => setActiveRouteId(rId)}
+              />
+            </div>
+          )}
+
+          {activeTab === 'vitals' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <PatientVitalsMonitor
+                patientCondition={formData.patientCondition}
+                inSchoolZone={telemetry.inSchoolZone}
+              />
+              <RecommendationDisplay
+                recommendationData={recommendationData}
+                selectedRouteId={activeRouteId}
+                onSelectRoute={(rId) => setActiveRouteId(rId)}
+              />
+            </div>
+          )}
+
+          {activeTab === 'radio' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <RadioIntercom
+                onBroadcastLog={addLog}
+                activeRouteName={activeCorridor?.name}
+              />
+              <RecommendationDisplay
+                recommendationData={recommendationData}
+                selectedRouteId={activeRouteId}
+                onSelectRoute={(rId) => setActiveRouteId(rId)}
+              />
+            </div>
+          )}
+
+          {activeTab === 'matrix' && (
+            <RecommendationDisplay
+              recommendationData={recommendationData}
+              selectedRouteId={activeRouteId}
+              onSelectRoute={(rId) => setActiveRouteId(rId)}
+            />
+          )}
         </section>
       </main>
 
       <footer style={{
         textAlign: 'center',
-        padding: '1rem',
+        padding: '1.2rem',
         fontSize: '0.75rem',
         color: '#64748b',
-        borderTop: '1px solid #1e293b',
-        background: '#090e1a'
+        borderTop: '1px solid rgba(51, 72, 114, 0.3)',
+        background: '#060911'
       }}>
-        Ambulance Router Dispatch Intelligence System • Dynamic Green Wave Preemption (EVP) & GIS Navigation
+        Ambulance Router Dispatch Intelligence System • Dynamic Green Wave Preemption (EVP) • Real-World GIS Telemetry • High-End CAD Command Station
       </footer>
     </div>
   );
 }
 
-// Coordinate math helpers
 function calculateBearing(lat1, lon1, lat2, lon2) {
   const toRad = deg => (deg * Math.PI) / 180;
   const toDeg = rad => (rad * 180) / Math.PI;
@@ -465,7 +540,7 @@ function calculateBearing(lat1, lon1, lat2, lon2) {
 }
 
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Radius of earth in km
+  const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
@@ -478,7 +553,6 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
 
 function isPointInSchoolZone(lat, lng, polygon) {
   if (!polygon || polygon.length < 3) return false;
-  // Simple bounding box check
   let minLat = 999, maxLat = -999, minLng = 999, maxLng = -999;
   polygon.forEach(pt => {
     if (pt[0] < minLat) minLat = pt[0];
