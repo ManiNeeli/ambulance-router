@@ -1,142 +1,172 @@
-# 🚑 AI-Assisted Ambulance Router & Green-Wave Preemption (CAD-ITS)
+# 🚑 Ambulance Router — AI-Assisted Safe Transit & Green-Wave Preemption
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-v22.x-green.svg)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-18.x-blue.svg)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-5.x-purple.svg)](https://vitejs.dev/)
-[![Leaflet](https://img.shields.io/badge/Leaflet-GIS-brightgreen.svg)](https://leafletjs.com/)
+> **Every second counts in emergency response — but the fastest route on paper isn’t always the safest route on the streets.**
 
-> **Next-Generation Computer-Aided Dispatch (CAD) & Intelligent Transportation System (ITS)**: An AI layer that evaluates transit safety tradeoffs for emergency vehicles, explains decisions in plain language, clears city traffic using **Emergency Vehicle Preemption (EVP) / Green Wave Corridor**, and visualizes real-time transit on interactive GIS tactical maps.
+Built as a next-generation Computer-Aided Dispatch (CAD) prototype, **Ambulance Router** is an intelligent navigation copilot designed for 911/EMS dispatchers and paramedic crews. It evaluates candidate corridors not just by raw minutes, but by real-world safety hazards — active school zones, weather hydroplaning, traffic gridlock, and patient urgency.
+
+When seconds matter, it actively clears the path ahead using **Emergency Vehicle Preemption (EVP)**, locking traffic signals green and moving traffic to the curb before the ambulance even reaches the intersection.
 
 ---
 
-## 🌟 Key Capabilities
+## 💡 Why We Built This
 
-### 1. Dynamic Routing & Safety Penalty Engine
-- **Corridor Evaluation**: Evaluates multiple arterial paths against real-time hazards.
-- **School Zone Geofencing**: Detects active school zones (20 MPH limits, pedestrian hazards, school bus queues) and applies dynamic delay (+6m) and safety index penalties.
-- **Weather Physics Modeling**: Accounts for hydroplaning on highways during rain, black ice/slush during snow, and reduced visibility in dense fog.
-- **Patient Acuity Priority**: Custom optimization based on dispatch priority code (Code 3 Critical vs Code 2 Emergent vs Code 1 Routine).
+Standard consumer GPS apps (Google Maps, Waze) are built for everyday drivers. They don’t know that:
+- A route that saves 2 minutes by cutting through a school district at **08:15 AM** puts children at risk and forces a 7-ton ambulance to crawl at 20 MPH behind stopped school buses.
+- A sudden thunderstorm turns high-speed freeway overpasses into dangerous hydroplaning zones for top-heavy emergency rigs.
+- A patient in critical cardiac arrest (Code 3) needs a predictable, hazard-free corridor with green lights locked ahead — while a spinal injury transfer (Code 1) needs a smooth, bump-free ride over raw speed.
 
-### 2. Emergency Vehicle Preemption (EVP) / Green Wave Traffic Clearance
-- **Smart Intersections**: Real-world traffic signal nodes placed along corridors with queue tracking.
-- **AI Automated Green Wave**: Detects ambulance approaching within 400m radius and switches signals to green wave priority, clearing queued vehicles to the shoulder.
-- **Dispatcher Override**: Operators can manually force preemption on individual intersections or invoke full-corridor clearance.
-
-### 3. Interactive GIS Real-World Tactical Map
-- **Multi-Base Layer Cartography**: Switch seamlessly between **🌑 Dark Tactical**, **🛰️ Satellite Imagery**, and **🗺️ Streets View**.
-- **Dynamic Vehicle Animation**: Real-time ambulance marker with compass heading rotation and alternating red/blue emergency strobes.
-- **Traffic Flow Polylines**: Animated flowing lines visualizing vehicular transit velocity.
-- **Weather Overlays**: Real-time atmospheric particle effects (rain, snow, fog).
-
-### 4. Patient Biometric Telemetry & Dynamic ECG Monitor
-- **Live Electrocardiogram (ECG)**: Diagnostic Lead II tracing with real-time waveform glow.
-- **Dynamic Vitals**: Pulsing Heart Rate (BPM), Non-Invasive Blood Pressure (NIBP), $SpO_2$ Oxygen Saturation, and Glasgow Coma Scale (GCS).
-- **Crew Identifiers**: Rig callsign (`MEDIC-41`) and Paramedic Lead in charge.
-
-### 5. CAD Tactical Radio Intercom
-- **Push-to-Talk (PTT)**: Transmits simulated voice dispatch audio with animated audio equalizer waveform bars.
-- **Channels**: Switch between `CH 1: EMS PRIMARY`, `CH 2: TRAFFIC COMMAND`, and `CH 3: HOSPITAL DIRECT`.
-- **Tactical Presets**: Immediate traffic escort requests, hospital trauma bay alerts, and all-signals clear commands.
-
-### 6. Multi-Palette Dynamic Theme System
-- 🌌 **Cobalt Cyberpunk** (High-Tech Electric Cyan & Deep Navy)
-- 🌲 **Tactical Emerald** (Matrix Green Phosphor Night Vision)
-- 🚨 **Crimson Apex** (High-Intensity Emergency Response)
-- ☀️ **Nordic Medical Light** (Daylight Clinical Mode)
+We built Ambulance Router to bridge the gap between **dispatch decision-making**, **city traffic infrastructure**, and **patient survival**.
 
 ---
 
-## 🚀 Quick Start
+## ✨ What It Does
+
+### 🧠 1. Safe-Route AI & Tradeoff Engine
+- Evaluates candidate routes side-by-side using dynamic penalty models.
+- **Active School Zone Detection**: Identifies school bell hours (07:30–09:00 & 14:30–16:00), applies speed limits (20 MPH), and penalizes dangerous pedestrian corridors.
+- **Weather & Traction Modeling**: Adjusts stopping distances and accident risks for rain, snow, and dense fog.
+- **Plain-Language Dispatcher Briefings**: Explains the rationale in natural English (e.g., *"Route A is 3 minutes faster on paper, but active school drop-off creates severe pedestrian hazards. Route C is recommended for a predictable 15-minute window with a 90/100 safety margin"*).
+
+### 🚦 2. Emergency Vehicle Preemption (EVP) & Green Wave
+- Detects the ambulance approaching within **400 meters** of an intersection.
+- Automatically broadcasts preemption commands to municipal traffic controllers:
+  - Cross-traffic gets red lights.
+  - The ambulance corridor locks into a **Green Wave**.
+  - Queued cars pull over to the shoulder, clearing bottlenecks to zero delay.
+- Manual Dispatcher Override: Click any signal on the tactical map or hit **"Clear All"** to force the entire corridor green.
+
+### 🗺️ 3. Real-World GIS Tactical Map
+- Interactive **Leaflet** map with three switchable cartography styles:
+  - 🌑 **Dark Tactical** (CartoDB DarkMatter) for low-glare dispatch rooms.
+  - 🛰️ **Satellite Imagery** (Esri World Imagery) to inspect real overpasses and buildings.
+  - 🗺️ **Streets View** (OpenStreetMap) for clear urban navigation.
+- Real-time animated ambulance with compass heading rotation and alternating emergency strobes.
+- Visual school district geofence and animated traffic flow polylines that change from congested red to cleared emerald green.
+
+### 🩺 4. Live Biometric Patient Telemetry & CAD Radio
+- **Diagnostic ECG Monitor**: Synchronized Lead II heart rhythm tracing that pulses dynamically with patient condition.
+- **Acuity Indicators**: Blood pressure (NIBP), oxygen saturation ($SpO_2$), and Glasgow Coma Scale (GCS).
+- **Tactical Intercom**: Push-to-Talk audio dispatch with frequency channel selector (`EMS PRIMARY`, `TRAFFIC COMMAND`, `HOSPITAL DIRECT`) and realistic two-tone siren synthesizer.
+
+### 🎨 5. Multi-Palette Workstation Themes
+Switch between four tailored palettes right from the header:
+- 🌌 **Cobalt Cyberpunk** — Electric cyan and deep navy (default).
+- 🌲 **Tactical Emerald** — Phosphor green night-vision HUD.
+- 🚨 **Crimson Apex** — High-intensity emergency red.
+- ☀️ **Nordic Medical Light** — High-contrast clinical day mode.
+
+---
+
+## ⚡ Quick Start (Get up and running in 2 minutes)
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) v18+ (tested on v22.14.0)
-- npm v9+
+- [Node.js](https://nodejs.org/) (v18 or newer)
+- npm (v9 or newer)
 
-### One-Command Setup & Run
+### 1. Clone & Install
 ```bash
-# Clone the repository
 git clone https://github.com/ManiNeeli/ambulance-router.git
 cd ambulance-router
 
-# Install all dependencies (backend + frontend)
+# Install dependencies for both backend and frontend in one shot
 npm run install:all
-
-# Option A: Run Full Application in Production Mode (Port 5000)
-npm run build
-npm start
-
-# Option B: Run in Development Mode with Live Hot Reload (Port 5173 + 5000)
-# Terminal 1:
-npm run dev:backend
-
-# Terminal 2:
-npm run dev:frontend
 ```
 
-Open your browser to:
-- **Development Workstation**: [http://localhost:5173](http://localhost:5173)
-- **Production Full-Stack**: [http://localhost:5000](http://localhost:5000)
+### 2. Run the Application
+You can run the full project in development mode or as a compiled production server:
+
+#### Option A: Development Mode (Live Hot Reload)
+Open two terminal tabs:
+```bash
+# Tab 1: Start Backend (Port 5000)
+npm run dev:backend
+
+# Tab 2: Start Frontend (Port 5173)
+npm run dev:frontend
+```
+👉 Open your browser to **`http://localhost:5173`**
+
+#### Option B: Production Server
+```bash
+# Build frontend and serve everything from Express on Port 5000
+npm run build
+npm start
+```
+👉 Open your browser to **`http://localhost:5000`**
 
 ---
 
-## 📁 Repository Structure
+## 🕹️ A Walkthrough of a Typical Dispatch Run
+
+1. **Pick the Incident Details**: Choose your origin fire station (e.g. *Fire Station 3*) and destination trauma center (e.g. *City General*).
+2. **Simulate Conditions**: Try the quick scenario presets — like **08:15 AM School Rush** with a **Code 3 Critical** patient.
+3. **Read the AI Briefing**: Notice how the engine warns you away from Route A (Main St) because children are arriving at Oakridge Elementary, recommending Route C instead.
+4. **Hit "Start Transit Run"**:
+   - Toggle **Siren Audio** and **Voice Guidance** on.
+   - Watch the ambulance navigate the streets on the map, turning its heading around corners.
+   - Observe red traffic signals 400m ahead switch to glowing **Green Wave** beacons.
+   - Watch the speedometer drop to 20 MPH inside the school zone and accelerate back up on the open avenue.
+   - Hear the dispatch voice announce cleared signals until arrival at the emergency trauma bay!
+
+---
+
+## 🛠️ Tech Stack & Why We Chose It
+
+| Layer | Technology | Rationale |
+|---|---|---|
+| **Frontend** | React 18 + Vite | Lightning-fast reactivity, zero build lag, and modular UI structure. |
+| **Mapping** | Leaflet + CartoDB / Esri | Lightweight, responsive GIS without costly per-request Google Maps API bills. |
+| **Backend** | Node.js + Express | Fast asynchronous I/O for real-time telemetry and signal preemption APIs. |
+| **Styling** | Handcrafted CSS Glassmorphism | Custom design tokens, dark mode control center aesthetic, and hardware-accelerated animations. |
+| **Audio** | Web Audio API + SpeechSynthesis | Native browser APIs for authentic sirens and voice dispatch — zero external MP3 dependencies. |
+| **AI Layer** | Deterministic Heuristic + LLM ready | Instant, reliable fallback reasoning out-of-the-box, with optional Gemini/OpenAI API plug-ins. |
+
+---
+
+## 📂 Project Structure
 
 ```
 ambulance-router/
 ├── backend/
-│   ├── data/
-│   │   └── detailedRoutes.json    # Geospatial waypoints, signals, and school zones
-│   ├── routes/
-│   │   └── recommendRoute.js      # REST API endpoints
-│   ├── services/
-│   │   ├── aiAdvisor.js           # Tradeoff reasoning & LLM advisor
-│   │   └── routeCalculator.js     # Routing physics & safety index engine
-│   ├── package.json
-│   └── server.js                  # Express application on port 5000
+│   ├── data/detailedRoutes.json       # Geospatial coordinates, signals & school zones
+│   ├── routes/recommendRoute.js       # REST endpoints (/recommend-route, /traffic-clearance)
+│   ├── services/routeCalculator.js    # Routing physics & safety index penalty formulas
+│   ├── services/aiAdvisor.js          # Plain-language dispatcher briefings & LLM integration
+│   └── server.js                      # Express backend on port 5000
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── DispatchForm.jsx           # Incident parameters & scenario presets
-│   │   │   ├── Header.jsx                 # Tactical header with theme selector
-│   │   │   ├── InteractiveLeafletMap.jsx  # Multi-layer Leaflet GIS tactical map
-│   │   │   ├── LiveTelemetryBar.jsx       # Speedometer HUD & event log ticker
-│   │   │   ├── PatientVitalsMonitor.jsx   # ECG waveform & patient vitals
-│   │   │   ├── RadioIntercom.jsx          # Push-to-talk CAD radio panel
-│   │   │   ├── RecommendationDisplay.jsx  # AI briefing & comparison matrix
-│   │   │   └── TransitController.jsx      # Green wave controls & speed options
-│   │   ├── utils/
-│   │   │   └── sirenAudio.js              # Native Web Audio siren & speech synthesis
-│   │   ├── App.jsx                        # Main CAD workstation orchestrator
-│   │   ├── index.css                      # Harmonious design system & keyframe animations
-│   │   └── main.jsx
-│   ├── package.json
-│   └── vite.config.js
-├── data/
-│   └── routes.json                        # Baseline corridor templates
+│   │   │   ├── DispatchForm.jsx           # Incident setup & emergency scenario presets
+│   │   │   ├── Header.jsx                 # System header with theme switcher & clock
+│   │   │   ├── InteractiveLeafletMap.jsx  # Multi-layer GIS map with traffic clearance
+│   │   │   ├── LiveTelemetryBar.jsx       # Digital speedometer & live radio feed
+│   │   │   ├── PatientVitalsMonitor.jsx   # Dynamic ECG heartbeat & patient vitals
+│   │   │   ├── RadioIntercom.jsx          # Push-to-talk CAD radio transmitter
+│   │   │   ├── RecommendationDisplay.jsx  # AI briefing & route comparison matrix
+│   │   │   └── TransitController.jsx      # Simulation speed, siren & preemption controls
+│   │   ├── utils/sirenAudio.js            # Native browser siren synthesizer & speech
+│   │   ├── App.jsx                        # Dispatcher workstation orchestrator
+│   │   └── index.css                      # Unified design system & animations
 ├── docs/
-│   ├── ARCHITECTURE.md                    # System architecture & physics formulas
-│   └── API_DOCUMENTATION.md               # Complete REST API reference
-├── PROMPT.md                              # Hackathon project specification
-├── package.json                           # Root convenience scripts
+│   ├── ARCHITECTURE.md                # System design & mathematical penalty models
+│   └── API_DOCUMENTATION.md           # Complete REST API reference
+├── package.json                       # Root convenience scripts
+├── PROMPT.md                          # Hackathon build specification
 └── README.md
 ```
 
 ---
 
-## 📡 API Overview
+## 🔮 Future Roadmap
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/health` | Service health status and uptime |
-| `GET` | `/api/routes-data` | Default facility and route templates |
-| `GET` | `/api/detailed-corridor` | Geospatial waypoints, signals, and maneuvers |
-| `POST` | `/api/recommend-route` | AI route evaluation and plain-language briefing |
-| `POST` | `/api/traffic-clearance` | Emergency Vehicle Preemption signal trigger |
-
-See [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for full request/response schemas.
+- [ ] **V2X DSRC Hardware Integration**: Connect with real physical OBU (On-Board Unit) transmitters.
+- [ ] **Hospital ER Bed Capacity Sync**: Automatically divert to alternate facilities if the primary ER is on trauma diversion.
+- [ ] **Multi-Unit Fleet Tracking**: Dispatch multiple EMS ambulances and fire engines simultaneously with mutual signal coordination.
 
 ---
 
-## 📄 License
-This project is open-source under the [MIT License](LICENSE).
+## 👨‍💻 Author
+
+Crafted by **Mani Neeli** — [GitHub](https://github.com/ManiNeeli)
+
+If you find this project helpful or inspiring, feel free to star ⭐ the repository!
