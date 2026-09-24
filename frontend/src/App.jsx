@@ -4,12 +4,13 @@ import HeroLanding from './components/HeroLanding.jsx';
 import DispatchForm from './components/DispatchForm.jsx';
 import InteractiveLeafletMap from './components/InteractiveLeafletMap.jsx';
 import TransitController from './components/TransitController.jsx';
+import ShortestRoadMap from './components/ShortestRoadMap.jsx';
 import LiveTelemetryBar from './components/LiveTelemetryBar.jsx';
 import PatientVitalsMonitor from './components/PatientVitalsMonitor.jsx';
 import RadioIntercom from './components/RadioIntercom.jsx';
 import RecommendationDisplay from './components/RecommendationDisplay.jsx';
 import { playSirenSound, stopSirenSound, speakDispatch } from './utils/sirenAudio.js';
-import { Map, Activity, Radio, BarChart3, ShieldCheck } from 'lucide-react';
+import { Map, Activity, Radio, BarChart3, ShieldCheck, Navigation } from 'lucide-react';
 
 export default function App() {
 
@@ -363,6 +364,113 @@ export default function App() {
     addLog("Transit run reset to origin station.", 'info');
   };
 
+  const handleManualProgressChange = (newVal) => {
+    const clamped = Math.max(0, Math.min(1.0, newVal));
+    setSimProgress(clamped);
+
+    const waypoints = activeCorridor?.waypoints || [];
+    if (waypoints.length < 2) return;
+
+    const totalSegments = waypoints.length - 1;
+    const exactIndex = clamped * totalSegments;
+    const segIdx = Math.min(totalSegments - 1, Math.floor(exactIndex));
+    const segFrac = exactIndex - segIdx;
+
+    const p1 = waypoints[segIdx];
+    const p2 = waypoints[segIdx + 1] || p1;
+
+    const curLat = p1[0] + (p2[0] - p1[0]) * segFrac;
+    const curLng = p1[1] + (p2[1] - p1[1]) * segFrac;
+    const bearing = calculateBearing(p1[0], p1[1], p2[0], p2[1]);
+
+    setAmbulancePos({ lat: curLat, lng: curLng, bearing });
+
+    const inSchool = isPointInSchoolZone(curLat, curLng, corridorData?.schoolZone?.polygon);
+    const speed = inSchool ? 20 : (48 + Math.floor(Math.sin(clamped * 20) * 5));
+    const totalDist = activeCorridor.distanceMiles || 3.2;
+    const distRemaining = Math.max(0, Math.round(totalDist * (1 - clamped) * 10) / 10);
+    const totalTimeSecs = (activeCorridor.baseMinutes || 8) * 60;
+    const etaSecs = Math.max(0, Math.round(totalTimeSecs * (1 - clamped) / (simSpeed >= 2 ? 1.5 : 1)));
+
+    // Proximity Signal Preemption (400m radius check)
+    if (activeCorridor?.signals) {
+      activeCorridor.signals.forEach(sig => {
+        const distKm = getDistanceFromLatLonInKm(curLat, curLng, sig.coords[0], sig.coords[1]);
+        if (distKm <= 0.45) {
+          setSignalStates(prev => {
+            if (prev[sig.id] !== 'preempted') {
+              const cleared = sig.carsQueued || 16;
+              addLog(`MANUAL ROAD DRIVE: Signal at ${sig.name} cleared to Green Wave (400m EVP).`, 'preempt');
+              setTelemetry(t => ({
+                ...t,
+                preemptedCount: t.preemptedCount + 1,
+                vehiclesCleared: t.vehiclesCleared + cleared
+              }));
+              return { ...prev, [sig.id]: 'preempted' };
+            }
+            return prev;
+          });
+        }
+      });
+    }
+
+    // Maneuver check
+    if (activeCorridor?.maneuvers) {
+      const maneuverIdx = Math.min(activeCorridor.maneuvers.length - 1, Math.floor(clamped * activeCorridor.maneuvers.length));
+      const m = activeCorridor.maneuvers[maneuverIdx];
+      setCurrentManeuver(prevM => {
+        if (prevM?.step !== m.step) {
+          addLog(`MANUAL ROAD STEP: ${m.text}`, 'info');
+        }
+        return m;
+      });
+    }
+
+    setTelemetry(t => ({
+      ...t,
+      speedMph: speed,
+      progressPercent: Math.round(clamped * 100),
+      etaSeconds: etaSecs,
+      distanceRemainingMiles: distRemaining,
+      inSchoolZone: inSchool
+    }));
+
+    if (clamped >= 1.0) {
+      setIsSimulating(false);
+      stopSirenSound();
+      addLog(`MANUAL ROAD DRIVE COMPLETE: Unit arrived at ${formData.hospital} Emergency Bay.`, 'arrive');
+    }
+  };
+
+  // Keyboard navigation: Arrow Left/Right and A/D to drive ambulance on road
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target?.tagName)) return;
+
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        e.preventDefault();
+        setSimProgress(curr => {
+          const next = Math.min(1.0, curr + 0.02);
+          handleManualProgressChange(next);
+          return next;
+        });
+      } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        e.preventDefault();
+        setSimProgress(curr => {
+          const prev = Math.max(0, curr - 0.02);
+          handleManualProgressChange(prev);
+          return prev;
+        });
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        setIsSimulating(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeCorridor, corridorData, simSpeed]);
+
   const handleLaunchDemo = () => {
     setActiveTab('map');
     const consoleEl = document.getElementById('operation-console');
@@ -431,6 +539,8 @@ export default function App() {
             voiceEnabled={voiceEnabled}
             onToggleVoice={() => setVoiceEnabled(!voiceEnabled)}
             onForceClearAll={handleForceClearAll}
+            simProgress={simProgress}
+            onManualProgressChange={handleManualProgressChange}
           />
         </section>
 
@@ -460,6 +570,13 @@ export default function App() {
               className={`tab-btn ${activeTab === 'map' ? 'active' : ''}`}
             >
               <Map size={15} /> 🗺️ Tactical GIS Map & EVP
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('roadmap')}
+              className={`tab-btn ${activeTab === 'roadmap' ? 'active' : ''}`}
+            >
+              <Navigation size={15} /> 🛣️ Shortest Road Map
             </button>
             <button
               type="button"
@@ -496,11 +613,42 @@ export default function App() {
                 onSelectRoute={(rId) => setActiveRouteId(rId)}
                 isSimulating={isSimulating}
                 weather={formData.weather}
+                onManualProgressChange={handleManualProgressChange}
+              />
+              <ShortestRoadMap
+                corridorData={corridorData}
+                activeRouteId={activeRouteId}
+                simProgress={simProgress}
+                onJumpToProgress={handleManualProgressChange}
+                onSelectRoute={(rId) => setActiveRouteId(rId)}
               />
               <RecommendationDisplay
                 recommendationData={recommendationData}
                 selectedRouteId={activeRouteId}
                 onSelectRoute={(rId) => setActiveRouteId(rId)}
+              />
+            </div>
+          )}
+
+          {activeTab === 'roadmap' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <ShortestRoadMap
+                corridorData={corridorData}
+                activeRouteId={activeRouteId}
+                simProgress={simProgress}
+                onJumpToProgress={handleManualProgressChange}
+                onSelectRoute={(rId) => setActiveRouteId(rId)}
+              />
+              <InteractiveLeafletMap
+                corridorData={corridorData}
+                activeRouteId={activeRouteId}
+                ambulancePosition={ambulancePos}
+                signalStates={signalStates}
+                onSignalClick={handlePreemptSignal}
+                onSelectRoute={(rId) => setActiveRouteId(rId)}
+                isSimulating={isSimulating}
+                weather={formData.weather}
+                onManualProgressChange={handleManualProgressChange}
               />
             </div>
           )}

@@ -11,7 +11,8 @@ export default function InteractiveLeafletMap({
   onSignalClick,
   onSelectRoute,
   isSimulating,
-  weather = 'clear'
+  weather = 'clear',
+  onManualProgressChange
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -179,14 +180,30 @@ export default function InteractiveLeafletMap({
 
         // Base route line
         const polyline = L.polyline(corridor.waypoints, {
-          color: isActive ? '#ccff00' : '#334155',
-          weight: isActive ? 6 : 2.5,
-          opacity: isActive ? 0.95 : 0.4,
+          color: isActive ? '#08B7BA' : '#94A3B8',
+          weight: isActive ? 7 : 3.5,
+          opacity: isActive ? 1.0 : 0.5,
           dashArray: isActive ? null : '6, 6'
         }).addTo(map);
 
-        polyline.on('click', () => {
-          if (onSelectRoute) onSelectRoute(key);
+        polyline.on('click', (e) => {
+          if (!isActive) {
+            if (onSelectRoute) onSelectRoute(key);
+            return;
+          }
+          if (onManualProgressChange && corridor.waypoints?.length > 1) {
+            let closestIdx = 0;
+            let minD = 999999;
+            corridor.waypoints.forEach((wp, i) => {
+              const d = Math.hypot(wp[0] - e.latlng.lat, wp[1] - e.latlng.lng);
+              if (d < minD) {
+                minD = d;
+                closestIdx = i;
+              }
+            });
+            const frac = closestIdx / (corridor.waypoints.length - 1);
+            onManualProgressChange(frac);
+          }
         });
 
         layersRef.current.polylines.push(polyline);
@@ -194,9 +211,9 @@ export default function InteractiveLeafletMap({
         // Flow overlay on active route
         if (isActive && showTrafficFlow) {
           const flowPolyline = L.polyline(corridor.waypoints, {
-            color: '#ffffff',
-            weight: 3,
-            opacity: 0.85,
+            color: '#FFB91A',
+            weight: 3.5,
+            opacity: 0.95,
             className: 'leaflet-corridor-flow'
           }).addTo(map);
           layersRef.current.flowLines.push(flowPolyline);
@@ -309,27 +326,27 @@ export default function InteractiveLeafletMap({
         className: 'ambulance-vehicle-icon',
         html: `
           <div style="position: relative; display: flex; align-items: center; justify-content: center; transform: rotate(${bearing}deg); transition: transform 0.15s linear;">
-            <div class="animate-greenwave-ring" style="position: absolute; width: 50px; height: 50px; border-radius: 50%; border: 2px solid rgba(204, 255, 0, 0.7);"></div>
+            <div class="animate-greenwave-ring" style="position: absolute; width: 52px; height: 52px; border-radius: 50%; border: 2.5px solid #08B7BA;"></div>
             <div style="
-              width: 36px;
-              height: 36px;
-              background: #090c13;
-              border: 2px solid #ccff00;
-              border-radius: 9px;
+              width: 38px;
+              height: 38px;
+              background: #FFFFFF;
+              border: 2.5px solid #222222;
+              border-radius: 10px;
               display: flex;
               align-items: center;
               justify-content: center;
-              box-shadow: 0 0 20px rgba(204, 255, 0, 0.85);
-              font-size: 19px;
+              box-shadow: 3px 3px 0px #222222;
+              font-size: 20px;
             ">
               🚑
             </div>
-            <div class="strobe-red" style="position: absolute; top: -3px; left: 1px; width: 8px; height: 8px; border-radius: 50%; background: #ff2a5f;"></div>
-            <div class="strobe-blue" style="position: absolute; top: -3px; right: 1px; width: 8px; height: 8px; border-radius: 50%; background: #ccff00;"></div>
+            <div class="strobe-red" style="position: absolute; top: -4px; left: 1px; width: 9px; height: 9px; border-radius: 50%; background: #D71920; border: 1.5px solid #222;"></div>
+            <div class="strobe-blue" style="position: absolute; top: -4px; right: 1px; width: 9px; height: 9px; border-radius: 50%; background: #08B7BA; border: 1.5px solid #222;"></div>
           </div>
         `,
-        iconSize: [36, 36],
-        iconAnchor: [18, 18]
+        iconSize: [38, 38],
+        iconAnchor: [19, 19]
       });
 
       layersRef.current.ambulanceMarker = L.marker([lat, lng], { icon: ambulanceIcon, zIndexOffset: 1000 }).addTo(map);

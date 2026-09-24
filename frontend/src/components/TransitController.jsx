@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, ShieldAlert, Zap, Radio } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, ShieldAlert, Zap, Radio, ChevronLeft, ChevronRight, Compass } from 'lucide-react';
 
 export default function TransitController({
   isSimulating,
@@ -14,42 +14,214 @@ export default function TransitController({
   onToggleAudio,
   voiceEnabled,
   onToggleVoice,
-  onForceClearAll
+  onForceClearAll,
+  simProgress = 0,
+  onManualProgressChange
 }) {
+  const percent = Math.round(simProgress * 100);
+
+  const handleStep = (delta) => {
+    if (onManualProgressChange) {
+      const next = Math.max(0, Math.min(1.0, simProgress + delta));
+      onManualProgressChange(next);
+    }
+  };
+
   return (
-    <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.65rem' }}>
-        <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-          <Zap size={16} color="var(--alert-red)" />
-          TRANSIT & TRAFFIC PREEMPTION CONTROLLER
+    <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.95rem' }}>
+      
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid var(--color-dark)', paddingBottom: '0.65rem' }}>
+        <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '0.92rem', fontWeight: 900, color: 'var(--color-dark)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+          <Zap size={16} color="var(--color-red)" />
+          MANUAL ROAD DRIVING & TRANSIT CONTROLS
         </h3>
         <span style={{
-          background: isSimulating ? 'var(--alert-red-soft)' : 'var(--bg-well)',
-          color: isSimulating ? 'var(--alert-red)' : 'var(--text-secondary)',
-          border: isSimulating ? '1px solid var(--alert-red)' : '1px solid var(--border-subtle)',
+          backgroundColor: isSimulating ? 'var(--color-red)' : 'var(--color-yellow)',
+          color: isSimulating ? '#FFFFFF' : 'var(--color-dark)',
+          border: '1.5px solid var(--color-dark)',
           fontSize: '0.68rem',
-          fontWeight: 800,
-          padding: '0.15rem 0.5rem',
-          borderRadius: '4px'
+          fontFamily: 'var(--font-heading)',
+          fontWeight: 900,
+          padding: '0.2rem 0.6rem',
+          borderRadius: 'var(--radius-pill)',
+          boxShadow: 'var(--shadow-solid-sm)'
         }}>
-          {isSimulating ? '🚨 CODE 3 IN TRANSIT' : 'STANDBY READY'}
+          {isSimulating ? '🚨 LIVE AUTO TRANSIT' : '🕹️ MANUAL DRIVE READY'}
         </span>
       </div>
 
-      {/* Main Action Buttons */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '0.6rem' }}>
+      {/* Manual Road Scrubber Slider */}
+      <div style={{
+        backgroundColor: 'var(--bg-well)',
+        border: '2px solid var(--color-dark)',
+        borderRadius: '12px',
+        padding: '0.8rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.45rem'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.72rem', fontFamily: 'var(--font-heading)', fontWeight: 800, color: 'var(--color-dark)' }}>
+            📍 ROAD WAYPOINT POSITION:
+          </span>
+          <span style={{
+            fontSize: '0.8rem',
+            fontFamily: 'var(--font-mono)',
+            fontWeight: 800,
+            color: 'var(--color-dark)',
+            backgroundColor: 'var(--color-white)',
+            border: '1px solid var(--color-dark)',
+            borderRadius: '6px',
+            padding: '0.1rem 0.5rem'
+          }}>
+            {percent}% Road Distance
+          </span>
+        </div>
+
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.005"
+          value={simProgress}
+          onChange={(e) => onManualProgressChange && onManualProgressChange(parseFloat(e.target.value))}
+          style={{
+            width: '100%',
+            cursor: 'pointer',
+            accentColor: 'var(--color-red)',
+            height: '8px'
+          }}
+          aria-label="Manual route position scrubber"
+        />
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.66rem', color: 'var(--color-dark-muted)', fontWeight: 700 }}>
+          <span>🚒 Fire Station (0%)</span>
+          <span>🚦 Signal Intersections</span>
+          <span>🏥 Hospital Bay (100%)</span>
+        </div>
+      </div>
+
+      {/* Manual Step Driving Buttons */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.45rem' }}>
+        <button
+          type="button"
+          onClick={() => handleStep(-0.1)}
+          className="cad-well"
+          style={{
+            cursor: 'pointer',
+            textAlign: 'center',
+            fontSize: '0.75rem',
+            fontFamily: 'var(--font-heading)',
+            fontWeight: 800,
+            color: 'var(--color-dark)',
+            border: '1.5px solid var(--color-dark)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.2rem'
+          }}
+          title="Reverse ambulance 10% along road"
+        >
+          <ChevronLeft size={16} /> -10% Back
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleStep(-0.02)}
+          className="cad-well"
+          style={{
+            cursor: 'pointer',
+            textAlign: 'center',
+            fontSize: '0.75rem',
+            fontFamily: 'var(--font-heading)',
+            fontWeight: 800,
+            color: 'var(--color-dark)',
+            border: '1.5px solid var(--color-dark)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.2rem'
+          }}
+          title="Reverse ambulance 2% along road (Left Arrow Key)"
+        >
+          <ChevronLeft size={14} /> -2% Step
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleStep(0.02)}
+          className="cad-well"
+          style={{
+            cursor: 'pointer',
+            textAlign: 'center',
+            fontSize: '0.75rem',
+            fontFamily: 'var(--font-heading)',
+            fontWeight: 800,
+            color: 'var(--color-dark)',
+            border: '1.5px solid var(--color-dark)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.2rem'
+          }}
+          title="Drive ambulance 2% along road (Right Arrow Key)"
+        >
+          +2% Step <ChevronRight size={14} />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleStep(0.1)}
+          className="cad-well"
+          style={{
+            cursor: 'pointer',
+            textAlign: 'center',
+            fontSize: '0.75rem',
+            fontFamily: 'var(--font-heading)',
+            fontWeight: 800,
+            color: 'var(--color-dark)',
+            border: '1.5px solid var(--color-dark)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.2rem'
+          }}
+          title="Drive ambulance 10% along road"
+        >
+          +10% Fwd <ChevronRight size={16} />
+        </button>
+      </div>
+
+      {/* Keyboard Driving Hint */}
+      <div style={{
+        fontSize: '0.68rem',
+        color: 'var(--color-dark-muted)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.4rem',
+        backgroundColor: 'var(--color-white)',
+        padding: '0.35rem 0.6rem',
+        borderRadius: '8px',
+        border: '1px solid var(--border-subtle)'
+      }}>
+        <Compass size={14} color="var(--color-teal)" />
+        <span><strong>Drive with Keyboard:</strong> Press <strong>[&larr;] / [&rarr;]</strong> or <strong>[A] / [D]</strong> keys anytime to manually steer along the road.</span>
+      </div>
+
+      {/* Auto Simulation Controls */}
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '0.5rem' }}>
         {!isSimulating ? (
           <button
             type="button"
             className="btn-dispatch"
             onClick={onStart}
             style={{
-              background: 'linear-gradient(135deg, var(--signal-green) 0%, #059669 100%)',
-              boxShadow: '0 4px 18px var(--signal-green-glow)',
-              padding: '0.7rem 1rem'
+              backgroundColor: 'var(--color-teal)',
+              padding: '0.7rem 0.9rem'
             }}
           >
-            <Play size={16} /> START TRANSIT RUN
+            <Play size={16} /> AUTO DRIVE RUN
           </button>
         ) : (
           <button
@@ -57,12 +229,12 @@ export default function TransitController({
             className="btn-dispatch"
             onClick={onPause}
             style={{
-              background: 'linear-gradient(135deg, var(--caution-amber) 0%, #d97706 100%)',
-              boxShadow: '0 4px 18px var(--caution-amber-glow)',
-              padding: '0.7rem 1rem'
+              backgroundColor: 'var(--color-yellow)',
+              color: 'var(--color-dark)',
+              padding: '0.7rem 0.9rem'
             }}
           >
-            <Pause size={16} /> PAUSE TRANSIT
+            <Pause size={16} /> PAUSE DRIVE
           </button>
         )}
 
@@ -71,14 +243,16 @@ export default function TransitController({
           onClick={onReset}
           className="cad-well"
           style={{
-            color: 'var(--text-secondary)',
-            fontSize: '0.8rem',
-            fontWeight: 700,
+            color: 'var(--color-dark)',
+            border: '1.5px solid var(--color-dark)',
+            fontSize: '0.78rem',
+            fontFamily: 'var(--font-heading)',
+            fontWeight: 800,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '0.35rem'
+            gap: '0.3rem'
           }}
         >
           <RotateCcw size={14} /> Reset
@@ -89,31 +263,32 @@ export default function TransitController({
           onClick={onForceClearAll}
           className="cad-well"
           style={{
-            borderColor: 'var(--signal-green)',
-            color: 'var(--signal-green)',
+            backgroundColor: 'var(--color-yellow)',
+            border: '1.5px solid var(--color-dark)',
+            color: 'var(--color-dark)',
             fontSize: '0.75rem',
-            fontWeight: 800,
+            fontFamily: 'var(--font-heading)',
+            fontWeight: 900,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '0.35rem',
+            gap: '0.3rem',
             textAlign: 'center'
           }}
           title="Force all traffic signals along corridor to Green"
         >
-          <ShieldAlert size={14} color="var(--signal-green)" /> Clear All
+          <ShieldAlert size={14} color="var(--color-red)" /> Clear All
         </button>
       </div>
 
-      {/* Speed & Automation Options */}
-      <div className="cad-well" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem', padding: '0.65rem' }}>
-        {/* Speed Multiplier */}
+      {/* Speed, Green Wave, Siren, and Voice Toggles */}
+      <div className="cad-well" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '0.45rem', padding: '0.6rem' }}>
         <div>
-          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '0.3rem', fontWeight: 700 }}>
-            SIMULATION SPEED:
+          <div style={{ fontSize: '0.65rem', color: 'var(--color-dark-muted)', marginBottom: '0.25rem', fontWeight: 800 }}>
+            AUTO SPEED:
           </div>
-          <div style={{ display: 'flex', gap: '0.3rem' }}>
+          <div style={{ display: 'flex', gap: '0.25rem' }}>
             {[1, 2, 5].map(speed => (
               <button
                 key={speed}
@@ -121,12 +296,12 @@ export default function TransitController({
                 onClick={() => onChangeSpeed(speed)}
                 style={{
                   flex: 1,
-                  background: simSpeed === speed ? 'var(--accent-cyan)' : 'var(--bg-well)',
-                  border: simSpeed === speed ? '1px solid var(--accent-cyan)' : '1px solid var(--border-subtle)',
-                  color: simSpeed === speed ? '#04101e' : 'var(--text-secondary)',
-                  padding: '0.3rem 0.4rem',
+                  backgroundColor: simSpeed === speed ? 'var(--color-teal)' : 'var(--color-white)',
+                  border: '1px solid var(--color-dark)',
+                  color: simSpeed === speed ? '#FFFFFF' : 'var(--color-dark)',
+                  padding: '0.25rem 0.35rem',
                   borderRadius: '5px',
-                  fontSize: '0.75rem',
+                  fontSize: '0.72rem',
                   fontWeight: 800,
                   cursor: 'pointer'
                 }}
@@ -137,33 +312,31 @@ export default function TransitController({
           </div>
         </div>
 
-        {/* Auto Preemption Toggle */}
         <div>
-          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '0.3rem', fontWeight: 700 }}>
-            GREEN WAVE MODE:
+          <div style={{ fontSize: '0.65rem', color: 'var(--color-dark-muted)', marginBottom: '0.25rem', fontWeight: 800 }}>
+            GREEN WAVE:
           </div>
           <button
             type="button"
             onClick={onToggleAutoPreempt}
             style={{
               width: '100%',
-              background: autoPreempt ? 'var(--signal-green-soft)' : 'var(--bg-well)',
-              border: autoPreempt ? '1px solid var(--signal-green)' : '1px solid var(--border-subtle)',
-              color: autoPreempt ? 'var(--signal-green)' : 'var(--text-secondary)',
-              padding: '0.3rem 0.4rem',
+              backgroundColor: autoPreempt ? 'var(--color-yellow)' : 'var(--color-white)',
+              border: '1px solid var(--color-dark)',
+              color: 'var(--color-dark)',
+              padding: '0.25rem 0.35rem',
               borderRadius: '5px',
-              fontSize: '0.75rem',
+              fontSize: '0.72rem',
               fontWeight: 800,
               cursor: 'pointer'
             }}
           >
-            {autoPreempt ? '✓ AI Auto-EVP' : 'Manual Signal'}
+            {autoPreempt ? '✓ Auto-EVP' : 'Manual EVP'}
           </button>
         </div>
 
-        {/* Siren Audio Toggle */}
         <div>
-          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '0.3rem', fontWeight: 700 }}>
+          <div style={{ fontSize: '0.65rem', color: 'var(--color-dark-muted)', marginBottom: '0.25rem', fontWeight: 800 }}>
             SIREN AUDIO:
           </div>
           <button
@@ -171,54 +344,54 @@ export default function TransitController({
             onClick={onToggleAudio}
             style={{
               width: '100%',
-              background: audioEnabled ? 'var(--alert-red-soft)' : 'var(--bg-well)',
-              border: audioEnabled ? '1px solid var(--alert-red)' : '1px solid var(--border-subtle)',
-              color: audioEnabled ? 'var(--alert-red)' : 'var(--text-secondary)',
-              padding: '0.3rem 0.4rem',
+              backgroundColor: audioEnabled ? 'var(--color-red)' : 'var(--color-white)',
+              border: '1px solid var(--color-dark)',
+              color: audioEnabled ? '#FFFFFF' : 'var(--color-dark)',
+              padding: '0.25rem 0.35rem',
               borderRadius: '5px',
-              fontSize: '0.75rem',
+              fontSize: '0.72rem',
               fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.3rem'
+              gap: '0.25rem'
             }}
           >
-            {audioEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
-            {audioEnabled ? 'Siren Active' : 'Muted'}
+            {audioEnabled ? <Volume2 size={12} /> : <VolumeX size={12} />}
+            {audioEnabled ? 'Active' : 'Muted'}
           </button>
         </div>
 
-        {/* Voice Guidance Toggle */}
         <div>
-          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '0.3rem', fontWeight: 700 }}>
-            VOICE GUIDANCE:
+          <div style={{ fontSize: '0.65rem', color: 'var(--color-dark-muted)', marginBottom: '0.25rem', fontWeight: 800 }}>
+            VOICE CAD:
           </div>
           <button
             type="button"
             onClick={onToggleVoice}
             style={{
               width: '100%',
-              background: voiceEnabled ? 'rgba(0, 242, 254, 0.12)' : 'var(--bg-well)',
-              border: voiceEnabled ? '1px solid var(--accent-cyan)' : '1px solid var(--border-subtle)',
-              color: voiceEnabled ? 'var(--accent-cyan)' : 'var(--text-secondary)',
-              padding: '0.3rem 0.4rem',
+              backgroundColor: voiceEnabled ? 'var(--color-teal)' : 'var(--color-white)',
+              border: '1px solid var(--color-dark)',
+              color: voiceEnabled ? '#FFFFFF' : 'var(--color-dark)',
+              padding: '0.25rem 0.35rem',
               borderRadius: '5px',
-              fontSize: '0.75rem',
+              fontSize: '0.72rem',
               fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.3rem'
+              gap: '0.25rem'
             }}
           >
-            {voiceEnabled ? <Radio size={13} /> : <VolumeX size={13} />}
-            {voiceEnabled ? 'Voice On' : 'Voice Off'}
+            {voiceEnabled ? <Radio size={12} /> : <VolumeX size={12} />}
+            {voiceEnabled ? 'On' : 'Off'}
           </button>
         </div>
       </div>
+
     </div>
   );
 }
