@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Header from './components/Header.jsx';
+import HeroLanding from './components/HeroLanding.jsx';
 import DispatchForm from './components/DispatchForm.jsx';
 import InteractiveLeafletMap from './components/InteractiveLeafletMap.jsx';
 import TransitController from './components/TransitController.jsx';
@@ -11,12 +12,6 @@ import { playSirenSound, stopSirenSound, speakDispatch } from './utils/sirenAudi
 import { Map, Activity, Radio, BarChart3, ShieldCheck } from 'lucide-react';
 
 export default function App() {
-  const [theme, setTheme] = useState(() => localStorage.getItem('cad-theme') || 'cobalt');
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('cad-theme', theme);
-  }, [theme]);
 
   const [startLocations, setStartLocations] = useState([
     "Fire Station 3", "Fire Station 7", "Downtown EMS Base"
@@ -368,13 +363,37 @@ export default function App() {
     addLog("Transit run reset to origin station.", 'info');
   };
 
+  const handleLaunchDemo = () => {
+    setActiveTab('map');
+    const consoleEl = document.getElementById('operation-console');
+    if (consoleEl) {
+      consoleEl.scrollIntoView({ behavior: 'smooth' });
+    }
+    if (!isSimulating) {
+      handleStart();
+    }
+  };
+
+  const handleExploreMap = () => {
+    setActiveTab('map');
+    const consoleEl = document.getElementById('operation-console');
+    if (consoleEl) {
+      consoleEl.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-deep)' }}>
-      <Header
-        apiOnline={apiOnline}
-        currentTheme={theme}
-        onThemeChange={(newTheme) => setTheme(newTheme)}
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-page)' }}>
+      {/* 50/50 Split-Screen Modern Landing Page Hero */}
+      <HeroLanding
+        onLaunchDemo={handleLaunchDemo}
+        onExploreMap={handleExploreMap}
       />
+
+      {/* CAD Operational Workstation Section */}
+      <div id="operation-console" style={{ width: '100%' }}>
+        <Header apiOnline={apiOnline} />
+      </div>
 
       <main style={{
         flex: 1,
@@ -526,13 +545,14 @@ export default function App() {
 
       <footer style={{
         textAlign: 'center',
-        padding: '1.2rem',
-        fontSize: '0.75rem',
-        color: 'var(--text-muted)',
-        borderTop: '1px solid var(--border-subtle)',
-        background: 'var(--bg-deep)'
+        padding: '1.5rem',
+        fontSize: '0.8rem',
+        fontWeight: 600,
+        color: 'var(--color-dark)',
+        borderTop: '2px solid var(--color-dark)',
+        background: 'var(--color-white)'
       }}>
-        Ambulance Router Dispatch Intelligence System • Dynamic Green Wave Preemption (EVP) • Multi-Palette Tactical CAD Workstation
+        Autonomous Ambulance Router Dispatch Intelligence System • Dynamic Green Wave Preemption (EVP) • High-Visibility Flat Avionics
       </footer>
     </div>
   );

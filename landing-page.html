@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PulseWave | Modern Emergency Dispatch Navigation</title>
+  
+  <!-- Modern Bold Typography: Poppins & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       CSS VARIABLES & DESIGN SYSTEM
+       ========================================================================== */
+    :root {
+      /* Solid Color Palette (No Gradients) */
+      --color-yellow: #FFB91A;
+      --color-teal: #08B7BA;
+      --color-red: #D71920;
+      --color-white: #FFFFFF;
+      --color-dark: #222222;
+      --color-dark-muted: #555555;
+      --color-page-bg: #F4F6F9;
+
+      /* Spacing & Radii */
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-hero: 24px;
+      --radius-pill: 9999px;
+
+      /* Shadows (Flat Solid Tactile Look) */
+      --shadow-hero: 0 20px 60px rgba(0, 0, 0, 0.12);
+      --shadow-solid: 4px 4px 0px #222222;
+      --shadow-solid-sm: 2px 2px 0px #222222;
+
+      /* Fonts */
+      --font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+      /* Transitions */
+      --transition-fast: 0.15s ease;
+      --transition-smooth: 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    /* Base Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--color-page-bg);
+      color: var(--color-dark);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       HERO CONTAINER (Split-Screen 50/50 Layout)
+       ========================================================================== */
+    .hero-container {
+      width: 100%;
+      max-width: 1440px;
+      min-height: 680px;
+      background-color: var(--color-white);
+      border-radius: var(--radius-hero);
+      overflow: hidden;
+      display: flex;
+      position: relative;
+      box-shadow: var(--shadow-hero);
+      border: 3px solid var(--color-dark);
+    }
+
+    /* Split Sections (50/50 Desktop) */
+    .hero-section {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ==========================================================================
+       LEFT SECTION: Bright Warm Yellow (#FFB91A)
+       ========================================================================== */
+    .hero-left {
+      background-color: var(--color-yellow);
+      padding: 4rem 3.5rem 3.5rem 4rem;
+      justify-content: space-between;
+      z-index: 2;
+    }
+
+    /* Eyebrow Tag */
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--color-white);
+      color: var(--color-dark);
+      border: 2px solid var(--color-dark);
+      padding: 0.4rem 0.9rem;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      box-shadow: var(--shadow-solid-sm);
+      width: fit-content;
+      margin-bottom: 2rem;
+    }
+
+    .tag-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--color-red);
+    }
+
+    /* Bold Oversized Heading */
+    .hero-title {
+      font-family: var(--font-heading);
+      font-size: clamp(2.6rem, 4.5vw, 4.2rem);
+      font-weight: 900;
+      line-height: 1.04;
+      letter-spacing: -0.035em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Strong Red Accent Text */
+    .accent-red {
+      color: var(--color-red);
+      display: inline;
+    }
+
+    .accent-dark {
+      color: var(--color-dark);
+      display: inline;
+    }
+
+    /* Body Description */
+    .hero-description {
+      color: var(--color-dark);
+      font-size: 1.1rem;
+      line-height: 1.6;
+      font-weight: 500;
+      max-width: 520px;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Action Buttons */
+    .hero-cta-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background-color: var(--color-red);
+      color: var(--color-white);
+      border: 2px solid var(--color-dark);
+      border-radius: var(--radius-pill);
+      padding: 0.95rem 2rem;
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: var(--shadow-solid);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+      text-decoration: none;
+    }
+
+    .btn-primary:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--color-dark);
+    }
+
+    .btn-primary:active {
+      transform: translate(1px, 1px);
+      box-shadow: 2px 2px 0px var(--color-dark);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background-color: var(--color-white);
+      color: var(--color-dark);
+      border: 2px solid var(--color-dark);
+      border-radius: var(--radius-pill);
+      padding: 0.95rem 1.8rem;
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: var(--shadow-solid);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+      text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--color-dark);
+      background-color: #FAFAFA;
+    }
+
+    .btn-secondary:active {
+      transform: translate(1px, 1px);
+      box-shadow: 2px 2px 0px var(--color-dark);
+    }
+
+    /* Circular Navigation Buttons at Bottom-Left */
+    .hero-bottom-nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .circular-nav-group {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: var(--color-white);
+      color: var(--color-dark);
+      border: 2px solid var(--color-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: var(--shadow-solid-sm);
+      transition: transform var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast);
+      user-select: none;
+    }
+
+    .btn-circle:hover {
+      background-color: var(--color-dark);
+      color: var(--color-white);
+      transform: translateY(-2px);
+    }
+
+    .btn-circle:active {
+      transform: translateY(1px);
+    }
+
+    .hero-indicators {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .indicator-pill {
+      height: 8px;
+      width: 8px;
+      border-radius: 50%;
+      background-color: rgba(34, 34, 34, 0.35);
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .indicator-pill.active {
+      width: 24px;
+      border-radius: 4px;
+      background-color: var(--color-dark);
+    }
+
+    /* ==========================================================================
+       VERTICAL DECORATIVE STRIPES (Between Left & Right)
+       ========================================================================== */
+    .hero-divider-stripes {
+      width: 18px;
+      background-color: var(--color-yellow);
+      display: flex;
+      justify-content: space-evenly;
+      align-items: stretch;
+      position: relative;
+      z-index: 5;
+      border-left: 2px solid var(--color-dark);
+      border-right: 2px solid var(--color-dark);
+    }
+
+    .hero-divider-stripes .stripe {
+      width: 2px;
+      background-color: var(--color-dark);
+      height: 100%;
+    }
+
+    /* ==========================================================================
+       RIGHT SECTION: Vibrant Turquoise / Teal (#08B7BA)
+       ========================================================================== */
+    .hero-right {
+      background-color: var(--color-teal);
+      padding: 2.5rem 3.5rem 3.5rem 3.5rem;
+      justify-content: space-between;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    /* Compact Top-Right Navigation Menu */
+    .hero-top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 1.8rem;
+      z-index: 10;
+    }
+
+    .hero-nav-link {
+      color: var(--color-white);
+      text-decoration: none;
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      position: relative;
+      padding: 0.3rem 0;
+      transition: color var(--transition-fast);
+    }
+
+    .hero-nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background-color: var(--color-yellow);
+      transition: width var(--transition-smooth);
+    }
+
+    .hero-nav-link:hover {
+      color: var(--color-yellow);
+    }
+
+    .hero-nav-link:hover::after {
+      width: 100%;
+    }
+
+    .btn-nav-emergency {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--color-red);
+      color: var(--color-white);
+      border: 2px solid var(--color-dark);
+      border-radius: var(--radius-pill);
+      padding: 0.5rem 1.2rem;
+      font-family: var(--font-heading);
+      font-size: 0.82rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: var(--shadow-solid-sm);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .btn-nav-emergency:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px var(--color-dark);
+    }
+
+    /* Center Product / Hero Visual Stage */
+    .hero-stage {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 420px;
+    }
+
+    /* Playful Organic / Blob-Shaped Decorative Elements */
+    .blob {
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .blob-yellow {
+      width: 340px;
+      height: 340px;
+      background-color: var(--color-yellow);
+      border-radius: 45% 55% 62% 38% / 42% 52% 48% 58%;
+      top: 8%;
+      right: 4%;
+      z-index: 1;
+      animation: blob-wobble 9s ease-in-out infinite alternate;
+    }
+
+    .blob-white {
+      width: 260px;
+      height: 260px;
+      background-color: var(--color-white);
+      border-radius: 60% 40% 45% 55% / 55% 45% 55% 45%;
+      bottom: 6%;
+      left: 4%;
+      z-index: 2;
+      animation: blob-wobble-rev 11s ease-in-out infinite alternate;
+    }
+
+    .blob-red-circle {
+      width: 84px;
+      height: 84px;
+      background-color: var(--color-red);
+      border-radius: 50%;
+      top: 12%;
+      left: 10%;
+      z-index: 2;
+      border: 2px solid var(--color-dark);
+      box-shadow: var(--shadow-solid-sm);
+      animation: blob-pulse 3.5s ease-in-out infinite;
+    }
+
+    @keyframes blob-wobble {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(-22px) rotate(9deg); }
+    }
+
+    @keyframes blob-wobble-rev {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(20px) rotate(-8deg); }
+    }
+
+    @keyframes blob-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    /* Floating Feature Badges */
+    .float-card {
+      position: absolute;
+      background-color: var(--color-white);
+      color: var(--color-dark);
+      border: 2px solid var(--color-dark);
+      border-radius: 14px;
+      padding: 0.65rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: var(--shadow-solid-sm);
+      z-index: 10;
+      transition: transform var(--transition-fast);
+      user-select: none;
+    }
+
+    .float-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .float-card-title {
+      display: block;
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .float-card-sub {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--color-dark-muted);
+      font-weight: 600;
+    }
+
+    .card-pos-1 {
+      top: 16%;
+      left: 2%;
+    }
+
+    .card-pos-2 {
+      bottom: 12%;
+      right: 4%;
+    }
+
+    .card-pos-3 {
+      top: 10%;
+      right: 8%;
+    }
+
+    /* Centered Product/Hero Image */
+    .hero-product-art {
+      position: relative;
+      z-index: 5;
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.22));
+      transition: transform var(--transition-smooth);
+    }
+
+    .hero-product-art:hover {
+      transform: translateY(-6px);
+    }
+
+    /* ==========================================================================
+       RESPONSIVE MEDIA QUERIES
+       ========================================================================== */
+    /* Tablet (768px - 1024px) */
+    @media (max-width: 1024px) {
+      .hero-container {
+        min-height: 600px;
+      }
+      .hero-left {
+        padding: 3rem 2.5rem;
+      }
+      .hero-right {
+        padding: 2rem 2.5rem;
+      }
+      .hero-title {
+        font-size: 2.8rem;
+      }
+      .blob-yellow {
+        width: 270px;
+        height: 270px;
+      }
+      .blob-white {
+        width: 200px;
+        height: 200px;
+      }
+    }
+
+    /* Mobile (stacked vertically under 768px) */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem 0.75rem;
+      }
+      .hero-container {
+        flex-direction: column;
+        min-height: auto;
+        border-radius: 20px;
+      }
+      .hero-left {
+        padding: 2.5rem 1.5rem 2rem 1.5rem;
+      }
+      .hero-title {
+        font-size: 2.2rem;
+      }
+      .hero-divider-stripes {
+        width: 100%;
+        height: 14px;
+        flex-direction: row;
+        border-left: none;
+        border-right: none;
+        border-top: 2px solid var(--color-dark);
+        border-bottom: 2px solid var(--color-dark);
+      }
+      .hero-divider-stripes .stripe {
+        width: auto;
+        height: 2px;
+        flex: 1;
+        margin: 0 4px;
+      }
+      .hero-right {
+        padding: 2rem 1.5rem 3rem 1.5rem;
+        min-height: 400px;
+      }
+      .hero-top-nav {
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .card-pos-1 {
+        top: 6%;
+        left: 2%;
+      }
+      .card-pos-2 {
+        bottom: 6%;
+        right: 2%;
+      }
+      .card-pos-3 {
+        display: none;
+      }
+      .blob-yellow {
+        width: 220px;
+        height: 220px;
+      }
+      .blob-white {
+        width: 160px;
+        height: 160px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       HERO CONTAINER (Split-Screen 50/50 Layout)
+       ========================================================================== -->
+  <main class="hero-container">
+
+    <!-- ================= LEFT SECTION: BRIGHT WARM YELLOW ================= -->
+    <section class="hero-section hero-left">
+      <div>
+        <!-- Brand / Feature Tag -->
+        <div class="hero-tag">
+          <span class="tag-dot"></span>
+          <span id="slide-tag">AUTONOMOUS EMERGENCY CAD v2.5</span>
+        </div>
+
+        <!-- Bold, Oversized Typography with Strong Red Accent -->
+        <h1 class="hero-title">
+          <span class="accent-red" id="slide-red">CLEARING TRAFFIC.</span><br />
+          <span class="accent-dark" id="slide-dark">SAVING LIVES IN SECONDS.</span>
+        </h1>
+
+        <!-- Generous Whitespace Description -->
+        <p class="hero-description" id="slide-desc">
+          Next-generation dispatch engine that calculates live school zones, weather hydroplaning hazards, and overrides traffic signals with 400m green-wave preemption.
+        </p>
+
+        <!-- Solid Flat CTA Buttons with Subtle Hover Animations -->
+        <div class="hero-cta-group">
+          <a href="#dispatch-now" class="btn-primary" id="btn-main-action">
+            <span>Launch Live Mission</span>
+            <span>&rarr;</span>
+          </a>
+          <a href="#explore-routes" class="btn-secondary">
+            <span>Explore Corridors</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Small Circular Navigation Buttons Near Bottom-Left -->
+      <div class="hero-bottom-nav">
+        <div class="circular-nav-group">
+          <button type="button" class="btn-circle" id="prev-btn" aria-label="Previous Feature">&larr;</button>
+          <button type="button" class="btn-circle" id="next-btn" aria-label="Next Feature">&rarr;</button>
+        </div>
+
+        <div class="hero-indicators">
+          <button type="button" class="indicator-pill active" data-index="0" aria-label="Slide 1"></button>
+          <button type="button" class="indicator-pill" data-index="1" aria-label="Slide 2"></button>
+          <button type="button" class="indicator-pill" data-index="2" aria-label="Slide 3"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= THIN VERTICAL DECORATIVE STRIPES ================= -->
+    <div class="hero-divider-stripes" aria-hidden="true">
+      <span class="stripe"></span>
+      <span class="stripe"></span>
+      <span class="stripe"></span>
+    </div>
+
+    <!-- ================= RIGHT SECTION: VIBRANT TURQUOISE / TEAL ================= -->
+    <section class="hero-section hero-right">
+      <!-- Compact Top-Right Navigation Menu -->
+      <nav class="hero-top-nav">
+        <a href="#solutions" class="hero-nav-link">Solutions</a>
+        <a href="#corridors" class="hero-nav-link">Corridors</a>
+        <a href="#greenwave" class="hero-nav-link">Green Wave</a>
+        <a href="#contact" class="btn-nav-emergency">
+          <span>&#9889; DISPATCH 911</span>
+        </a>
+      </nav>
+
+      <!-- Center Product / Hero Visual Stage with Playful Organic Blobs -->
+      <div class="hero-stage">
+        <!-- Playful Organic Blobs -->
+        <div class="blob blob-yellow" aria-hidden="true"></div>
+        <div class="blob blob-white" aria-hidden="true"></div>
+        <div class="blob blob-red-circle" aria-hidden="true"></div>
+
+        <!-- Floating Tactical Feature Badges -->
+        <div class="float-card card-pos-1">
+          <span style="font-size: 1.25rem;">&#9889;</span>
+          <div>
+            <strong class="float-card-title">400m Preemption</strong>
+            <span class="float-card-sub">Green-Wave Signal Lock</span>
+          </div>
+        </div>
+
+        <div class="float-card card-pos-2">
+          <span style="font-size: 1.25rem;">&#128200;</span>
+          <div>
+            <strong class="float-card-title">-42% Response Time</strong>
+            <span class="float-card-sub">Rapid Emergency Bypass</span>
+          </div>
+        </div>
+
+        <div class="float-card card-pos-3">
+          <span style="font-size: 1.25rem;">&#128737;</span>
+          <div>
+            <strong class="float-card-title">Safety Score 98/100</strong>
+            <span class="float-card-sub">School Zone Safeguard</span>
+          </div>
+        </div>
+
+        <!-- Large Centered Product / Hero Image (Crisp Vector SVG) -->
+        <div class="hero-product-art">
+          <svg viewBox="0 0 520 280" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+            <!-- Road surface -->
+            <rect x="20" y="240" width="480" height="12" rx="6" fill="#222222" />
+            <rect x="70" y="244" width="70" height="4" rx="2" fill="#FFFFFF" />
+            <rect x="180" y="244" width="70" height="4" rx="2" fill="#FFFFFF" />
+            <rect x="290" y="244" width="70" height="4" rx="2" fill="#FFFFFF" />
+            <rect x="400" y="244" width="50" height="4" rx="2" fill="#FFFFFF" />
+
+            <!-- Ambulance Body -->
+            <path d="M 60 215 L 60 115 Q 60 90, 85 90 L 340 90 L 395 125 L 455 145 Q 465 155, 465 175 L 465 215 Z" fill="#FFFFFF" stroke="#222222" stroke-width="5" stroke-linejoin="round" />
+            
+            <!-- Red Emergency Stripe -->
+            <path d="M 60 160 L 465 160 L 465 190 L 60 190 Z" fill="#D71920" />
+
+            <!-- Windows -->
+            <path d="M 345 100 L 390 128 L 390 152 L 345 152 Z" fill="#222222" />
+            <path d="M 398 128 L 440 148 L 440 152 L 398 152 Z" fill="#222222" />
+
+            <!-- Medical Cross Emblem -->
+            <g transform="translate(180, 115)">
+              <circle cx="20" cy="20" r="26" fill="#FFB91A" stroke="#222222" stroke-width="3" />
+              <rect x="16" y="6" width="8" height="28" rx="2" fill="#D71920" />
+              <rect x="6" y="16" width="28" height="8" rx="2" fill="#D71920" />
+            </g>
+
+            <!-- Lightbars & Dome -->
+            <rect x="200" y="78" width="80" height="12" rx="6" fill="#222222" />
+            <rect x="210" y="72" width="25" height="8" rx="3" fill="#D71920" />
+            <rect x="245" y="72" width="25" height="8" rx="3" fill="#08B7BA" />
+            <circle cx="360" cy="80" r="7" fill="#FFB91A" stroke="#222222" stroke-width="3" />
+
+            <!-- Grill & Light -->
+            <path d="M 458 175 L 465 175 L 465 195 L 458 195 Z" fill="#FFB91A" stroke="#222222" stroke-width="2" />
+            <rect x="450" y="200" width="15" height="12" rx="3" fill="#222222" />
+
+            <!-- Heavy Wheels -->
+            <circle cx="140" cy="220" r="34" fill="#222222" />
+            <circle cx="140" cy="220" r="20" fill="#FFFFFF" stroke="#222222" stroke-width="4" />
+            <circle cx="140" cy="220" r="8" fill="#D71920" />
+            
+            <circle cx="395" cy="220" r="34" fill="#222222" />
+            <circle cx="395" cy="220" r="20" fill="#FFFFFF" stroke="#222222" stroke-width="4" />
+            <circle cx="395" cy="220" r="8" fill="#08B7BA" />
+
+            <!-- Speed Motion Streaks -->
+            <line x1="25" y1="130" x2="48" y2="130" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+            <line x1="15" y1="150" x2="45" y2="150" stroke="#FFB91A" stroke-width="4" stroke-linecap="round" />
+            <line x1="30" y1="170" x2="50" y2="170" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Slide Switching Logic -->
+  <script>
+    const slides = [
+      {
+        tag: "AUTONOMOUS EMERGENCY CAD v2.5",
+        red: "CLEARING TRAFFIC.",
+        dark: "SAVING LIVES IN SECONDS.",
+        desc: "Next-generation dispatch engine that calculates live school zones, weather hydroplaning hazards, and overrides traffic signals with 400m green-wave preemption."
+      },
+      {
+        tag: "GREEN-WAVE SIGNAL OVERRIDE",
+        red: "UNINTERRUPTED FLOW.",
+        dark: "ZERO CROSS-TRAFFIC DELAYS.",
+        desc: "Simultaneous emergency preemption switches corridor intersections to green 400 meters in advance, clearing civilian bottlenecks before arrival."
+      },
+      {
+        tag: "PEDIATRIC ZONE SAFEGUARDS",
+        red: "ZERO COMPROMISES.",
+        dark: "DYNAMIC SPEED AWARENESS.",
+        desc: "Automated geofencing detects 07:30–09:00 & 14:30–16:00 school hours, balancing critical patient acuity with local pedestrian safety."
+      }
+    ];
+
+    let current = 0;
+    const tagEl = document.getElementById('slide-tag');
+    const redEl = document.getElementById('slide-red');
+    const darkEl = document.getElementById('slide-dark');
+    const descEl = document.getElementById('slide-desc');
+    const indicators = document.querySelectorAll('.indicator-pill');
+
+    function updateSlide(idx) {
+      current = idx;
+      tagEl.textContent = slides[current].tag;
+      redEl.textContent = slides[current].red;
+      darkEl.textContent = slides[current].dark;
+      descEl.textContent = slides[current].desc;
+
+      indicators.forEach((p, i) => {
+        if (i === current) p.classList.add('active');
+        else p.classList.remove('active');
+      });
+    }
+
+    document.getElementById('prev-btn').addEventListener('click', () => {
+      updateSlide((current - 1 + slides.length) % slides.length);
+    });
+
+    document.getElementById('next-btn').addEventListener('click', () => {
+      updateSlide((current + 1) % slides.length);
+    });
+
+    indicators.forEach((pill, idx) => {
+      pill.addEventListener('click', () => updateSlide(idx));
+    });
+  </script>
+</body>
+</html>
