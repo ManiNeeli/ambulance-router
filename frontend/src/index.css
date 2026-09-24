@@ -1,42 +1,43 @@
 @import "leaflet/dist/leaflet.css";
 
 /* ==========================================================================
-   CAD-ITS Unified Design System & Harmonious Color Palette
+   CAD-ITS Hyper-Speed Avionics Design System & Color Combinations
    ========================================================================== */
 
-:root, [data-theme="aurora"] {
-  /* Surface & Depth */
-  --bg-deep: #07090e;
-  --bg-surface: #0c111d;
-  --bg-surface-elevated: #111827;
-  --bg-card: rgba(14, 21, 37, 0.75);
-  --bg-card-hover: rgba(20, 30, 52, 0.85);
-  --bg-well: rgba(7, 11, 20, 0.85);
-  --bg-well-active: rgba(0, 242, 254, 0.08);
+/* 1. Default Palette: Hyper-Lime Avionics (Electric Chartreuse & Deep Onyx) */
+:root, [data-theme="hyper-lime"] {
+  --bg-deep: #080a0f;
+  --bg-surface: #0f131d;
+  --bg-surface-elevated: #151b2a;
+  --bg-card: rgba(15, 20, 32, 0.85);
+  --bg-card-hover: rgba(22, 30, 48, 0.92);
+  --bg-well: rgba(9, 12, 19, 0.92);
+  --bg-well-active: rgba(204, 255, 0, 0.08);
 
-  /* Harmonious Accents */
-  --accent-cyan: #00f2fe;
-  --accent-blue: #3b82f6;
-  --accent-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-  --accent-glow: rgba(0, 242, 254, 0.35);
+  /* Primary Signature Accent */
+  --accent-primary: #ccff00;
+  --accent-secondary: #7c3aed;
+  --accent-highlight: #b8f000;
+  --accent-gradient: linear-gradient(135deg, #ccff00 0%, #7c3aed 100%);
+  --accent-glow: rgba(204, 255, 0, 0.4);
 
-  /* Status Colors (Curated & Luminous) */
-  --alert-red: #ff3366;
-  --alert-red-glow: rgba(255, 51, 102, 0.4);
-  --alert-red-soft: rgba(255, 51, 102, 0.12);
+  /* Status Colors */
+  --alert-red: #ff2a5f;
+  --alert-red-glow: rgba(255, 42, 95, 0.45);
+  --alert-red-soft: rgba(255, 42, 95, 0.12);
 
-  --signal-green: #00e676;
-  --signal-green-glow: rgba(0, 230, 118, 0.4);
-  --signal-green-soft: rgba(0, 230, 118, 0.12);
+  --signal-green: #00f5a0;
+  --signal-green-glow: rgba(0, 245, 160, 0.4);
+  --signal-green-soft: rgba(0, 245, 160, 0.12);
 
-  --caution-amber: #ffb300;
-  --caution-amber-glow: rgba(255, 179, 0, 0.35);
-  --caution-amber-soft: rgba(255, 179, 0, 0.12);
+  --caution-amber: #ff9100;
+  --caution-amber-glow: rgba(255, 145, 0, 0.35);
+  --caution-amber-soft: rgba(255, 145, 0, 0.12);
 
   /* Borders & Dividers */
-  --border-subtle: rgba(148, 163, 184, 0.14);
-  --border-card: rgba(56, 189, 248, 0.22);
-  --border-highlight: rgba(0, 242, 254, 0.55);
+  --border-subtle: rgba(148, 163, 184, 0.16);
+  --border-card: rgba(204, 255, 0, 0.25);
+  --border-highlight: rgba(204, 255, 0, 0.6);
 
   /* Typography */
   --text-primary: #ffffff;
@@ -44,65 +45,74 @@
   --text-muted: #64748b;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-
-  /* Glassmorphism */
   --glass-blur: blur(14px);
 }
 
-/* 2. Cyberpunk Cobalt Theme */
-[data-theme="cobalt"] {
-  --bg-deep: #030712;
-  --bg-surface: #0a1128;
-  --bg-surface-elevated: #0f1c3f;
-  --bg-card: rgba(13, 24, 53, 0.8);
-  --bg-card-hover: rgba(19, 34, 73, 0.9);
-  --bg-well: rgba(6, 12, 28, 0.9);
-  --bg-well-active: rgba(59, 130, 246, 0.12);
+/* 2. Synthwave Ultraviolet Theme */
+[data-theme="synthwave"] {
+  --bg-deep: #0c0814;
+  --bg-surface: #130d20;
+  --bg-surface-elevated: #1c1430;
+  --bg-card: rgba(21, 14, 35, 0.88);
+  --bg-card-hover: rgba(30, 20, 50, 0.95);
+  --bg-well: rgba(12, 8, 20, 0.94);
+  --bg-well-active: rgba(244, 63, 94, 0.12);
 
-  --accent-cyan: #38bdf8;
-  --accent-blue: #2563eb;
-  --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
-  --accent-glow: rgba(56, 189, 248, 0.35);
+  --accent-primary: #f43f5e;
+  --accent-secondary: #8b5cf6;
+  --accent-highlight: #c084fc;
+  --accent-gradient: linear-gradient(135deg, #f43f5e 0%, #8b5cf6 100%);
+  --accent-glow: rgba(244, 63, 94, 0.4);
 
-  --alert-red: #ef4444;
-  --signal-green: #10b981;
-  --caution-amber: #f59e0b;
+  --alert-red: #ff2a70;
+  --signal-green: #00f5d4;
+  --caution-amber: #fbbf24;
+
+  --border-subtle: rgba(192, 132, 252, 0.18);
+  --border-card: rgba(244, 63, 94, 0.35);
+  --border-highlight: rgba(244, 63, 94, 0.65);
 }
 
-/* 3. Tactical Mint Emerald Theme */
-[data-theme="emerald"] {
-  --bg-deep: #020805;
-  --bg-surface: #05150d;
-  --bg-surface-elevated: #092416;
-  --bg-card: rgba(8, 32, 20, 0.82);
-  --bg-card-hover: rgba(12, 46, 29, 0.9);
-  --bg-well: rgba(4, 16, 10, 0.9);
-  --bg-well-active: rgba(16, 185, 129, 0.15);
+/* 3. Solar Amber Flare Theme */
+[data-theme="solar"] {
+  --bg-deep: #0d0905;
+  --bg-surface: #160e08;
+  --bg-surface-elevated: #24170d;
+  --bg-card: rgba(26, 17, 10, 0.88);
+  --bg-card-hover: rgba(38, 25, 15, 0.95);
+  --bg-well: rgba(14, 9, 5, 0.94);
+  --bg-well-active: rgba(255, 145, 0, 0.12);
 
-  --accent-cyan: #10b981;
-  --accent-blue: #059669;
-  --accent-gradient: linear-gradient(135deg, #34d399 0%, #059669 100%);
-  --accent-glow: rgba(16, 185, 129, 0.4);
+  --accent-primary: #ff9100;
+  --accent-secondary: #ffd700;
+  --accent-highlight: #ffaa00;
+  --accent-gradient: linear-gradient(135deg, #ff9100 0%, #ffd700 100%);
+  --accent-glow: rgba(255, 145, 0, 0.45);
 
-  --alert-red: #f43f5e;
-  --signal-green: #00ff9d;
-  --caution-amber: #f59e0b;
+  --alert-red: #ff3344;
+  --signal-green: #00e676;
+  --caution-amber: #ffaa00;
+
+  --border-subtle: rgba(255, 170, 0, 0.2);
+  --border-card: rgba(255, 145, 0, 0.35);
+  --border-highlight: rgba(255, 145, 0, 0.65);
 }
 
-/* 4. Nordic Clean Daylight Theme */
-[data-theme="light"] {
+/* 4. Minimalist Titanium Light Theme */
+[data-theme="titanium"] {
   --bg-deep: #f8fafc;
   --bg-surface: #ffffff;
   --bg-surface-elevated: #f1f5f9;
-  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-card: rgba(255, 255, 255, 0.96);
   --bg-card-hover: rgba(241, 245, 249, 1);
   --bg-well: #f1f5f9;
   --bg-well-active: rgba(37, 99, 235, 0.08);
 
-  --accent-cyan: #2563eb;
-  --accent-blue: #1d4ed8;
-  --accent-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  --accent-glow: rgba(37, 99, 235, 0.2);
+  --accent-primary: #2563eb;
+  --accent-secondary: #0284c7;
+  --accent-highlight: #3b82f6;
+  --accent-gradient: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);
+  --accent-glow: rgba(37, 99, 235, 0.25);
 
   --alert-red: #e11d48;
   --signal-green: #059669;
@@ -118,7 +128,7 @@
 }
 
 /* ==========================================================================
-   Global Reset & Base Styling
+   Global Base Styling
    ========================================================================== */
 
 * {
@@ -135,13 +145,13 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   background-image: 
-    radial-gradient(circle at 10% 10%, rgba(0, 242, 254, 0.04) 0%, transparent 40%),
-    radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.06) 0%, transparent 50%);
+    radial-gradient(circle at 10% 10%, rgba(204, 255, 0, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
   background-attachment: fixed;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Custom Scrollbars */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -162,7 +172,7 @@ body {
 }
 
 /* ==========================================================================
-   Tactical Animation Keyframes
+   Animations
    ========================================================================== */
 
 @keyframes strobe-red {
@@ -172,7 +182,7 @@ body {
 
 @keyframes strobe-blue {
   0%, 100% { opacity: 0.15; transform: scale(0.9); filter: none; }
-  50% { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 10px var(--accent-cyan)); }
+  50% { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 10px var(--accent-primary)); }
 }
 
 .strobe-red {
@@ -209,7 +219,7 @@ body {
 
 .wave-bar {
   width: 3px;
-  background: var(--accent-cyan);
+  background: var(--accent-primary);
   border-radius: 2px;
   animation: audio-wave 0.8s ease-in-out infinite alternate;
 }
@@ -230,7 +240,7 @@ body {
 }
 
 /* ==========================================================================
-   Harmonious UI Component Classes
+   UI Surfaces & Components
    ========================================================================== */
 
 /* Main Card */
@@ -242,14 +252,14 @@ body {
   border-radius: 14px;
   padding: 1.25rem;
   transition: all 0.25s ease;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
 }
 
 .panel-card:hover {
   border-color: var(--border-card);
 }
 
-/* Recessed Wells (Telemetry boxes, stat cards, metric displays) */
+/* Recessed Wells */
 .cad-well {
   background: var(--bg-well);
   border: 1px solid var(--border-subtle);
@@ -276,7 +286,7 @@ body {
 }
 
 .form-input:focus, .form-select:focus {
-  border-color: var(--accent-cyan);
+  border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
@@ -339,7 +349,7 @@ body {
 
 .tab-btn.active {
   background: var(--bg-well-active);
-  color: var(--accent-cyan);
+  color: var(--accent-primary);
   border-color: var(--border-highlight);
   box-shadow: 0 0 12px var(--accent-glow);
 }

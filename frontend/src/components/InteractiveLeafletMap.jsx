@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Layers, Crosshair, ZoomIn, Eye, ShieldAlert, Navigation, CloudRain, Sun, Snowflake } from 'lucide-react';
+import { Crosshair, ZoomIn, Navigation, CloudRain, Sun, Snowflake } from 'lucide-react';
 
 export default function InteractiveLeafletMap({
   corridorData,
   activeRouteId,
-  ambulancePosition, // { lat, lng, bearing, currentStepIndex }
-  signalStates = {}, // { [sigId]: 'red' | 'green' | 'preempted' }
+  ambulancePosition, // { lat, lng, bearing }
+  signalStates = {},
   onSignalClick,
   onSelectRoute,
   isSimulating,
@@ -24,18 +24,15 @@ export default function InteractiveLeafletMap({
     schoolZoneLayer: null
   });
 
-  const [mapTheme, setMapTheme] = useState('dark'); // 'dark' | 'satellite' | 'streets'
+  const [mapTheme, setMapTheme] = useState('dark');
   const [showTrafficFlow, setShowTrafficFlow] = useState(true);
-  const [showSchoolZone, setShowSchoolZone] = useState(true);
 
-  // Map Tile Layers
   const tileUrls = {
     dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
     satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     streets: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
   };
 
-  // Initialize Map
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
@@ -61,7 +58,6 @@ export default function InteractiveLeafletMap({
     };
   }, []);
 
-  // Update Base Layer on mapTheme change
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !tileLayerRef.current) return;
@@ -73,7 +69,6 @@ export default function InteractiveLeafletMap({
     }).addTo(map);
   }, [mapTheme]);
 
-  // Recenter actions
   const handleRecenter = () => {
     if (!mapInstanceRef.current) return;
     if (ambulancePosition) {
@@ -91,12 +86,11 @@ export default function InteractiveLeafletMap({
     map.fitBounds(bounds, { padding: [40, 40], animate: true });
   };
 
-  // Render Routes, Signals, Stations & School Zone
+  // Render Map Layers
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !corridorData) return;
 
-    // Clear previous layers
     layersRef.current.polylines.forEach(l => map.removeLayer(l));
     layersRef.current.polylines = [];
     layersRef.current.flowLines.forEach(l => map.removeLayer(l));
@@ -108,19 +102,19 @@ export default function InteractiveLeafletMap({
     }
 
     // 1. School Zone Polygon
-    if (showSchoolZone && corridorData.schoolZone?.polygon) {
+    if (corridorData.schoolZone?.polygon) {
       const schoolPoly = L.polygon(corridorData.schoolZone.polygon, {
-        color: '#ef4444',
+        color: '#ff2a5f',
         weight: 1.8,
         dashArray: '6, 6',
-        fillColor: '#ef4444',
-        fillOpacity: 0.15
+        fillColor: '#ff2a5f',
+        fillOpacity: 0.14
       }).addTo(map);
 
       schoolPoly.bindTooltip(`
-        <div style="font-weight: 700; color: #fca5a5;">⚠️ ${corridorData.schoolZone.name}</div>
-        <div>School Zone Max Speed: <b>20 MPH</b></div>
-        <div style="font-size: 10px; color: #94a3b8;">Pedestrian Hazard Geofence Active</div>
+        <div style="font-weight: 800; color: #ff2a5f;">⚠️ ${corridorData.schoolZone.name}</div>
+        <div>Speed Limit: <b>20 MPH</b></div>
+        <div style="font-size: 10px; color: #94a3b8;">Pedestrian Hazard Geofence</div>
       `, {
         sticky: true,
         className: 'custom-leaflet-tooltip'
@@ -135,11 +129,11 @@ export default function InteractiveLeafletMap({
           className: 'station-marker-icon',
           html: `
             <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-              <div class="animate-greenwave-ring" style="position: absolute; width: 36px; height: 36px; border-radius: 50%; border: 2px solid rgba(239, 68, 68, 0.6);"></div>
-              <div style="width: 26px; height: 26px; border-radius: 50%; background: #ef4444; border: 2px solid #ffffff; display: flex; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 0 14px #ef4444;">
+              <div class="animate-greenwave-ring" style="position: absolute; width: 36px; height: 36px; border-radius: 50%; border: 2px solid rgba(255, 42, 95, 0.7);"></div>
+              <div style="width: 26px; height: 26px; border-radius: 50%; background: #ff2a5f; border: 2px solid #ffffff; display: flex; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 0 14px #ff2a5f;">
                 🚒
               </div>
-              <div style="position: absolute; top: 28px; white-space: nowrap; background: rgba(9, 14, 26, 0.94); border: 1px solid rgba(239, 68, 68, 0.5); color: #fca5a5; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; pointer-events: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+              <div style="position: absolute; top: 28px; white-space: nowrap; background: rgba(9, 12, 19, 0.95); border: 1px solid rgba(255, 42, 95, 0.5); color: #ff85a1; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px; pointer-events: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
                 ${stn.name}
               </div>
             </div>
@@ -160,11 +154,11 @@ export default function InteractiveLeafletMap({
           className: 'hospital-marker-icon',
           html: `
             <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-              <div class="animate-greenwave-ring" style="position: absolute; width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(59, 130, 246, 0.6);"></div>
-              <div style="width: 28px; height: 28px; border-radius: 50%; background: #2563eb; border: 2px solid #ffffff; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 16px #3b82f6;">
+              <div class="animate-greenwave-ring" style="position: absolute; width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(124, 58, 237, 0.7);"></div>
+              <div style="width: 28px; height: 28px; border-radius: 50%; background: #7c3aed; border: 2px solid #ffffff; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 16px #7c3aed;">
                 🏥
               </div>
-              <div style="position: absolute; top: 30px; white-space: nowrap; background: rgba(9, 14, 26, 0.94); border: 1px solid rgba(59, 130, 246, 0.5); color: #93c5fd; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; pointer-events: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+              <div style="position: absolute; top: 30px; white-space: nowrap; background: rgba(9, 12, 19, 0.95); border: 1px solid rgba(124, 58, 237, 0.5); color: #c4b5fd; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px; pointer-events: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
                 ${hosp.name}
               </div>
             </div>
@@ -178,16 +172,16 @@ export default function InteractiveLeafletMap({
       });
     }
 
-    // 4. Corridors (Polylines + Animated Traffic Flow)
+    // 4. Corridors with Electric Hyper-Lime Highlight
     if (corridorData.corridors) {
       Object.entries(corridorData.corridors).forEach(([key, corridor]) => {
         const isActive = (key === activeRouteId);
 
         // Base route line
         const polyline = L.polyline(corridor.waypoints, {
-          color: isActive ? '#10b981' : '#334155',
+          color: isActive ? '#ccff00' : '#334155',
           weight: isActive ? 6 : 2.5,
-          opacity: isActive ? 0.9 : 0.45,
+          opacity: isActive ? 0.95 : 0.4,
           dashArray: isActive ? null : '6, 6'
         }).addTo(map);
 
@@ -200,9 +194,9 @@ export default function InteractiveLeafletMap({
         // Flow overlay on active route
         if (isActive && showTrafficFlow) {
           const flowPolyline = L.polyline(corridor.waypoints, {
-            color: '#34d399',
+            color: '#ffffff',
             weight: 3,
-            opacity: 0.9,
+            opacity: 0.85,
             className: 'leaflet-corridor-flow'
           }).addTo(map);
           layersRef.current.flowLines.push(flowPolyline);
@@ -210,20 +204,19 @@ export default function InteractiveLeafletMap({
       });
     }
 
-    // 5. Traffic Signals with EVP Preemption Radii
+    // 5. Traffic Signals with Preemption Rings
     const activeCorridor = corridorData.corridors?.[activeRouteId];
     if (activeCorridor?.signals) {
       activeCorridor.signals.forEach(sig => {
         const state = signalStates[sig.id] || sig.state || 'red';
         const isPreempted = (state === 'preempted' || state === 'green');
 
-        // Preemption Radius Circle (400m)
         const radiusCircle = L.circle(sig.coords, {
           radius: 400,
-          color: isPreempted ? '#10b981' : '#ef4444',
+          color: isPreempted ? '#00f5a0' : '#ff2a5f',
           weight: 1,
           dashArray: '3, 4',
-          fillColor: isPreempted ? '#10b981' : '#ef4444',
+          fillColor: isPreempted ? '#00f5a0' : '#ff2a5f',
           fillOpacity: isPreempted ? 0.08 : 0.03
         }).addTo(map);
         layersRef.current.polylines.push(radiusCircle);
@@ -231,27 +224,27 @@ export default function InteractiveLeafletMap({
         const signalHtml = `
           <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
             ${isPreempted ? `
-              <div class="animate-greenwave-ring" style="position: absolute; top: -10px; left: -10px; width: 44px; height: 44px; border-radius: 50%; border: 2px solid #10b981;"></div>
+              <div class="animate-greenwave-ring" style="position: absolute; top: -10px; left: -10px; width: 44px; height: 44px; border-radius: 50%; border: 2px solid #00f5a0;"></div>
             ` : ''}
             <div style="
               width: 24px;
               height: 24px;
               border-radius: 50%;
-              background: ${isPreempted ? '#10b981' : '#ef4444'};
+              background: ${isPreempted ? '#00f5a0' : '#ff2a5f'};
               border: 2px solid #ffffff;
               display: flex;
               align-items: center;
               justify-content: center;
-              box-shadow: 0 0 14px ${isPreempted ? '#10b981' : '#ef4444'};
+              box-shadow: 0 0 14px ${isPreempted ? '#00f5a0' : '#ff2a5f'};
               font-size: 11px;
             ">
               ${isPreempted ? '🟢' : '🔴'}
             </div>
             <div style="
               margin-top: 4px;
-              background: rgba(9, 14, 26, 0.95);
-              border: 1px solid ${isPreempted ? '#10b981' : '#ef4444'};
-              color: ${isPreempted ? '#6ee7b7' : '#fca5a5'};
+              background: rgba(9, 12, 19, 0.95);
+              border: 1px solid ${isPreempted ? '#00f5a0' : '#ff2a5f'};
+              color: ${isPreempted ? '#00f5a0' : '#ff85a1'};
               font-size: 9px;
               font-weight: 800;
               padding: 2px 5px;
@@ -259,7 +252,7 @@ export default function InteractiveLeafletMap({
               white-space: nowrap;
               box-shadow: 0 2px 8px rgba(0,0,0,0.6);
             ">
-              ${isPreempted ? 'GREEN WAVE' : `${sig.carsQueued || 15} cars queued`}
+              ${isPreempted ? 'GREEN WAVE' : `${sig.carsQueued || 15} queued`}
             </div>
           </div>
         `;
@@ -278,14 +271,14 @@ export default function InteractiveLeafletMap({
 
         marker.bindPopup(`
           <div style="font-family: var(--font-sans); font-size: 12px; color: #f8fafc; padding: 4px;">
-            <b style="color: #38bdf8;">🚦 Smart Intersection Signal: ${sig.name}</b><br/>
+            <b style="color: #ccff00;">🚦 Smart Signal: ${sig.name}</b><br/>
             <span style="color: #94a3b8;">Cross Street:</span> <b>${sig.crossStreet}</b><br/>
-            <span style="color: #94a3b8;">EVP Status:</span> <b style="color: ${isPreempted ? '#10b981' : '#ef4444'};">${isPreempted ? 'PREEMPTED (GREEN WAVE CORRIDOR)' : 'RED / CONGESTED'}</b><br/>
+            <span style="color: #94a3b8;">Status:</span> <b style="color: ${isPreempted ? '#00f5a0' : '#ff2a5f'};">${isPreempted ? 'PREEMPTED (GREEN WAVE)' : 'RED / CONGESTED'}</b><br/>
             ${!isPreempted ? `
-              <button onclick="window.dispatchPreempt('${sig.id}')" style="margin-top: 8px; width: 100%; background: #10b981; color: #ffffff; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700; box-shadow: 0 0 10px rgba(16,185,129,0.5);">
-                ⚡ Force Clear Traffic Signal
+              <button onclick="window.dispatchPreempt('${sig.id}')" style="margin-top: 8px; width: 100%; background: #00f5a0; color: #04101e; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 800; box-shadow: 0 0 10px rgba(0,245,160,0.5);">
+                ⚡ Force Clear Signal
               </button>
-            ` : '<div style="margin-top: 6px; color: #10b981; font-weight: 700;">✓ Intersection Priority Active</div>'}
+            ` : '<div style="margin-top: 6px; color: #00f5a0; font-weight: 800;">✓ Priority Corridor Active</div>'}
           </div>
         `);
 
@@ -293,9 +286,8 @@ export default function InteractiveLeafletMap({
       });
     }
 
-  }, [corridorData, activeRouteId, signalStates, showTrafficFlow, showSchoolZone]);
+  }, [corridorData, activeRouteId, signalStates, showTrafficFlow]);
 
-  // Window bridge for popup button
   useEffect(() => {
     window.dispatchPreempt = (sigId) => {
       if (onSignalClick) onSignalClick(sigId);
@@ -305,7 +297,7 @@ export default function InteractiveLeafletMap({
     };
   }, [onSignalClick]);
 
-  // Update Ambulance Marker position and heading
+  // Ambulance Marker Update
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !ambulancePosition) return;
@@ -317,28 +309,23 @@ export default function InteractiveLeafletMap({
         className: 'ambulance-vehicle-icon',
         html: `
           <div style="position: relative; display: flex; align-items: center; justify-content: center; transform: rotate(${bearing}deg); transition: transform 0.15s linear;">
-            <!-- Outer Pulsing Emergency Aura -->
-            <div class="animate-greenwave-ring" style="position: absolute; width: 50px; height: 50px; border-radius: 50%; border: 2px solid rgba(239, 68, 68, 0.7);"></div>
-            
-            <!-- Vehicle Body -->
+            <div class="animate-greenwave-ring" style="position: absolute; width: 50px; height: 50px; border-radius: 50%; border: 2px solid rgba(204, 255, 0, 0.7);"></div>
             <div style="
               width: 36px;
               height: 36px;
-              background: #090e1a;
-              border: 2px solid #ef4444;
+              background: #090c13;
+              border: 2px solid #ccff00;
               border-radius: 9px;
               display: flex;
               align-items: center;
               justify-content: center;
-              box-shadow: 0 0 20px rgba(239, 68, 68, 0.85);
+              box-shadow: 0 0 20px rgba(204, 255, 0, 0.85);
               font-size: 19px;
             ">
               🚑
             </div>
-
-            <!-- Alternating Strobe Lights -->
-            <div class="strobe-red" style="position: absolute; top: -3px; left: 1px; width: 8px; height: 8px; border-radius: 50%; background: #ef4444;"></div>
-            <div class="strobe-blue" style="position: absolute; top: -3px; right: 1px; width: 8px; height: 8px; border-radius: 50%; background: #38bdf8;"></div>
+            <div class="strobe-red" style="position: absolute; top: -3px; left: 1px; width: 8px; height: 8px; border-radius: 50%; background: #ff2a5f;"></div>
+            <div class="strobe-blue" style="position: absolute; top: -3px; right: 1px; width: 8px; height: 8px; border-radius: 50%; background: #ccff00;"></div>
           </div>
         `,
         iconSize: [36, 36],
@@ -363,41 +350,10 @@ export default function InteractiveLeafletMap({
   }, [ambulancePosition, isSimulating]);
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '460px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #1e293b' }}>
+    <div style={{ position: 'relative', width: '100%', height: '460px', borderRadius: '14px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
       <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
 
-      {/* Weather Particle Simulation Overlay */}
-      {weather === 'rain' && (
-        <div style={{
-          position: 'absolute',
-          top: 0, left: 0, right: 0, bottom: 0,
-          pointerEvents: 'none',
-          zIndex: 400,
-          background: 'linear-gradient(180deg, rgba(30, 58, 138, 0.1) 0%, rgba(15, 23, 42, 0.25) 100%)',
-          backgroundImage: 'radial-gradient(ellipse at 50% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 60%)'
-        }} />
-      )}
-      {weather === 'snow' && (
-        <div style={{
-          position: 'absolute',
-          top: 0, left: 0, right: 0, bottom: 0,
-          pointerEvents: 'none',
-          zIndex: 400,
-          background: 'rgba(241, 245, 249, 0.05)'
-        }} />
-      )}
-      {weather === 'fog' && (
-        <div style={{
-          position: 'absolute',
-          top: 0, left: 0, right: 0, bottom: 0,
-          pointerEvents: 'none',
-          zIndex: 400,
-          backdropFilter: 'blur(1.5px)',
-          background: 'rgba(148, 163, 184, 0.12)'
-        }} />
-      )}
-
-      {/* Top Map Layer Switcher & Status Controls */}
+      {/* Top Map Controls */}
       <div style={{
         position: 'absolute',
         top: '12px',
@@ -408,9 +364,9 @@ export default function InteractiveLeafletMap({
         alignItems: 'center'
       }}>
         <div style={{
-          background: 'rgba(9, 14, 26, 0.9)',
+          background: 'var(--bg-card)',
           backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(59, 130, 246, 0.3)',
+          border: '1px solid var(--border-subtle)',
           borderRadius: '8px',
           padding: '0.3rem',
           display: 'flex',
@@ -444,23 +400,23 @@ export default function InteractiveLeafletMap({
 
         {/* Weather Indicator */}
         <div style={{
-          background: 'rgba(9, 14, 26, 0.9)',
+          background: 'var(--bg-card)',
           backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          border: '1px solid var(--border-subtle)',
           borderRadius: '8px',
           padding: '0.45rem 0.75rem',
           fontSize: '0.75rem',
           display: 'flex',
           alignItems: 'center',
           gap: '0.35rem',
-          color: '#cbd5e1'
+          color: 'var(--text-secondary)'
         }}>
-          {weather === 'rain' ? <CloudRain size={14} color="#60a5fa" /> : weather === 'snow' ? <Snowflake size={14} color="#93c5fd" /> : <Sun size={14} color="#fbbf24" />}
-          <span>{weather.toUpperCase()} VISIBILITY</span>
+          {weather === 'rain' ? <CloudRain size={14} color="#38bdf8" /> : weather === 'snow' ? <Snowflake size={14} color="#c084fc" /> : <Sun size={14} color="#ff9100" />}
+          <span style={{ fontWeight: 800 }}>{weather.toUpperCase()} ATMOSPHERE</span>
         </div>
       </div>
 
-      {/* Floating Action Controls on Right */}
+      {/* Floating Action Buttons */}
       <div style={{
         position: 'absolute',
         top: '12px',
@@ -475,9 +431,9 @@ export default function InteractiveLeafletMap({
           onClick={handleRecenter}
           title="Recenter on Ambulance"
           style={{
-            background: 'rgba(9, 14, 26, 0.9)',
-            border: '1px solid rgba(59, 130, 246, 0.4)',
-            color: '#38bdf8',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-subtle)',
+            color: 'var(--accent-primary)',
             borderRadius: '6px',
             padding: '0.5rem',
             cursor: 'pointer',
@@ -494,9 +450,9 @@ export default function InteractiveLeafletMap({
           onClick={handleFitOverview}
           title="Fit Corridor Overview"
           style={{
-            background: 'rgba(9, 14, 26, 0.9)',
-            border: '1px solid rgba(59, 130, 246, 0.4)',
-            color: '#93c5fd',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-subtle)',
+            color: 'var(--text-primary)',
             borderRadius: '6px',
             padding: '0.5rem',
             cursor: 'pointer',
@@ -513,9 +469,9 @@ export default function InteractiveLeafletMap({
           onClick={() => setShowTrafficFlow(!showTrafficFlow)}
           title="Toggle Traffic Flow Layer"
           style={{
-            background: showTrafficFlow ? 'rgba(16, 185, 129, 0.25)' : 'rgba(9, 14, 26, 0.9)',
-            border: showTrafficFlow ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.1)',
-            color: showTrafficFlow ? '#34d399' : '#94a3b8',
+            background: showTrafficFlow ? 'var(--signal-green-soft)' : 'var(--bg-card)',
+            border: showTrafficFlow ? '1px solid var(--signal-green)' : '1px solid var(--border-subtle)',
+            color: showTrafficFlow ? 'var(--signal-green)' : 'var(--text-muted)',
             borderRadius: '6px',
             padding: '0.5rem',
             cursor: 'pointer',
@@ -528,30 +484,30 @@ export default function InteractiveLeafletMap({
         </button>
       </div>
 
-      {/* Bottom Dispatcher Status Bar */}
+      {/* Bottom Status Bar */}
       <div style={{
         position: 'absolute',
         bottom: '12px',
         left: '12px',
         zIndex: 500,
-        background: 'rgba(9, 14, 26, 0.92)',
+        background: 'var(--bg-card)',
         backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(59, 130, 246, 0.3)',
+        border: '1px solid var(--border-card)',
         borderRadius: '8px',
         padding: '0.45rem 0.85rem',
         fontSize: '0.72rem',
         display: 'flex',
         alignItems: 'center',
         gap: '0.75rem',
-        color: '#f8fafc'
+        color: 'var(--text-primary)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--signal-green)', boxShadow: '0 0 8px var(--signal-green)' }} />
           <span><b>EVP RADAR:</b> 400m Preemption Active</span>
         </div>
-        <span style={{ color: '#64748b' }}>|</span>
-        <div style={{ color: '#94a3b8' }}>
-          Corridor: <b style={{ color: '#38bdf8' }}>{corridorData?.corridors?.[activeRouteId]?.name || 'Primary Corridor'}</b>
+        <span style={{ color: 'var(--border-subtle)' }}>|</span>
+        <div style={{ color: 'var(--text-secondary)' }}>
+          Active Corridor: <b style={{ color: 'var(--accent-primary)' }}>{corridorData?.corridors?.[activeRouteId]?.name || 'Primary Corridor'}</b>
         </div>
       </div>
     </div>

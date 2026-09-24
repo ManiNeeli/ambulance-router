@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Siren, Clock, Palette, Check } from 'lucide-react';
+import { Siren, Clock, Palette } from 'lucide-react';
 
-export default function Header({ apiOnline, currentTheme = 'cobalt', onThemeChange }) {
+export default function Header({ apiOnline, currentTheme = 'hyper-lime', onThemeChange }) {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -10,10 +10,10 @@ export default function Header({ apiOnline, currentTheme = 'cobalt', onThemeChan
   }, []);
 
   const themes = [
-    { id: 'cobalt', label: 'Cobalt', color: '#06b6d4', icon: '🌌' },
-    { id: 'emerald', label: 'Emerald', color: '#10b981', icon: '🌲' },
-    { id: 'crimson', label: 'Crimson', color: '#ef4444', icon: '🚨' },
-    { id: 'light', label: 'Light', color: '#2563eb', icon: '☀️' }
+    { id: 'hyper-lime', label: 'Hyper-Lime', color: '#ccff00', icon: '⚡' },
+    { id: 'synthwave', label: 'Synthwave', color: '#f43f5e', icon: '🔮' },
+    { id: 'solar', label: 'Solar', color: '#ff9100', icon: '🌅' },
+    { id: 'titanium', label: 'Titanium', color: '#2563eb', icon: '🤍' }
   ];
 
   return (
@@ -31,10 +31,10 @@ export default function Header({ apiOnline, currentTheme = 'cobalt', onThemeChan
       {/* Brand & Title */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
         <div style={{
-          background: 'linear-gradient(135deg, var(--alert-red) 0%, #991b1b 100%)',
+          background: 'linear-gradient(135deg, var(--alert-red) 0%, #b91c1c 100%)',
           padding: '0.55rem',
           borderRadius: '10px',
-          boxShadow: '0 0 16px var(--alert-red-glow, rgba(239, 68, 68, 0.4))',
+          boxShadow: '0 0 16px var(--alert-red-glow)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -47,8 +47,8 @@ export default function Header({ apiOnline, currentTheme = 'cobalt', onThemeChan
               AMBULANCE ROUTE NAVIGATOR
             </h1>
             <span style={{
-              background: 'var(--accent-glow, rgba(59, 130, 246, 0.2))',
-              color: 'var(--accent-highlight, #93c5fd)',
+              background: 'var(--accent-glow)',
+              color: 'var(--accent-highlight)',
               border: '1px solid var(--border-subtle)',
               fontSize: '0.65rem',
               fontWeight: 800,
@@ -56,11 +56,11 @@ export default function Header({ apiOnline, currentTheme = 'cobalt', onThemeChan
               borderRadius: '4px',
               letterSpacing: '0.05em'
             }}>
-              CAD-ITS v2.0
+              AVIONICS CAD v2.5
             </span>
           </div>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-            Dynamic safe-routing optimization for emergency dispatch & rapid green-wave transit
+            High-Visibility Safe-Transit & Green-Wave Traffic Preemption Engine
           </p>
         </div>
       </div>
@@ -79,7 +79,7 @@ export default function Header({ apiOnline, currentTheme = 'cobalt', onThemeChan
         }}>
           <Palette size={14} color="var(--accent-primary)" style={{ marginRight: '0.2rem' }} />
           <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 700, marginRight: '0.3rem' }}>
-            THEME:
+            PALETTE:
           </span>
           {themes.map(t => {
             const isActive = currentTheme === t.id;
@@ -88,7 +88,7 @@ export default function Header({ apiOnline, currentTheme = 'cobalt', onThemeChan
                 key={t.id}
                 type="button"
                 onClick={() => onThemeChange(t.id)}
-                title={`Switch to ${t.label} Theme`}
+                title={`Switch to ${t.label} Palette`}
                 style={{
                   background: isActive ? 'var(--border-subtle)' : 'transparent',
                   border: isActive ? `1.5px solid ${t.color}` : '1px solid transparent',
@@ -129,7 +129,7 @@ export default function Header({ apiOnline, currentTheme = 'cobalt', onThemeChan
             backgroundColor: apiOnline ? 'var(--signal-green)' : 'var(--alert-red)',
             boxShadow: `0 0 8px ${apiOnline ? 'var(--signal-green)' : 'var(--alert-red)'}`
           }} />
-          <span style={{ color: apiOnline ? 'var(--signal-green)' : 'var(--alert-red)', fontWeight: 700 }}>
+          <span style={{ color: apiOnline ? 'var(--signal-green)' : 'var(--alert-red)', fontWeight: 800 }}>
             {apiOnline ? 'ONLINE' : 'CONNECTING'}
           </span>
         </div>
