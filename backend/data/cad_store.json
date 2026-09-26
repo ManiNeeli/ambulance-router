@@ -14,6 +14,94 @@
   },
   "dispatchLogs": [
     {
+      "id": "CAD-1077",
+      "timestamp": "2026-09-26T07:47:17.479Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Mehdipatnam, Hyderabad, Hyderabad, Telangana, India",
+      "hospital": "NIMS Hospital (Punjagutta)",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Direct Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 10.7
+    },
+    {
+      "id": "CAD-1076",
+      "timestamp": "2026-09-26T07:46:37.088Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Mehdipatnam, Hyderabad, Hyderabad, Telangana, India",
+      "hospital": "",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 23.9
+    },
+    {
+      "id": "CAD-1075",
+      "timestamp": "2026-09-26T07:35:49.851Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "",
+      "hospital": "",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 23
+    },
+    {
+      "id": "CAD-1074",
+      "timestamp": "2026-09-26T07:35:47.560Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "",
+      "hospital": "",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 23
+    },
+    {
+      "id": "CAD-1073",
+      "timestamp": "2026-09-26T07:27:26.018Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "",
+      "hospital": "",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 23.1
+    },
+    {
+      "id": "CAD-1072",
+      "timestamp": "2026-09-26T07:27:22.582Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "",
+      "hospital": "",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 23.1
+    },
+    {
+      "id": "CAD-1071",
+      "timestamp": "2026-09-26T07:24:44.286Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Direct Arterial Corridor",
+      "safetyScore": 90,
+      "adjustedMinutes": 9.9
+    },
+    {
+      "id": "CAD-1070",
+      "timestamp": "2026-09-26T07:24:44.268Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Direct Arterial Corridor",
+      "safetyScore": 90,
+      "adjustedMinutes": 9.9
+    },
+    {
       "id": "CAD-1069",
       "timestamp": "2026-09-26T07:06:33.512Z",
       "type": "ROUTE_RECOMMENDATION_ISSUED",
@@ -779,5 +867,5 @@
       "note": "NTCIP 1202 Preemption Call locked. Green wave corridor active for MED-4."
     }
   ],
-  "incidentCounter": 1069
+  "incidentCounter": 1077
 }

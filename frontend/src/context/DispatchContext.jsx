@@ -13,12 +13,14 @@ export function DispatchProvider({ children }) {
   ]);
   const [formData, setFormData] = useState({
     vehicleType: "ambulance",
-    startLocation: "Punjagutta Fire Station",
-    hospital: "Osmania General Hospital",
+    startLocation: "",
+    hospital: "",
     patientCondition: "critical",
     timeOfDay: "08:15",
     weather: "clear",
-    traffic: "moderate"
+    traffic: "moderate",
+    startCoords: null, // [lat, lng] from geocode or GPS
+    endCoords: null    // [lat, lng] from nearby place selection
   });
 
   const [recommendationData, setRecommendationData] = useState(null);

@@ -236,6 +236,154 @@ function generateSignalsForRoute(corridorKey, routeName, waypoints, maneuvers) {
   return signals;
 }
 
+// GET /api/geocode - Forward geocode a text query into coordinates using Mapbox
+router.get('/geocode', async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || q.trim().length < 2) {
+      return res.json({ results: [] });
+    }
+
+    const mapboxToken = process.env.MAPBOX_ACCESS_TOKEN;
+    if (!mapboxToken) {
+      return res.json({ results: [], error: 'No Mapbox token configured for geocoding' });
+    }
+
+    const encoded = encodeURIComponent(q.trim());
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encoded}.json?access_token=${mapboxToken}&country=in&proximity=78.4867,17.3850&limit=6&types=address,poi,place,locality,neighborhood`;
+
+    const parsed = new URL(url);
+    const https = require('https');
+    const data = await new Promise((resolve, reject) => {
+      https.get(url, { family: 4, timeout: 8000 }, (response) => {
+        let body = '';
+        response.on('data', chunk => body += chunk);
+        response.on('end', () => {
+          try { resolve(JSON.parse(body)); } catch (e) { reject(e); }
+        });
+      }).on('error', reject);
+    });
+
+    const results = (data.features || []).map(f => ({
+      name: f.place_name,
+      coords: [f.center[1], f.center[0]], // [lat, lng]
+      type: f.place_type?.[0] || 'place'
+    }));
+
+    res.json({ results });
+  } catch (err) {
+    console.warn('[Geocode] Error:', err.message);
+    res.json({ results: [], error: err.message });
+  }
+});
+
+// GET /api/nearby-places - Find hospitals, fire stations, police stations near a coordinate
+router.get('/nearby-places', async (req, res) => {
+  try {
+    const { lat, lng, radius = 5000 } = req.query;
+    if (!lat || !lng) {
+      return res.status(400).json({ error: 'lat and lng are required' });
+    }
+
+    const latN = parseFloat(lat);
+    const lngN = parseFloat(lng);
+
+    // Use Overpass API (OpenStreetMap) to find emergency facilities
+    const overpassQuery = `
+      [out:json][timeout:10];
+      (
+        node["amenity"="hospital"](around:${radius},${latN},${lngN});
+        way["amenity"="hospital"](around:${radius},${latN},${lngN});
+        node["amenity"="fire_station"](around:${radius},${latN},${lngN});
+        way["amenity"="fire_station"](around:${radius},${latN},${lngN});
+        node["amenity"="police"](around:${radius},${latN},${lngN});
+        way["amenity"="police"](around:${radius},${latN},${lngN});
+        node["amenity"="clinic"](around:${radius},${latN},${lngN});
+        way["amenity"="clinic"](around:${radius},${latN},${lngN});
+      );
+      out center body;
+    `.trim();
+
+    const http_ = require('http');
+    const https_ = require('https');
+    const overpassUrl = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
+
+    const data = await new Promise((resolve, reject) => {
+      https_.get(overpassUrl, { family: 4, timeout: 12000 }, (response) => {
+        let body = '';
+        response.on('data', chunk => body += chunk);
+        response.on('end', () => {
+          try { resolve(JSON.parse(body)); } catch (e) { reject(e); }
+        });
+      }).on('error', reject).on('timeout', function() { this.destroy(); reject(new Error('Overpass timeout')); });
+    });
+
+    const typeIcons = {
+      hospital: '🏥',
+      fire_station: '🚒',
+      police: '🚔',
+      clinic: '🏨'
+    };
+
+    const typeLabels = {
+      hospital: 'Hospital',
+      fire_station: 'Fire Station',
+      police: 'Police Station',
+      clinic: 'Clinic'
+    };
+
+    // Haversine distance helper
+    function distKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    const places = (data.elements || [])
+      .filter(el => el.tags && el.tags.name)
+      .map(el => {
+        const elLat = el.lat || el.center?.lat;
+        const elLng = el.lon || el.center?.lon;
+        if (!elLat || !elLng) return null;
+        const amenity = el.tags.amenity || 'hospital';
+        const dist = distKm(latN, lngN, elLat, elLng);
+        return {
+          name: el.tags.name,
+          type: amenity,
+          typeLabel: typeLabels[amenity] || amenity,
+          icon: typeIcons[amenity] || '📍',
+          coords: [elLat, elLng],
+          distanceKm: Math.round(dist * 10) / 10,
+          address: el.tags['addr:full'] || el.tags['addr:street'] || ''
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.distanceKm - b.distanceKm)
+      .slice(0, 20);
+
+    res.json({ success: true, count: places.length, places });
+  } catch (err) {
+    console.warn('[NearbyPlaces] Error:', err.message);
+    // Return fallback Hyderabad defaults if Overpass fails
+    res.json({
+      success: true,
+      count: 7,
+      fallback: true,
+      places: [
+        { name: 'Osmania General Hospital', type: 'hospital', typeLabel: 'Hospital', icon: '🏥', coords: [17.3785, 78.4735], distanceKm: 0 },
+        { name: 'NIMS Hospital (Punjagutta)', type: 'hospital', typeLabel: 'Hospital', icon: '🏥', coords: [17.4214, 78.4526], distanceKm: 0 },
+        { name: 'Apollo Hospitals (Jubilee Hills)', type: 'hospital', typeLabel: 'Hospital', icon: '🏥', coords: [17.4156, 78.4074], distanceKm: 0 },
+        { name: 'Gandhi Hospital (Secunderabad)', type: 'hospital', typeLabel: 'Hospital', icon: '🏥', coords: [17.4475, 78.4982], distanceKm: 0 },
+        { name: 'AIG Hospitals (Gachibowli)', type: 'hospital', typeLabel: 'Hospital', icon: '🏥', coords: [17.4400, 78.3560], distanceKm: 0 },
+        { name: 'Punjagutta Fire Station', type: 'fire_station', typeLabel: 'Fire Station', icon: '🚒', coords: [17.4278, 78.4503], distanceKm: 0 },
+        { name: 'Madhapur Fire Station', type: 'fire_station', typeLabel: 'Fire Station', icon: '🚒', coords: [17.4485, 78.3812], distanceKm: 0 }
+      ]
+    });
+  }
+});
+
 // POST /api/recommend-route
 router.post('/recommend-route', async (req, res) => {
   try {
@@ -247,12 +395,19 @@ router.post('/recommend-route', async (req, res) => {
       weather = 'clear',
       traffic = 'moderate',
       useLiveTraffic = true,
-      notes = ''
+      notes = '',
+      startCoords: rawStartCoords,
+      endCoords: rawEndCoords
     } = req.body;
 
     const corridorData = loadDetailedData();
-    const startCoords = corridorData?.stations?.[startLocation]?.coords || [17.4278, 78.4503];
-    const endCoords = corridorData?.hospitals?.[hospital]?.coords || [17.3785, 78.4735];
+    // Use directly provided coords if available, otherwise resolve from names
+    const startCoords = (rawStartCoords && rawStartCoords.length === 2)
+      ? rawStartCoords
+      : (corridorData?.stations?.[startLocation]?.coords || [17.4278, 78.4503]);
+    const endCoords = (rawEndCoords && rawEndCoords.length === 2)
+      ? rawEndCoords
+      : (corridorData?.hospitals?.[hospital]?.coords || [17.3785, 78.4735]);
 
     // 1. Fetch real road routes for the selected coordinates
     let liveRouting = null;
