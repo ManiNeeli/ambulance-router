@@ -1,4 +1,4 @@
-# SwiftAid — Autonomous Safe Transit & Green-Wave Preemption
+# SwiftAid — Autonomous Safe Transit & Green-Wave Preemption System
 
 > **Every second counts in emergency response — but the fastest route on paper isn’t always the safest route on the streets.**
 
