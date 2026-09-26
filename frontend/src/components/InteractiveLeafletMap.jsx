@@ -26,12 +26,31 @@ export default function InteractiveLeafletMap({
     schoolZoneLayer: null
   });
 
+  const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+
   const [mapTheme, setMapTheme] = useState('streets');
   const [showTrafficFlow, setShowTrafficFlow] = useState(true);
 
   const tileUrls = {
-    streets: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+    streets: MAPBOX_TOKEN
+      ? `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/512/{z}/{x}/{y}@2x?access_token=${MAPBOX_TOKEN}`
+      : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    satellite: MAPBOX_TOKEN
+      ? `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/512/{z}/{x}/{y}@2x?access_token=${MAPBOX_TOKEN}`
+      : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    osm: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+  };
+
+  const createTileLayer = (theme) => {
+    const isMapbox = Boolean(MAPBOX_TOKEN) && (theme === 'streets' || theme === 'satellite');
+    return L.tileLayer(tileUrls[theme] || tileUrls.streets, {
+      maxZoom: 19,
+      tileSize: isMapbox ? 512 : 256,
+      zoomOffset: isMapbox ? -1 : 0,
+      attribution: isMapbox
+        ? '© <a href="https://www.mapbox.com/">Mapbox</a> © <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+        : '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+    });
   };
 
   useEffect(() => {
@@ -46,9 +65,7 @@ export default function InteractiveLeafletMap({
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    tileLayerRef.current = L.tileLayer(tileUrls.streets, {
-      maxZoom: 19
-    }).addTo(map);
+    tileLayerRef.current = createTileLayer(mapTheme).addTo(map);
 
     mapInstanceRef.current = map;
 
@@ -60,13 +77,12 @@ export default function InteractiveLeafletMap({
 
   useEffect(() => {
     const map = mapInstanceRef.current;
-    if (!map || !tileLayerRef.current) return;
+    if (!map) return;
 
-    map.removeLayer(tileLayerRef.current);
-    tileLayerRef.current = L.tileLayer(tileUrls[mapTheme], {
-      maxZoom: 19,
-      subdomains: 'abcd'
-    }).addTo(map);
+    if (tileLayerRef.current) {
+      map.removeLayer(tileLayerRef.current);
+    }
+    tileLayerRef.current = createTileLayer(mapTheme).addTo(map);
   }, [mapTheme]);
 
   const handleRecenter = () => {
@@ -399,7 +415,7 @@ export default function InteractiveLeafletMap({
             className={`tab-btn ${mapTheme === 'streets' ? 'active' : ''}`}
             style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', fontWeight: 800 }}
           >
-            🗺️ Streets (Default)
+            🗺️ Mapbox Streets HD
           </button>
           <button
             type="button"
@@ -407,7 +423,15 @@ export default function InteractiveLeafletMap({
             className={`tab-btn ${mapTheme === 'satellite' ? 'active' : ''}`}
             style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem' }}
           >
-            🛰️ Satellite
+            🛰️ Mapbox Satellite HD
+          </button>
+          <button
+            type="button"
+            onClick={() => setMapTheme('osm')}
+            className={`tab-btn ${mapTheme === 'osm' ? 'active' : ''}`}
+            style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem' }}
+          >
+            🌐 OpenStreetMap
           </button>
         </div>
 

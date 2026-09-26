@@ -112,6 +112,13 @@ async function fetchMapboxTrafficRoutes(startCoords, endCoords, token) {
   const json = await fetchJson(url, { timeout: 8000 });
   if (!json.routes || json.routes.length === 0) throw new Error('No Mapbox routes returned');
 
+  const routeIds = ["route-a-main-st", "route-b-highway-bypass", "route-c-residential-shortcut"];
+  const routeNames = [
+    "Route A - Mapbox Live Traffic Arterial",
+    "Route B - Mapbox Expressway Corridor",
+    "Route C - Mapbox Alternate Bypass"
+  ];
+
   return json.routes.map((r, idx) => {
     const waypoints = r.geometry.coordinates.map(pt => [pt[1], pt[0]]);
     const distanceMiles = Math.round((r.distance * 0.000621371) * 10) / 10;
@@ -119,15 +126,34 @@ async function fetchMapboxTrafficRoutes(startCoords, endCoords, token) {
     const durationTypical = r.duration_typical ? Math.round((r.duration_typical / 60) * 10) / 10 : durationMinutes;
     const liveDelayMinutes = Math.max(0, Math.round((durationMinutes - durationTypical) * 10) / 10);
 
+    const maneuvers = [];
+    if (r.legs && r.legs[0] && r.legs[0].steps) {
+      r.legs[0].steps.forEach((st, sIdx) => {
+        if (st.maneuver && st.maneuver.type !== 'depart') {
+          const stepDist = (st.distance * 0.000621371).toFixed(1) + ' mi';
+          const roadName = st.name || 'Connector';
+          const text = st.maneuver.instruction || (st.maneuver.modifier ? `${st.maneuver.modifier} onto ${roadName}` : `Continue on ${roadName}`);
+          maneuvers.push({
+            step: sIdx + 1,
+            text,
+            dist: stepDist,
+            coords: [st.maneuver.location[1], st.maneuver.location[0]]
+          });
+        }
+      });
+    }
+
     return {
+      id: routeIds[idx] || `route-${idx + 1}`,
       provider: "Mapbox Traffic-Aware Directions API",
       routeIndex: idx,
-      name: idx === 0 ? "Route A - Live Traffic Corridor" : `Route B - Alternative Corridor ${idx}`,
+      name: routeNames[idx] || `Mapbox Corridor Option ${idx + 1}`,
       distanceMiles,
       baseMinutes: durationTypical,
       trafficDurationMinutes: durationMinutes,
       liveDelayMinutes,
-      waypoints
+      waypoints,
+      maneuvers: maneuvers.length > 0 ? maneuvers : undefined
     };
   });
 }
