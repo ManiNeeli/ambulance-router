@@ -48,7 +48,7 @@ function AppLayout() {
         background: 'var(--color-white)',
         marginTop: 'auto'
       }}>
-        Autonomous Ambulance Router Dispatch Intelligence System • Dynamic Green Wave Preemption (EVP) • High-Visibility Flat Avionics
+        SwiftAid Dispatch Intelligence • Dynamic Green Wave Preemption (EVP) • High-Visibility Flat Avionics
       </footer>
     </div>
   );

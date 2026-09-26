@@ -1,6 +1,6 @@
 # 🚑 Enterprise CAD & Emergency Routing: 7-Pillar Production Architecture Guide
 
-This guide details the complete enterprise transformation of the **AI-Assisted Ambulance Router & Green-Wave Traffic Preemption System (CAD-ITS)** from an in-memory prototype into a real-world, mission-critical emergency dispatch platform.
+This guide details the complete enterprise transformation of **SwiftAid**, an AI-assisted emergency routing and green-wave traffic preemption system (CAD-ITS), from an in-memory prototype into a real-world, mission-critical emergency dispatch platform.
 
 ---
 
@@ -14,7 +14,7 @@ This guide details the complete enterprise transformation of the **AI-Assisted A
                                   POST /api/telematics/gps & WebSocket
                                                     ▼
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                       AI-ASSISTED AMBULANCE ROUTER BACKEND                             │
+│                          SWIFTAID EMERGENCY DISPATCH BACKEND                           │
 ├────────────────────────────────┬───────────────────────┬───────────────────────────────┤
 │ 1. REAL ROUTING ENGINE         │ 4. WEBSOCKET PUSH     │ 5. PERSISTENT STATE STORE     │
 │    - OSRM (OpenStreetMap)      │    - /ws endpoint     │    - cad_store.json (Atomic)  │

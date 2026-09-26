@@ -1,4 +1,4 @@
-# API Documentation: AI-Assisted Ambulance Router
+# SwiftAid API Documentation
 
 Base URL: `http://localhost:5000`
 
@@ -13,7 +13,7 @@ Returns backend operational status and uptime.
 ```json
 {
   "status": "online",
-  "service": "AI-Assisted Ambulance Router Backend",
+  "service": "SwiftAid Emergency Dispatch Backend",
   "version": "1.0.0",
   "uptime": 128.4
 }

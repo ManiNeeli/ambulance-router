@@ -29,7 +29,7 @@ app.use((req, res, next) => {
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
-    service: 'AI-Assisted Ambulance Router Backend',
+    service: 'SwiftAid Emergency Dispatch Backend',
     version: '2.0.0',
     websocketEndpoint: '/ws',
     realRoutingProvider: process.env.MAPBOX_ACCESS_TOKEN ? 'Mapbox Traffic' : 'OSRM Road Network',
@@ -63,7 +63,7 @@ app.use((err, req, res, next) => {
 
 server.listen(PORT, () => {
   console.log(`=========================================`);
-  console.log(` Ambulance Router Enterprise CAD Active  `);
+  console.log(` SwiftAid Enterprise CAD Active  `);
   console.log(` HTTP API:  http://localhost:${PORT}      `);
   console.log(` WebSockets: ws://localhost:${PORT}/ws   `);
   console.log(` Health:     http://localhost:${PORT}/api/health`);

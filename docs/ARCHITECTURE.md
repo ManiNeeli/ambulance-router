@@ -1,4 +1,4 @@
-# System Architecture: AI-Assisted Ambulance Router (CAD-ITS)
+# SwiftAid System Architecture (CAD-ITS)
 
 This document details the system design, routing engine physics, Emergency Vehicle Preemption (EVP) architecture, and communication flow.
 

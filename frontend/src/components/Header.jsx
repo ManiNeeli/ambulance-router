@@ -41,7 +41,7 @@ export default function Header({ apiOnline }) {
         <div>
           <div className="header-title-row">
             <h1 className="header-main-title">
-              PULSE-WAVE CAD
+              SwiftAid
             </h1>
             <span className="header-badge-tag">
               EVP v2.5

@@ -1,8 +1,8 @@
-# 🚑 Ambulance Router — AI-Assisted Safe Transit & Green-Wave Preemption
+# SwiftAid — AI-Assisted Safe Transit & Green-Wave Preemption
 
 > **Every second counts in emergency response — but the fastest route on paper isn’t always the safest route on the streets.**
 
-Built as a next-generation Computer-Aided Dispatch (CAD) prototype, **Ambulance Router** is an intelligent navigation copilot designed for 911/EMS dispatchers and paramedic crews. It evaluates candidate corridors not just by raw minutes, but by real-world safety hazards — active school zones, weather hydroplaning, traffic gridlock, and patient urgency.
+Built as a next-generation Computer-Aided Dispatch (CAD) prototype, **SwiftAid** is an intelligent navigation copilot designed for 911/EMS dispatchers and paramedic crews. It evaluates candidate corridors not just by raw minutes, but by real-world safety hazards — active school zones, weather hydroplaning, traffic gridlock, and patient urgency.
 
 When seconds matter, it actively clears the path ahead using **Emergency Vehicle Preemption (EVP)**, locking traffic signals green and moving traffic to the curb before the ambulance even reaches the intersection.
 
@@ -15,7 +15,7 @@ Standard consumer GPS apps (Google Maps, Waze) are built for everyday drivers. T
 - A sudden thunderstorm turns high-speed freeway overpasses into dangerous hydroplaning zones for top-heavy emergency rigs.
 - A patient in critical cardiac arrest (Code 3) needs a predictable, hazard-free corridor with green lights locked ahead — while a spinal injury transfer (Code 1) needs a smooth, bump-free ride over raw speed.
 
-We built Ambulance Router to bridge the gap between **dispatch decision-making**, **city traffic infrastructure**, and **patient survival**.
+We built SwiftAid to bridge the gap between **dispatch decision-making**, **city traffic infrastructure**, and **patient survival**.
 
 ---
 
