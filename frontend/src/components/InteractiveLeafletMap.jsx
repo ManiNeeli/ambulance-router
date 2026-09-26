@@ -26,13 +26,12 @@ export default function InteractiveLeafletMap({
     schoolZoneLayer: null
   });
 
-  const [mapTheme, setMapTheme] = useState('dark');
+  const [mapTheme, setMapTheme] = useState('streets');
   const [showTrafficFlow, setShowTrafficFlow] = useState(true);
 
   const tileUrls = {
-    dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    streets: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+    streets: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
   };
 
   useEffect(() => {
@@ -47,9 +46,8 @@ export default function InteractiveLeafletMap({
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    tileLayerRef.current = L.tileLayer(tileUrls.dark, {
-      maxZoom: 19,
-      subdomains: 'abcd'
+    tileLayerRef.current = L.tileLayer(tileUrls.streets, {
+      maxZoom: 19
     }).addTo(map);
 
     mapInstanceRef.current = map;
@@ -397,27 +395,19 @@ export default function InteractiveLeafletMap({
         }}>
           <button
             type="button"
-            onClick={() => setMapTheme('dark')}
-            className={`tab-btn ${mapTheme === 'dark' ? 'active' : ''}`}
-            style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem' }}
+            onClick={() => setMapTheme('streets')}
+            className={`tab-btn ${mapTheme === 'streets' ? 'active' : ''}`}
+            style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', fontWeight: 800 }}
           >
-            🌑 Tactical Dark
+            🗺️ Streets (Default)
           </button>
           <button
             type="button"
             onClick={() => setMapTheme('satellite')}
             className={`tab-btn ${mapTheme === 'satellite' ? 'active' : ''}`}
-            style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem' }}
+            style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem' }}
           >
             🛰️ Satellite
-          </button>
-          <button
-            type="button"
-            onClick={() => setMapTheme('streets')}
-            className={`tab-btn ${mapTheme === 'streets' ? 'active' : ''}`}
-            style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem' }}
-          >
-            🗺️ Streets
           </button>
         </div>
 
