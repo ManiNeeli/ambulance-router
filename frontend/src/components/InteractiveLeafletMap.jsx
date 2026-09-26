@@ -13,7 +13,9 @@ export default function InteractiveLeafletMap({
   isSimulating,
   weather = 'clear',
   onManualProgressChange,
-  vehicleType = 'ambulance'
+  vehicleType = 'ambulance',
+  onSelectStation,
+  onSelectHospital
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -105,6 +107,31 @@ export default function InteractiveLeafletMap({
     map.fitBounds(bounds, { padding: [40, 40], animate: true });
   };
 
+  // Auto-fit bounds when active route or corridor waypoints change significantly
+  const prevWaypointsRef = useRef(null);
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !corridorData?.corridors) return;
+    const activeCorridor = corridorData.corridors[activeRouteId]
+      || Object.values(corridorData.corridors).find(c => c.id === activeRouteId)
+      || Object.values(corridorData.corridors)[0];
+    if (!activeCorridor?.waypoints?.length) return;
+
+    const firstPt = activeCorridor.waypoints[0];
+    const lastPt = activeCorridor.waypoints[activeCorridor.waypoints.length - 1];
+    const prev = prevWaypointsRef.current;
+    const hasOriginDestChanged = !prev ||
+      Math.hypot(prev.first[0] - firstPt[0], prev.first[1] - firstPt[1]) > 0.003 ||
+      Math.hypot(prev.last[0] - lastPt[0], prev.last[1] - lastPt[1]) > 0.003;
+
+    prevWaypointsRef.current = { first: firstPt, last: lastPt };
+
+    if (hasOriginDestChanged) {
+      const bounds = L.latLngBounds(activeCorridor.waypoints);
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15, animate: true });
+    }
+  }, [corridorData, activeRouteId]);
+
   // Render Map Layers
   useEffect(() => {
     const map = mapInstanceRef.current;
@@ -161,7 +188,34 @@ export default function InteractiveLeafletMap({
           iconAnchor: [13, 13]
         });
         const marker = L.marker(stn.coords, { icon }).addTo(map);
-        marker.bindPopup(`<b>${stn.name}</b><br/>${stn.address}`);
+        const safeStnKey = key.replace(/[^a-zA-Z0-9]/g, '_');
+        marker.bindPopup(`
+          <div style="font-family: inherit; font-size: 12px; line-height: 1.4; min-width: 170px;">
+            <div style="font-weight: 800; color: #ff2a5f; margin-bottom: 2px;">🚒 ${stn.name}</div>
+            <div style="color: #64748b; font-size: 11px; margin-bottom: 8px;">${stn.address}</div>
+            <button id="btn-stn-${safeStnKey}" style="
+              width: 100%;
+              padding: 5px 8px;
+              background: #ff2a5f;
+              color: white;
+              border: none;
+              border-radius: 5px;
+              font-size: 11px;
+              font-weight: 800;
+              cursor: pointer;
+              box-shadow: 0 2px 6px rgba(255,42,95,0.4);
+            ">📍 Set as Origin Station</button>
+          </div>
+        `);
+        marker.on('popupopen', () => {
+          const btn = document.getElementById(`btn-stn-${safeStnKey}`);
+          if (btn && onSelectStation) {
+            btn.onclick = () => {
+              onSelectStation(key);
+              marker.closePopup();
+            };
+          }
+        });
         layersRef.current.markers.push(marker);
       });
     }
@@ -186,7 +240,34 @@ export default function InteractiveLeafletMap({
           iconAnchor: [14, 14]
         });
         const marker = L.marker(hosp.coords, { icon }).addTo(map);
-        marker.bindPopup(`<b>${hosp.name}</b><br/>${hosp.address}`);
+        const safeHospKey = key.replace(/[^a-zA-Z0-9]/g, '_');
+        marker.bindPopup(`
+          <div style="font-family: inherit; font-size: 12px; line-height: 1.4; min-width: 170px;">
+            <div style="font-weight: 800; color: #7c3aed; margin-bottom: 2px;">🏥 ${hosp.name}</div>
+            <div style="color: #64748b; font-size: 11px; margin-bottom: 8px;">${hosp.address}</div>
+            <button id="btn-hosp-${safeHospKey}" style="
+              width: 100%;
+              padding: 5px 8px;
+              background: #7c3aed;
+              color: white;
+              border: none;
+              border-radius: 5px;
+              font-size: 11px;
+              font-weight: 800;
+              cursor: pointer;
+              box-shadow: 0 2px 6px rgba(124,58,237,0.4);
+            ">🎯 Set as Incident Destination</button>
+          </div>
+        `);
+        marker.on('popupopen', () => {
+          const btn = document.getElementById(`btn-hosp-${safeHospKey}`);
+          if (btn && onSelectHospital) {
+            btn.onclick = () => {
+              onSelectHospital(key);
+              marker.closePopup();
+            };
+          }
+        });
         layersRef.current.markers.push(marker);
       });
     }

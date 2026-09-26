@@ -46,19 +46,39 @@ function loadDefaultRoutes() {
   };
 }
 
+// Point-in-polygon GIS geofencing check
+function isPointInPolygon(point, vs) {
+  if (!vs || vs.length < 3 || !point) return false;
+  const x = point[0], y = point[1];
+  let inside = false;
+  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+    const xi = vs[i][0], yi = vs[i][1];
+    const xj = vs[j][0], yj = vs[j][1];
+    const intersect = ((yi > y) !== (yj > y))
+        && (x < (xj - x) * (y - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
 /**
  * Calculates adjusted travel time, safety scores, and risk factors for all candidate routes.
+ * Supports dynamic live candidate routes from Mapbox/OSRM.
  */
 function evaluateRoutes({
-  startLocation = "Fire Station 3",
-  hospital = "City General",
+  candidateRoutes = null,
+  startLocation = "Punjagutta Fire Station",
+  hospital = "Osmania General Hospital",
   patientCondition = "critical",
   timeOfDay = "08:15",
   weather = "clear",
-  traffic = "moderate"
+  traffic = "moderate",
+  schoolZonePolygon = null
 }) {
   const routesData = loadDefaultRoutes();
-  const candidates = routesData.routeOptions;
+  const candidates = (candidateRoutes && candidateRoutes.length > 0)
+    ? candidateRoutes
+    : routesData.routeOptions;
 
   // Parse time
   const [hoursStr, minutesStr] = (timeOfDay || "08:15").split(':');
@@ -73,14 +93,37 @@ function evaluateRoutes({
   const isRushHour = isMorningRush || isEveningRush;
   const isLateNight = (timeDecimal >= 22.0 || timeDecimal <= 5.0);
 
-  const evaluated = candidates.map(route => {
-    let adjustedMinutes = route.baseMinutes;
+  // Dynamic baseline for relative speed comparison regardless of physical trip distance
+  const minBaseMinutes = Math.min(...candidates.map(c => Number(c.baseMinutes) || 10));
+  const timeBaseline = minBaseMinutes + 12;
+
+  const evaluated = candidates.map((route, idx) => {
+    let baseMinutes = Number(route.baseMinutes) || 10;
+    let distanceMiles = Number(route.distanceMiles) || 3.5;
+    let adjustedMinutes = baseMinutes;
     let safetyScore = 95; // Base high safety score
     const riskFactors = [];
     const favorableFactors = [];
 
+    // Dynamically detect school zone if not explicitly set
+    let passesSchoolZone = route.passesSchoolZone;
+    if (passesSchoolZone === undefined) {
+      if (schoolZonePolygon && route.waypoints && route.waypoints.length > 0) {
+        passesSchoolZone = route.waypoints.some((pt, pIdx) => pIdx % 5 === 0 && isPointInPolygon(pt, schoolZonePolygon));
+      } else {
+        passesSchoolZone = (idx === 0 && route.name?.toLowerCase().includes('arterial'));
+      }
+    }
+
+    // Dynamically detect highway/expressway if not explicitly set
+    let passesHighway = route.passesHighway;
+    if (passesHighway === undefined) {
+      const text = `${route.name || ''} ${route.id || ''}`.toLowerCase();
+      passesHighway = text.includes('highway') || text.includes('expressway') || text.includes('bypass') || text.includes('pvnr') || idx === 1;
+    }
+
     // 1. School Zone Effect
-    if (route.passesSchoolZone) {
+    if (passesSchoolZone) {
       if (isSchoolHours) {
         adjustedMinutes += 6;
         safetyScore -= 38;
@@ -90,26 +133,26 @@ function evaluateRoutes({
         favorableFactors.push("Outside active school hours, school zone flow is clear");
       }
     } else {
-      favorableFactors.push("Avoids all school zones and school bus zones");
+      favorableFactors.push("Avoids all school zones and student crosswalk hazards");
     }
 
     // 2. Highway Effect
-    if (route.passesHighway) {
+    if (passesHighway) {
       if (isRushHour) {
         const rushPenalty = traffic === 'gridlock' ? 10 : traffic === 'heavy' ? 7 : 4;
         adjustedMinutes += rushPenalty;
         safetyScore -= 18;
         riskFactors.push(`Highway peak-hour congestion (+${rushPenalty}m delay risk)`);
       } else if (isLateNight) {
-        adjustedMinutes = Math.max(5, adjustedMinutes - 2);
+        adjustedMinutes = Math.max(3, adjustedMinutes - 2);
         favorableFactors.push("Uncongested highway allows rapid straight-line transit");
       } else {
         favorableFactors.push("Direct arterial corridor with high speed limit");
       }
     }
 
-    // 3. Residential Effect
-    if (!route.passesSchoolZone && !route.passesHighway) {
+    // 3. Residential / Secondary Effect
+    if (!passesSchoolZone && !passesHighway) {
       adjustedMinutes += 1;
       favorableFactors.push("Predictable neighborhood roads, consistent speed, no highway pile-ups");
       if (patientCondition === 'routine' || patientCondition === 'emergent') {
@@ -120,7 +163,7 @@ function evaluateRoutes({
 
     // 4. Weather Impact
     if (weather === 'rain') {
-      if (route.passesHighway) {
+      if (passesHighway) {
         adjustedMinutes += 3;
         safetyScore -= 22;
         riskFactors.push("Wet highway pavement: Hydroplaning hazard at high speeds");
@@ -130,11 +173,11 @@ function evaluateRoutes({
         riskFactors.push("Slick surface conditions");
       }
     } else if (weather === 'snow') {
-      if (route.passesHighway) {
+      if (passesHighway) {
         adjustedMinutes += 6;
         safetyScore -= 35;
         riskFactors.push("Highway black ice danger & reduced stopping distances");
-      } else if (!route.passesSchoolZone && !route.passesHighway) {
+      } else if (!passesSchoolZone && !passesHighway) {
         adjustedMinutes += 4;
         safetyScore -= 20;
         riskFactors.push("Residential secondary roads may have unplowed snow accumulation");
@@ -144,7 +187,7 @@ function evaluateRoutes({
         riskFactors.push("Main arterial plowed, but slush reducing cornering grip");
       }
     } else if (weather === 'fog') {
-      if (route.passesHighway) {
+      if (passesHighway) {
         adjustedMinutes += 4;
         safetyScore -= 25;
         riskFactors.push("Dense highway fog: High-speed multi-vehicle accident hazard");
@@ -164,12 +207,12 @@ function evaluateRoutes({
       adjustedMinutes += 1;
       safetyScore -= 5;
     } else if (traffic === 'heavy') {
-      const heavyPenalty = route.passesHighway ? 5 : 3;
+      const heavyPenalty = passesHighway ? 5 : 3;
       adjustedMinutes += heavyPenalty;
       safetyScore -= 15;
       riskFactors.push(`Heavy traffic bottlenecks (+${heavyPenalty}m delay)`);
     } else if (traffic === 'gridlock') {
-      const gridlockPenalty = route.passesHighway ? 11 : 6;
+      const gridlockPenalty = passesHighway ? 11 : 6;
       adjustedMinutes += gridlockPenalty;
       safetyScore -= 28;
       riskFactors.push(`Severe gridlock: Sirens may struggle to clear lane clearance (+${gridlockPenalty}m delay)`);
@@ -185,44 +228,42 @@ function evaluateRoutes({
     else if (safetyScore < 65) safetyLevel = "Caution";
     else if (safetyScore < 85) safetyLevel = "Moderate";
 
-    // Recommendation Score calculation
-    // Critical (Code 3): High weight on speed, but avoids dangerous bottlenecks/pedestrians
-    // Emergent (Code 2): Balanced
-    // Routine (Code 1): High weight on safety/smooth ride
+    // Recommendation Score calculation (relative to timeBaseline)
     let recommendationScore = 0;
     if (patientCondition === 'critical') {
-      // Every minute delay is heavily penalized (-4 pts/min), safety penalized (-1 pt/lost safety)
-      recommendationScore = (safetyScore * 0.4) + ((25 - adjustedMinutes) * 3.5);
-      // Hard penalty if school zone during school hours with critical patient
-      if (route.passesSchoolZone && isSchoolHours) {
-        recommendationScore -= 25; // Don't risk running sirens through children crossing
+      recommendationScore = (safetyScore * 0.4) + ((timeBaseline - adjustedMinutes) * 3.5);
+      if (passesSchoolZone && isSchoolHours) {
+        recommendationScore -= 25;
       }
     } else if (patientCondition === 'emergent') {
-      recommendationScore = (safetyScore * 0.6) + ((25 - adjustedMinutes) * 2.2);
+      recommendationScore = (safetyScore * 0.6) + ((timeBaseline - adjustedMinutes) * 2.2);
     } else {
-      // Routine
-      recommendationScore = (safetyScore * 0.85) + ((25 - adjustedMinutes) * 1.0);
+      recommendationScore = (safetyScore * 0.85) + ((timeBaseline - adjustedMinutes) * 1.0);
     }
 
-    const resolvedId = route.id || (
-      route.name.includes('Route A') ? 'route-a-main-st' :
-      route.name.includes('Route B') ? 'route-b-highway-bypass' :
-      route.name.includes('Route C') ? 'route-c-residential-shortcut' :
-      route.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    const defaultIds = ['route-a-main-st', 'route-b-highway-bypass', 'route-c-residential-shortcut'];
+    const resolvedId = route.id || defaultIds[idx] || (
+      route.name?.includes('Route A') ? 'route-a-main-st' :
+      route.name?.includes('Route B') ? 'route-b-highway-bypass' :
+      route.name?.includes('Route C') ? 'route-c-residential-shortcut' :
+      `route-${idx + 1}`
     );
 
     return {
       id: resolvedId,
       name: route.name,
-      baseMinutes: route.baseMinutes,
+      distanceMiles,
+      baseMinutes,
       adjustedMinutes,
       safetyScore,
       safetyLevel,
-      passesSchoolZone: route.passesSchoolZone,
-      passesHighway: route.passesHighway,
+      passesSchoolZone,
+      passesHighway,
       riskFactors,
       favorableFactors,
-      recommendationScore: Math.round(recommendationScore * 10) / 10
+      recommendationScore: Math.round(recommendationScore * 10) / 10,
+      waypoints: route.waypoints || [],
+      maneuvers: route.maneuvers || []
     };
   });
 

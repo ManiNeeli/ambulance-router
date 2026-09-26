@@ -261,13 +261,14 @@ export default function App() {
   }, [activeRouteId, corridorData]);
 
   // 3. Evaluate AI Routes
-  const handleEvaluate = async () => {
+  const handleEvaluate = async (overrideForm = null) => {
     setLoading(true);
+    const postBody = overrideForm || formData;
     try {
       const res = await fetch('/api/recommend-route', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(postBody)
       });
       if (res.ok) {
         const data = await res.json();
@@ -275,10 +276,7 @@ export default function App() {
         if (data.corridors && Object.keys(data.corridors).length > 0) {
           setCorridorData(prev => ({
             ...prev,
-            corridors: {
-              ...(prev?.corridors || {}),
-              ...data.corridors
-            }
+            corridors: data.corridors
           }));
         }
         const topId = data.recommendedRoute?.id || 'route-a-main-st';
@@ -294,6 +292,46 @@ export default function App() {
       setLoading(false);
     }
   };
+
+  // Auto-evaluate when user modifies locations or dispatch conditions
+  const prevFormRef = useRef(formData);
+  const isFirstMountRef = useRef(true);
+
+  useEffect(() => {
+    if (isFirstMountRef.current) {
+      isFirstMountRef.current = false;
+      return;
+    }
+
+    const prev = prevFormRef.current;
+    const hasChanged = prev.startLocation !== formData.startLocation ||
+      prev.hospital !== formData.hospital ||
+      prev.patientCondition !== formData.patientCondition ||
+      prev.weather !== formData.weather ||
+      prev.traffic !== formData.traffic ||
+      prev.timeOfDay !== formData.timeOfDay ||
+      prev.vehicleType !== formData.vehicleType;
+
+    prevFormRef.current = formData;
+
+    if (!hasChanged) return;
+
+    // Immediately snap vehicle position to new station coordinates
+    if (corridorData?.stations?.[formData.startLocation]?.coords) {
+      const stn = corridorData.stations[formData.startLocation].coords;
+      setAmbulancePos(prevPos => ({
+        lat: stn[0],
+        lng: stn[1],
+        bearing: prevPos?.bearing || 0
+      }));
+    }
+
+    const timer = setTimeout(() => {
+      handleEvaluate(formData);
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [formData.startLocation, formData.hospital, formData.patientCondition, formData.weather, formData.traffic, formData.timeOfDay, formData.vehicleType]);
 
   // 4. Force Clear a specific signal or all
   const handlePreemptSignal = async (sigId) => {
@@ -771,6 +809,8 @@ export default function App() {
                 weather={formData.weather}
                 onManualProgressChange={handleManualProgressChange}
                 vehicleType={formData.vehicleType || 'ambulance'}
+                onSelectStation={(stn) => setFormData(prev => ({ ...prev, startLocation: stn }))}
+                onSelectHospital={(hosp) => setFormData(prev => ({ ...prev, hospital: hosp }))}
               />
               <ShortestRoadMap
                 corridorData={corridorData}

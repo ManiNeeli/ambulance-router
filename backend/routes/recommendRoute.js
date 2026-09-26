@@ -194,6 +194,48 @@ router.get('/cad-logs', (req, res) => {
   }
 });
 
+/**
+ * Intelligently places traffic preemption signals along the actual waypoints of a route
+ */
+function generateSignalsForRoute(corridorKey, routeName, waypoints, maneuvers) {
+  if (!waypoints || waypoints.length < 3) return [];
+  const signals = [];
+  const targetFractions = [0.22, 0.48, 0.72, 0.90];
+  const routeLetter = corridorKey.includes('route-a') ? 'A' : corridorKey.includes('route-b') ? 'B' : 'C';
+
+  targetFractions.forEach((frac, i) => {
+    const idx = Math.min(waypoints.length - 1, Math.floor(waypoints.length * frac));
+    const pt = waypoints[idx];
+    
+    let name = '';
+    if (maneuvers && maneuvers.length > 0) {
+      const closeManeuver = maneuvers.find(m => {
+        if (!m.coords) return false;
+        const d = Math.hypot(m.coords[0] - pt[0], m.coords[1] - pt[1]);
+        return d < 0.015;
+      });
+      if (closeManeuver) {
+        name = closeManeuver.text.replace(/^(Turn left onto |Turn right onto |Continue on |Head \w+ on )/i, '');
+      }
+    }
+    if (!name || name.length > 30) {
+      const cleanRouteName = routeName.replace(/^Route [ABC] - /, '').split(' ')[0] || 'Corridor';
+      name = `${cleanRouteName} Junction ${i + 1}`;
+    }
+
+    signals.push({
+      id: `SIG-HYD-${routeLetter}${i + 1}`,
+      name: `${name} Signal`,
+      coords: [Number(pt[0].toFixed(5)), Number(pt[1].toFixed(5))],
+      crossStreet: name,
+      carsQueued: Math.floor(12 + Math.random() * 18),
+      defaultState: 'red'
+    });
+  });
+
+  return signals;
+}
+
 // POST /api/recommend-route
 router.post('/recommend-route', async (req, res) => {
   try {
@@ -208,59 +250,91 @@ router.post('/recommend-route', async (req, res) => {
       notes = ''
     } = req.body;
 
-    // Evaluate candidate routes with deterministic and traffic scoring
-    const evaluation = evaluateRoutes({
-      startLocation,
-      hospital,
-      patientCondition,
-      timeOfDay,
-      weather,
-      traffic
-    });
-
-    // Check real routing engine for live traffic data if requested
     const corridorData = loadDetailedData();
     const startCoords = corridorData?.stations?.[startLocation]?.coords || [17.4278, 78.4503];
     const endCoords = corridorData?.hospitals?.[hospital]?.coords || [17.3785, 78.4735];
 
+    // 1. Fetch real road routes for the selected coordinates
     let liveRouting = null;
-    if (useLiveTraffic) {
+    if (useLiveTraffic !== false) {
       try {
-        liveRouting = await getRealRoutes({ startCoords, endCoords });
+        liveRouting = await getRealRoutes({
+          startCoords,
+          endCoords,
+          startName: startLocation,
+          endName: hospital
+        });
       } catch (e) {
         console.warn('[RecommendRoute] Live routing fetch non-blocking error:', e.message);
       }
     }
 
-    // Build dynamic corridors so the UI map displays the exact road geometry for this origin/destination
+    // 2. Prepare candidates from liveRouting or fallback
+    let candidateRoutes = [];
+    if (liveRouting && liveRouting.success && liveRouting.routes?.length > 0) {
+      candidateRoutes = liveRouting.routes;
+    }
+
+    // 3. Evaluate candidate routes with deterministic and traffic scoring
+    const evaluation = evaluateRoutes({
+      candidateRoutes,
+      startLocation,
+      hospital,
+      patientCondition,
+      timeOfDay,
+      weather,
+      traffic,
+      schoolZonePolygon: corridorData?.schoolZone?.polygon
+    });
+
+    // 4. Build dynamic corridors with exact road geometry and signals
     const dynamicCorridors = {};
     const routeKeys = ["route-a-main-st", "route-b-highway-bypass", "route-c-residential-shortcut"];
+    const activePreemptions = stateStore.getActivePreemptions();
 
-    if (liveRouting && liveRouting.success && liveRouting.routes?.length > 0) {
-      liveRouting.routes.forEach((r, idx) => {
-        const k = routeKeys[idx] || `route-${idx + 1}`;
-        dynamicCorridors[k] = {
-          id: k,
-          name: evaluation.evaluatedRoutes[idx]?.name || r.name,
-          distanceMiles: r.distanceMiles,
-          baseMinutes: r.baseMinutes,
-          waypoints: r.waypoints,
-          maneuvers: r.maneuvers || [],
-          signals: corridorData?.corridors?.[k]?.signals || []
-        };
-      });
-    }
+    evaluation.evaluatedRoutes.forEach((evaluatedRoute, idx) => {
+      const k = routeKeys[idx] || evaluatedRoute.id || `route-${idx + 1}`;
+      const matchingLive = liveRouting?.routes?.find(r => r.id === evaluatedRoute.id) || liveRouting?.routes?.[idx];
+      
+      const waypoints = evaluatedRoute.waypoints?.length ? evaluatedRoute.waypoints : (matchingLive?.waypoints || []);
+      const maneuvers = evaluatedRoute.maneuvers?.length ? evaluatedRoute.maneuvers : (matchingLive?.maneuvers || []);
 
-    // Fill any missing corridors with calibrated defaults
-    if (corridorData?.corridors) {
-      routeKeys.forEach(k => {
-        if (!dynamicCorridors[k] && corridorData.corridors[k]) {
-          dynamicCorridors[k] = corridorData.corridors[k];
+      // Generate or retrieve signals for this corridor
+      let signals = [];
+      const isDefaultPunjaguttaOsmania = (startLocation === "Punjagutta Fire Station" && hospital === "Osmania General Hospital");
+      if (isDefaultPunjaguttaOsmania && corridorData?.corridors?.[k]?.signals) {
+        signals = JSON.parse(JSON.stringify(corridorData.corridors[k].signals));
+      } else {
+        signals = generateSignalsForRoute(k, evaluatedRoute.name, waypoints, maneuvers);
+      }
+
+      // Apply active preemption states
+      signals.forEach(sig => {
+        if (activePreemptions.includes(sig.id)) {
+          sig.state = 'preempted';
+          sig.carsQueued = 0;
+        } else {
+          sig.state = sig.defaultState || 'red';
         }
       });
-    }
 
-    // Generate plain-language dispatcher explanation (real LLM or heuristic fallback)
+      dynamicCorridors[k] = {
+        id: k,
+        name: evaluatedRoute.name,
+        distanceMiles: evaluatedRoute.distanceMiles || matchingLive?.distanceMiles || 4.0,
+        baseMinutes: evaluatedRoute.baseMinutes || matchingLive?.baseMinutes || 10,
+        adjustedMinutes: evaluatedRoute.adjustedMinutes,
+        safetyScore: evaluatedRoute.safetyScore,
+        safetyLevel: evaluatedRoute.safetyLevel,
+        passesSchoolZone: evaluatedRoute.passesSchoolZone,
+        passesHighway: evaluatedRoute.passesHighway,
+        waypoints,
+        maneuvers,
+        signals
+      };
+    });
+
+    // 5. Generate plain-language dispatcher explanation (real LLM or heuristic fallback)
     const aiExplanation = await generateDispatcherExplanation(evaluation);
 
     // Save to persistent audit log
