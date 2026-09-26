@@ -3,21 +3,47 @@ const path = require('path');
 
 // Load default route definitions
 function loadDefaultRoutes() {
-  try {
-    const raw = fs.readFileSync(path.join(__dirname, '../../data/routes.json'), 'utf8');
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error('Failed to load routes.json, using fallback:', err.message);
-    return {
-      startLocations: ["Fire Station 3", "Fire Station 7", "Downtown EMS Base"],
-      hospitals: ["City General", "St. Mary's Medical Center", "Riverside Hospital"],
-      routeOptions: [
-        { name: "Route A - Main St", baseMinutes: 8, passesSchoolZone: true, passesHighway: false },
-        { name: "Route B - Highway Bypass", baseMinutes: 11, passesSchoolZone: false, passesHighway: true },
-        { name: "Route C - Residential Shortcut", baseMinutes: 13, passesSchoolZone: false, passesHighway: false }
-      ]
-    };
+  const possiblePaths = [
+    path.join(__dirname, '../data/routes.json'),
+    path.join(__dirname, '../../data/routes.json'),
+    path.resolve(process.cwd(), 'backend/data/routes.json'),
+    path.resolve(process.cwd(), 'data/routes.json')
+  ];
+
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      try {
+        return JSON.parse(fs.readFileSync(p, 'utf8'));
+      } catch (e) {
+        console.warn(`[RouteCalculator] Failed parsing ${p}:`, e.message);
+      }
+    }
   }
+
+  return {
+    startLocations: [
+      "Punjagutta Fire Station",
+      "Madhapur Fire Station",
+      "Telangana Secretariat Fire Command",
+      "Secunderabad Fire Station",
+      "Gowliguda Fire Station",
+      "GVK EMRI 108 Central EMS Base"
+    ],
+    hospitals: [
+      "Osmania General Hospital",
+      "NIMS Hospital (Punjagutta)",
+      "Apollo Hospitals (Jubilee Hills)",
+      "Gandhi Hospital (Secunderabad)",
+      "AIG Hospitals (Gachibowli)",
+      "Cyber Towers Incident Zone",
+      "Charminar Heritage Incident Zone"
+    ],
+    routeOptions: [
+      { name: "Route A - Lakdikapul & Abids Arterial", baseMinutes: 10, passesSchoolZone: true, passesHighway: false },
+      { name: "Route B - PVNR Expressway Corridor", baseMinutes: 13, passesSchoolZone: false, passesHighway: true },
+      { name: "Route C - Secretariat & Tank Bund Bypass", baseMinutes: 15, passesSchoolZone: false, passesHighway: false }
+    ]
+  };
 }
 
 /**

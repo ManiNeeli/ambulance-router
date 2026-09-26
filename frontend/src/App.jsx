@@ -17,14 +17,15 @@ import { Map, Activity, Radio, BarChart3, ShieldCheck, Navigation, Server } from
 export default function App() {
 
   const [startLocations, setStartLocations] = useState([
-    "Fire Station 3", "Fire Station 7", "Downtown EMS Base"
+    "Punjagutta Fire Station", "Madhapur Fire Station", "Telangana Secretariat Fire Command", "Secunderabad Fire Station", "Gowliguda Fire Station", "GVK EMRI 108 Central EMS Base"
   ]);
   const [hospitals, setHospitals] = useState([
-    "City General", "St. Mary's Medical Center", "Riverside Hospital"
+    "Osmania General Hospital", "NIMS Hospital (Punjagutta)", "Apollo Hospitals (Jubilee Hills)", "Gandhi Hospital (Secunderabad)", "AIG Hospitals (Gachibowli)", "Cyber Towers Incident Zone", "Charminar Heritage Incident Zone"
   ]);
   const [formData, setFormData] = useState({
-    startLocation: "Fire Station 3",
-    hospital: "City General",
+    vehicleType: "ambulance",
+    startLocation: "Punjagutta Fire Station",
+    hospital: "Osmania General Hospital",
     patientCondition: "critical",
     timeOfDay: "08:15",
     weather: "clear",
@@ -411,11 +412,12 @@ export default function App() {
         }));
 
         if (nextProgress >= 1.0) {
+          const unitTitle = formData.vehicleType === 'fire_truck' ? 'Fire Tender 01' : '108 ALS Ambulance';
           setIsSimulating(false);
           stopSirenSound();
-          addLog(`MISSION COMPLETE: Unit arrived at ${formData.hospital} Emergency Bay. Patient delivered safely.`, 'arrive');
+          addLog(`MISSION COMPLETE: ${unitTitle} arrived at ${formData.hospital}. Emergency mission completed safely.`, 'arrive');
           if (voiceEnabled) {
-            speakDispatch(`Unit has arrived at ${formData.hospital} Emergency Bay. Transit completed safely.`);
+            speakDispatch(`${unitTitle} has arrived at ${formData.hospital}. Mission completed safely.`);
           }
         }
 
@@ -426,13 +428,14 @@ export default function App() {
     return () => {
       if (simIntervalRef.current) clearInterval(simIntervalRef.current);
     };
-  }, [isSimulating, simSpeed, autoPreempt, audioEnabled, voiceEnabled, activeCorridor]);
+  }, [isSimulating, simSpeed, autoPreempt, audioEnabled, voiceEnabled, activeCorridor, formData.vehicleType, formData.hospital]);
 
   const handleStart = () => {
     setIsSimulating(true);
-    addLog(`🚨 EMERGENCY TRANSIT LAUNCHED: Unit dispatched to ${formData.hospital} under Code 3 Priority.`, 'alert');
+    const unitTitle = formData.vehicleType === 'fire_truck' ? 'Fire Tender 01' : '108 ALS Ambulance';
+    addLog(`🚨 EMERGENCY TRANSIT LAUNCHED: ${unitTitle} dispatched to ${formData.hospital} under Code 3 Priority.`, 'alert');
     if (voiceEnabled) {
-      speakDispatch(`Unit 4 dispatched to ${formData.hospital}. Code 3 priority sirens engaged. Traffic preemption online.`);
+      speakDispatch(`${unitTitle} dispatched to ${formData.hospital}. Code 3 priority sirens engaged. Hyderabad traffic preemption online.`);
     }
   };
 
@@ -730,6 +733,7 @@ export default function App() {
                 isSimulating={isSimulating}
                 weather={formData.weather}
                 onManualProgressChange={handleManualProgressChange}
+                vehicleType={formData.vehicleType || 'ambulance'}
               />
               <ShortestRoadMap
                 corridorData={corridorData}
@@ -737,6 +741,9 @@ export default function App() {
                 simProgress={simProgress}
                 onJumpToProgress={handleManualProgressChange}
                 onSelectRoute={(rId) => setActiveRouteId(rId)}
+                startLocation={formData.startLocation}
+                hospital={formData.hospital}
+                vehicleType={formData.vehicleType || 'ambulance'}
               />
               <EnterpriseCadPanel
                 wsConnected={wsConnected}
@@ -772,6 +779,7 @@ export default function App() {
                 isSimulating={isSimulating}
                 weather={formData.weather}
                 onManualProgressChange={handleManualProgressChange}
+                vehicleType={formData.vehicleType || 'ambulance'}
               />
             </div>
           )}
@@ -784,6 +792,9 @@ export default function App() {
                 simProgress={simProgress}
                 onJumpToProgress={handleManualProgressChange}
                 onSelectRoute={(rId) => setActiveRouteId(rId)}
+                startLocation={formData.startLocation}
+                hospital={formData.hospital}
+                vehicleType={formData.vehicleType || 'ambulance'}
               />
               <InteractiveLeafletMap
                 corridorData={corridorData}
@@ -795,6 +806,7 @@ export default function App() {
                 isSimulating={isSimulating}
                 weather={formData.weather}
                 onManualProgressChange={handleManualProgressChange}
+                vehicleType={formData.vehicleType || 'ambulance'}
               />
             </div>
           )}

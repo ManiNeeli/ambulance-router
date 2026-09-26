@@ -70,7 +70,7 @@ router.get('/detailed-corridor', (req, res) => {
 // GET /api/live-routes (Point 1 & 2: Real Routing Engine & Live Traffic)
 router.get('/live-routes', async (req, res) => {
   try {
-    const { start = "37.7858,-122.4285", end = "37.7558,-122.4045" } = req.query;
+    const { start = "17.4278,78.4503", end = "17.3785,78.4735" } = req.query;
     const startCoords = start.split(',').map(Number);
     const endCoords = end.split(',').map(Number);
 
@@ -220,8 +220,8 @@ router.post('/recommend-route', async (req, res) => {
 
     // Check real routing engine for live traffic data if requested
     const corridorData = loadDetailedData();
-    const startCoords = corridorData?.stations?.[startLocation]?.coords || [37.7858, -122.4285];
-    const endCoords = corridorData?.hospitals?.[hospital]?.coords || [37.7558, -122.4045];
+    const startCoords = corridorData?.stations?.[startLocation]?.coords || [17.4278, 78.4503];
+    const endCoords = corridorData?.hospitals?.[hospital]?.coords || [17.3785, 78.4735];
 
     let liveRouting = null;
     if (useLiveTraffic) {

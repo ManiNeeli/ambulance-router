@@ -12,7 +12,8 @@ export default function InteractiveLeafletMap({
   onSelectRoute,
   isSimulating,
   weather = 'clear',
-  onManualProgressChange
+  onManualProgressChange,
+  vehicleType = 'ambulance'
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -38,8 +39,8 @@ export default function InteractiveLeafletMap({
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
     const map = L.map(mapContainerRef.current, {
-      center: [37.772, -122.415],
-      zoom: 14,
+      center: [17.4100, 78.4600],
+      zoom: 13,
       zoomControl: false,
       attributionControl: false
     });
@@ -75,7 +76,7 @@ export default function InteractiveLeafletMap({
     if (ambulancePosition) {
       mapInstanceRef.current.setView([ambulancePosition.lat, ambulancePosition.lng], 15, { animate: true });
     } else {
-      mapInstanceRef.current.setView([37.772, -122.415], 14, { animate: true });
+      mapInstanceRef.current.setView([17.4100, 78.4600], 13, { animate: true });
     }
   };
 
@@ -314,57 +315,55 @@ export default function InteractiveLeafletMap({
     };
   }, [onSignalClick]);
 
-  // Ambulance Marker Update
+  // Vehicle Marker Update (Ambulance 🚑 or Fire Truck 🚒)
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !ambulancePosition) return;
 
     const { lat, lng, bearing = 0 } = ambulancePosition;
+    const isFire = (vehicleType === 'fire_truck');
+    const ringColor = isFire ? '#D71920' : '#08B7BA';
+    const emoji = isFire ? '🚒' : '🚑';
+    const bg = isFire ? '#FFE8E8' : '#FFFFFF';
 
-    if (!layersRef.current.ambulanceMarker) {
-      const ambulanceIcon = L.divIcon({
-        className: 'ambulance-vehicle-icon',
-        html: `
-          <div style="position: relative; display: flex; align-items: center; justify-content: center; transform: rotate(${bearing}deg); transition: transform 0.15s linear;">
-            <div class="animate-greenwave-ring" style="position: absolute; width: 52px; height: 52px; border-radius: 50%; border: 2.5px solid #08B7BA;"></div>
-            <div style="
-              width: 38px;
-              height: 38px;
-              background: #FFFFFF;
-              border: 2.5px solid #222222;
-              border-radius: 10px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              box-shadow: 3px 3px 0px #222222;
-              font-size: 20px;
-            ">
-              🚑
-            </div>
-            <div class="strobe-red" style="position: absolute; top: -4px; left: 1px; width: 9px; height: 9px; border-radius: 50%; background: #D71920; border: 1.5px solid #222;"></div>
-            <div class="strobe-blue" style="position: absolute; top: -4px; right: 1px; width: 9px; height: 9px; border-radius: 50%; background: #08B7BA; border: 1.5px solid #222;"></div>
-          </div>
-        `,
-        iconSize: [38, 38],
-        iconAnchor: [19, 19]
-      });
-
-      layersRef.current.ambulanceMarker = L.marker([lat, lng], { icon: ambulanceIcon, zIndexOffset: 1000 }).addTo(map);
-    } else {
-      layersRef.current.ambulanceMarker.setLatLng([lat, lng]);
-      const iconEl = layersRef.current.ambulanceMarker.getElement();
-      if (iconEl) {
-        const vehicleInner = iconEl.querySelector('div');
-        if (vehicleInner) {
-          vehicleInner.style.transform = `rotate(${bearing}deg)`;
-        }
-      }
+    if (layersRef.current.ambulanceMarker) {
+      map.removeLayer(layersRef.current.ambulanceMarker);
+      layersRef.current.ambulanceMarker = null;
     }
+
+    const vehicleIcon = L.divIcon({
+      className: 'emergency-vehicle-icon',
+      html: `
+        <div style="position: relative; display: flex; align-items: center; justify-content: center; transform: rotate(${bearing}deg); transition: transform 0.15s linear;">
+          <div class="animate-greenwave-ring" style="position: absolute; width: 54px; height: 54px; border-radius: 50%; border: 2.5px solid ${ringColor};"></div>
+          <div style="
+            width: 40px;
+            height: 40px;
+            background: ${bg};
+            border: 2.5px solid #222222;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 3px 3px 0px #222222;
+            font-size: 21px;
+          ">
+            ${emoji}
+          </div>
+          <div class="strobe-red" style="position: absolute; top: -4px; left: 1px; width: 9px; height: 9px; border-radius: 50%; background: #D71920; border: 1.5px solid #222;"></div>
+          <div class="${isFire ? 'strobe-red' : 'strobe-blue'}" style="position: absolute; top: -4px; right: 1px; width: 9px; height: 9px; border-radius: 50%; background: ${isFire ? '#FFB91A' : '#08B7BA'}; border: 1.5px solid #222;"></div>
+        </div>
+      `,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
+    });
+
+    layersRef.current.ambulanceMarker = L.marker([lat, lng], { icon: vehicleIcon, zIndexOffset: 1000 }).addTo(map);
 
     if (isSimulating) {
       map.panTo([lat, lng], { animate: true, duration: 0.25 });
     }
-  }, [ambulancePosition, isSimulating]);
+  }, [ambulancePosition, isSimulating, vehicleType]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '460px', borderRadius: '14px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>

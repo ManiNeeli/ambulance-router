@@ -14,10 +14,10 @@ export default function RadioIntercom({ onBroadcastLog }) {
   ];
 
   const presets = [
-    { label: '🚨 Request Police Escort', text: 'Dispatch to Traffic Command: Request immediate traffic escort and intersection freeze on Van Ness.' },
-    { label: '🏥 Hospital ETA Alert', text: 'Medic 41 to City General Trauma: ETA is under 4 minutes. Inbound with Code 3 patient, prep Trauma Bay 1.' },
-    { label: '🏫 School Zone Advisory', text: 'Medic 41 to Dispatch: Entering Oakridge School Zone. Reducing velocity to 20 MPH, sirens modulated.' },
-    { label: '🟢 All-Signals Clear', text: 'Command to Signal Operations: Preempt all remaining signals along corridor. Green wave confirmed.' }
+    { label: '🚨 Hyderabad Traffic Police Escort', text: 'Dispatch to Hyderabad Traffic Control: Request immediate corridor freeze from Lakdikapul to Osmania Hospital.' },
+    { label: '🏥 Osmania Hospital Trauma Alert', text: 'Ambulance 108 to Osmania General Trauma: Inbound with Code 3 critical emergency. ETA under 4 minutes.' },
+    { label: '🏫 HPS School Zone Advisory', text: 'Unit to Dispatch: Entering Hyderabad Public School Begumpet zone. Velocity throttled to 20 MPH.' },
+    { label: '🟢 Preempt Arterial Signals', text: 'Command to Traffic Signal Operations: Preempt all signals along Lakdikapul and Abids corridor. Green wave confirmed.' }
   ];
 
   const transmitMessage = (text) => {

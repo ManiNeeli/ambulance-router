@@ -6,10 +6,17 @@ export default function ShortestRoadMap({
   activeRouteId,
   simProgress,
   onJumpToProgress,
-  onSelectRoute
+  onSelectRoute,
+  startLocation = "Punjagutta Fire Station",
+  hospital = "Osmania General Hospital",
+  vehicleType = "ambulance"
 }) {
   const activeCorridor = corridorData?.corridors?.[activeRouteId];
   const allCorridors = corridorData?.corridors ? Object.values(corridorData.corridors) : [];
+
+  const originStation = corridorData?.stations?.[startLocation] || Object.values(corridorData?.stations || {})[0] || { name: startLocation, address: "Station Base" };
+  const destHospital = corridorData?.hospitals?.[hospital] || Object.values(corridorData?.hospitals || {})[0] || { name: hospital, address: "Emergency Ward" };
+  const isFire = (vehicleType === 'fire_truck');
 
   // Sort corridors by distance to verify the shortest road route
   const sortedByDistance = [...allCorridors].sort((a, b) => (a.distanceMiles || 0) - (b.distanceMiles || 0));
@@ -70,7 +77,7 @@ export default function ShortestRoadMap({
             width: '32px',
             height: '32px',
             borderRadius: '50%',
-            backgroundColor: 'var(--color-red)',
+            backgroundColor: isFire ? 'var(--color-red)' : 'var(--color-yellow)',
             color: '#fff',
             display: 'flex',
             alignItems: 'center',
@@ -78,14 +85,16 @@ export default function ShortestRoadMap({
             border: '2px solid var(--color-dark)',
             fontSize: '15px'
           }}>
-            🚒
+            {isFire ? '🚒' : '🚑'}
           </div>
           <div>
-            <div style={{ fontSize: '0.65rem', color: 'var(--color-dark-muted)', fontWeight: 700 }}>SOURCE ORIGIN</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--color-dark-muted)', fontWeight: 700 }}>
+              {isFire ? 'SOURCE FIRE STATION' : 'SOURCE EMS ORIGIN'}
+            </div>
             <strong style={{ fontSize: '0.82rem', fontFamily: 'var(--font-heading)', color: 'var(--color-dark)' }}>
-              Fire Station 3 (HQ)
+              {originStation.name}
             </strong>
-            <div style={{ fontSize: '0.68rem', color: '#666' }}>1067 Post St</div>
+            <div style={{ fontSize: '0.68rem', color: '#666' }}>{originStation.address}</div>
           </div>
         </div>
 
@@ -127,9 +136,9 @@ export default function ShortestRoadMap({
           <div>
             <div style={{ fontSize: '0.65rem', color: 'var(--color-dark-muted)', fontWeight: 700 }}>DESTINATION</div>
             <strong style={{ fontSize: '0.82rem', fontFamily: 'var(--font-heading)', color: 'var(--color-dark)' }}>
-              City General Hospital
+              {destHospital.name}
             </strong>
-            <div style={{ fontSize: '0.68rem', color: '#666' }}>1001 Potrero Ave</div>
+            <div style={{ fontSize: '0.68rem', color: '#666' }}>{destHospital.address}</div>
           </div>
         </div>
       </div>

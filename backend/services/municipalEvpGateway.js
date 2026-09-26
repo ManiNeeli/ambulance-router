@@ -63,9 +63,9 @@ function postJson(url, payload, apiKey) {
  */
 async function requestMunicipalPreemption({
   signalId,
-  unitId = 'MED-4',
-  agencyId = 'EMS-SFFD',
-  intersectionName = 'Van Ness & Post St',
+  unitId = 'AMB-108',
+  agencyId = 'HYD-FIRE-EMS-COMMAND',
+  intersectionName = 'Punjagutta & Nagarjuna Circle',
   vehicleSpeedMph = 45,
   distanceRemainingMeters = 350,
   sirenActive = true,

@@ -1,18 +1,5 @@
 {
-  "activePreemptions": {
-    "SIG-101": {
-      "signalId": "SIG-101",
-      "timestamp": "2026-09-26T04:18:32.575Z",
-      "expiresAt": 1790396344575,
-      "unitId": "MED-4",
-      "source": "EVP_GEOFENCE_AUTO",
-      "intersectionName": "Van Ness & Post St",
-      "etaSeconds": 17,
-      "durationSeconds": 32,
-      "ntcipMessageId": "SRM-1790396312575-229",
-      "tmcStatus": "SIMULATED_MUNICIPAL_ACK"
-    }
-  },
+  "activePreemptions": {},
   "vehicleTelemetry": {
     "MED-4": {
       "unitId": "MED-4",
@@ -27,6 +14,252 @@
   },
   "dispatchLogs": [
     {
+      "id": "CAD-1023",
+      "timestamp": "2026-09-26T05:28:19.979Z",
+      "type": "EVP_MUNICIPAL_PREEMPTION_GRANT",
+      "signalId": "SIG-HYD-01",
+      "unitId": "FIRE-TENDER-01",
+      "intersectionName": "Punjagutta & Nagarjuna Circle",
+      "speedMph": 45,
+      "distanceMeters": 300,
+      "sirenActive": true,
+      "tmcStatus": "SIMULATED_MUNICIPAL_ACK",
+      "note": "NTCIP 1202 Preemption Call locked. Green wave corridor active for FIRE-TENDER-01."
+    },
+    {
+      "id": "CAD-1022",
+      "timestamp": "2026-09-26T05:28:11.595Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Madhapur Fire Station",
+      "hospital": "Cyber Towers Incident Zone",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Lakdikapul & Abids Arterial",
+      "safetyScore": 75,
+      "adjustedMinutes": 13
+    },
+    {
+      "id": "CAD-1021",
+      "timestamp": "2026-09-26T05:28:01.828Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Secretariat & Tank Bund Bypass",
+      "safetyScore": 80,
+      "adjustedMinutes": 19
+    },
+    {
+      "id": "CAD-1020",
+      "timestamp": "2026-09-26T05:25:49.176Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1019",
+      "timestamp": "2026-09-26T05:25:37.223Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1018",
+      "timestamp": "2026-09-26T05:25:24.414Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1017",
+      "timestamp": "2026-09-26T05:25:12.594Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1016",
+      "timestamp": "2026-09-26T05:25:12.366Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1015",
+      "timestamp": "2026-09-26T05:13:24.032Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Fire Station 3",
+      "hospital": "City General",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1014",
+      "timestamp": "2026-09-26T05:13:24.017Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Fire Station 3",
+      "hospital": "City General",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1013",
+      "timestamp": "2026-09-26T04:59:21.758Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Fire Station 3",
+      "hospital": "City General",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1012",
+      "timestamp": "2026-09-26T04:59:20.368Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Fire Station 3",
+      "hospital": "City General",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1011",
+      "timestamp": "2026-09-26T04:49:02.281Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Fire Station 3",
+      "hospital": "City General",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1010",
+      "timestamp": "2026-09-26T04:49:02.264Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Fire Station 3",
+      "hospital": "City General",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1009",
+      "timestamp": "2026-09-26T04:30:21.686Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Downtown EMS Base",
+      "hospital": "Riverside Hospital",
+      "patientCondition": "emergent",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 95,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1008",
+      "timestamp": "2026-09-26T04:29:41.780Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Fire Station 3",
+      "hospital": "St. Mary's Medical Center",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1007",
+      "timestamp": "2026-09-26T04:29:28.907Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Fire Station 3",
+      "hospital": "City General",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1006",
+      "timestamp": "2026-09-26T04:29:28.894Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Fire Station 3",
+      "hospital": "City General",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1005",
+      "timestamp": "2026-09-26T04:29:14.549Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Fire Station 3",
+      "hospital": "Riverside Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1004",
+      "timestamp": "2026-09-26T04:25:49.255Z",
+      "type": "EVP_MUNICIPAL_PREEMPTION_GRANT",
+      "signalId": "SIG-102",
+      "unitId": "MED-4",
+      "intersectionName": "Van Ness & Post St",
+      "speedMph": 45,
+      "distanceMeters": 350,
+      "sirenActive": true,
+      "tmcStatus": "SIMULATED_MUNICIPAL_ACK",
+      "note": "NTCIP 1202 Preemption Call locked. Green wave corridor active for MED-4."
+    },
+    {
+      "id": "CAD-1003",
+      "timestamp": "2026-09-26T04:23:35.601Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Fire Station 3",
+      "hospital": "City General",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
+      "id": "CAD-1002",
+      "timestamp": "2026-09-26T04:23:35.395Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Fire Station 3",
+      "hospital": "City General",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Residential Shortcut",
+      "safetyScore": 90,
+      "adjustedMinutes": 15
+    },
+    {
       "id": "CAD-1001",
       "timestamp": "2026-09-26T04:18:32.575Z",
       "type": "EVP_MUNICIPAL_PREEMPTION_GRANT",
@@ -40,5 +273,5 @@
       "note": "NTCIP 1202 Preemption Call locked. Green wave corridor active for MED-4."
     }
   ],
-  "incidentCounter": 1001
+  "incidentCounter": 1023
 }
