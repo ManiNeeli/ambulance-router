@@ -10,6 +10,8 @@
 
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
+const http = require('http');
 const stateStore = require('./stateStore');
 
 // NTCIP 1202 Object Identifier (OID) definitions for Preemption
@@ -19,6 +21,42 @@ const NTCIP_OIDS = {
   ascPreemptCallActive: 2, // Bitmask for active preemption call
   ascPreemptHoldGreen: 4   // Bitmask for holding green interval
 };
+
+function postJson(url, payload, apiKey) {
+  return new Promise((resolve, reject) => {
+    const parsed = new URL(url);
+    const client = parsed.protocol === 'https:' ? https : http;
+    const bodyStr = JSON.stringify(payload);
+    const req = client.request(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(bodyStr),
+        'User-Agent': 'AmbulanceRouter-NTCIP1202-Gateway/2.0',
+        ...(apiKey ? { 'Authorization': `Bearer ${apiKey}`, 'X-API-Key': apiKey } : {})
+      },
+      timeout: 5000
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => { data += chunk; });
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve({ statusCode: res.statusCode, body: data });
+        } else {
+          reject(new Error(`TMC returned HTTP ${res.statusCode}: ${data.slice(0, 100)}`));
+        }
+      });
+    });
+
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('TMC Gateway request timed out after 5000ms'));
+    });
+    req.on('error', err => reject(err));
+    req.write(bodyStr);
+    req.end();
+  });
+}
 
 /**
  * Dispatches an authenticated Preemption Request to the Municipal TMC Gateway
@@ -68,12 +106,11 @@ async function requestMunicipalPreemption({
 
   if (tmcGatewayUrl) {
     try {
-      // Real-world municipal integration point
-      // await axios.post(tmcGatewayUrl, ntcipPayload, { headers: { 'Authorization': `Bearer ${process.env.MUNICIPAL_API_KEY}` } });
-      tmcStatus = "TMC_HARDWARE_PREEMPTION_CONFIRMED";
+      const response = await postJson(tmcGatewayUrl, ntcipPayload, process.env.MUNICIPAL_API_KEY);
+      tmcStatus = `TMC_LIVE_HARDWARE_PREEMPTION_CONFIRMED (HTTP ${response.statusCode})`;
     } catch (err) {
       console.warn(`[EVP Gateway] Real TMC dispatch to ${tmcGatewayUrl} failed, falling back to simulated bridge:`, err.message);
-      tmcStatus = "TMC_FALLBACK_SIMULATION";
+      tmcStatus = `TMC_FALLBACK_SIMULATION (Error: ${err.message})`;
     }
   }
 
