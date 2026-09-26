@@ -5,12 +5,14 @@ import DispatchForm from './components/DispatchForm.jsx';
 import InteractiveLeafletMap from './components/InteractiveLeafletMap.jsx';
 import TransitController from './components/TransitController.jsx';
 import ShortestRoadMap from './components/ShortestRoadMap.jsx';
+import EnterpriseCadPanel from './components/EnterpriseCadPanel.jsx';
 import LiveTelemetryBar from './components/LiveTelemetryBar.jsx';
 import PatientVitalsMonitor from './components/PatientVitalsMonitor.jsx';
 import RadioIntercom from './components/RadioIntercom.jsx';
 import RecommendationDisplay from './components/RecommendationDisplay.jsx';
 import { playSirenSound, stopSirenSound, speakDispatch } from './utils/sirenAudio.js';
-import { Map, Activity, Radio, BarChart3, ShieldCheck, Navigation } from 'lucide-react';
+import { cadSocket } from './utils/cadWebSocket.js';
+import { Map, Activity, Radio, BarChart3, ShieldCheck, Navigation, Server } from 'lucide-react';
 
 export default function App() {
 
@@ -34,8 +36,12 @@ export default function App() {
   const [activeRouteId, setActiveRouteId] = useState('route-a-main-st');
   const [loading, setLoading] = useState(false);
   const [apiOnline, setApiOnline] = useState(false);
+  const [wsConnected, setWsConnected] = useState(false);
+  const [isRealGpsActive, setIsRealGpsActive] = useState(false);
+  const [realGpsCoordinates, setRealGpsCoordinates] = useState(null);
+  const gpsWatchIdRef = useRef(null);
 
-  // Active View Tab: 'map' | 'vitals' | 'radio' | 'matrix'
+  // Active View Tab: 'map' | 'roadmap' | 'vitals' | 'radio' | 'matrix' | 'enterprise'
   const [activeTab, setActiveTab] = useState('map');
 
   // Transit Simulation State
@@ -96,6 +102,109 @@ export default function App() {
     }
     loadData();
   }, []);
+
+  // Live WebSocket Connection Layer
+  useEffect(() => {
+    cadSocket.connect();
+
+    const unsubStatus = cadSocket.on('connection_status', (data) => {
+      setWsConnected(data.connected);
+      if (data.connected) addLog('WebSocket live push connected: ws://localhost:5000/ws', 'info');
+    });
+
+    const unsubTelemetry = cadSocket.on('AMBULANCE_TELEMETRY', (msg) => {
+      const data = msg.payload || msg;
+      if (data.lat && data.lng) {
+        setAmbulancePos(prev => ({
+          ...prev,
+          lat: data.lat,
+          lng: data.lng,
+          bearing: data.heading || data.bearing || prev?.bearing || 0
+        }));
+        setTelemetry(prev => ({
+          ...prev,
+          speedMph: data.speedMph || data.speed || prev.speedMph,
+          progressPercent: data.progressPercent !== undefined ? data.progressPercent : prev.progressPercent
+        }));
+      }
+    });
+
+    const unsubSignal = cadSocket.on('SIGNAL_STATE_UPDATE', (msg) => {
+      if (msg.signalId) {
+        if (msg.signalId === 'ALL') {
+          setSignalStates({});
+        } else {
+          setSignalStates(prev => ({ ...prev, [msg.signalId]: msg.state }));
+        }
+      }
+    });
+
+    const unsubRec = cadSocket.on('DISPATCH_RECOMMENDATION', (msg) => {
+      if (msg.payload?.recommendedRoute) {
+        setRecommendationData(msg.payload);
+      }
+    });
+
+    return () => {
+      unsubStatus();
+      unsubTelemetry();
+      unsubSignal();
+      unsubRec();
+    };
+  }, []);
+
+  const handleToggleRealGps = () => {
+    if (isRealGpsActive) {
+      if (gpsWatchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(gpsWatchIdRef.current);
+        gpsWatchIdRef.current = null;
+      }
+      setIsRealGpsActive(false);
+      addLog("Live Device GPS tracking disabled. Switched back to GIS routing.", 'info');
+    } else {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser/device.");
+        return;
+      }
+
+      setIsRealGpsActive(true);
+      addLog("🛰️ Live Device GPS tracking engaged. Streaming device coordinates to /api/telematics/gps...", 'alert');
+
+      gpsWatchIdRef.current = navigator.geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude, speed, heading, altitude, accuracy } = position.coords;
+          const speedMph = speed ? Math.round(speed * 2.23694) : 0;
+          setRealGpsCoordinates({ lat: latitude, lng: longitude, speedMph });
+
+          setAmbulancePos({
+            lat: latitude,
+            lng: longitude,
+            bearing: heading || 0
+          });
+
+          fetch('/api/telematics/gps', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              unitId: 'MED-4',
+              lat: latitude,
+              lng: longitude,
+              speedMph,
+              heading: heading || 0,
+              altitude: altitude || 0,
+              accuracy
+            })
+          }).catch(err => console.warn('GPS push error:', err));
+        },
+        (err) => {
+          console.warn('Geolocation watch error:', err.message);
+          setIsRealGpsActive(false);
+          addLog(`Device GPS error: ${err.message}`, 'alert');
+        },
+        { enableHighAccuracy: true, maximumAge: 1000, timeout: 5000 }
+      );
+    }
+  };
 
   // 2. Initialize ambulance at station whenever active corridor changes
   useEffect(() => {
@@ -599,6 +708,13 @@ export default function App() {
             >
               <BarChart3 size={15} /> 📊 Route Tradeoff Matrix
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('enterprise')}
+              className={`tab-btn ${activeTab === 'enterprise' ? 'active' : ''}`}
+            >
+              <Server size={15} /> 🏛️ Enterprise CAD (7 Pillars)
+            </button>
           </div>
 
           {/* Active Tab View Rendering */}
@@ -622,10 +738,40 @@ export default function App() {
                 onJumpToProgress={handleManualProgressChange}
                 onSelectRoute={(rId) => setActiveRouteId(rId)}
               />
+              <EnterpriseCadPanel
+                wsConnected={wsConnected}
+                isRealGpsActive={isRealGpsActive}
+                onToggleRealGps={handleToggleRealGps}
+                realGpsCoordinates={realGpsCoordinates}
+                onRefreshLogs={() => {}}
+              />
               <RecommendationDisplay
                 recommendationData={recommendationData}
                 selectedRouteId={activeRouteId}
                 onSelectRoute={(rId) => setActiveRouteId(rId)}
+              />
+            </div>
+          )}
+
+          {activeTab === 'enterprise' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <EnterpriseCadPanel
+                wsConnected={wsConnected}
+                isRealGpsActive={isRealGpsActive}
+                onToggleRealGps={handleToggleRealGps}
+                realGpsCoordinates={realGpsCoordinates}
+                onRefreshLogs={() => {}}
+              />
+              <InteractiveLeafletMap
+                corridorData={corridorData}
+                activeRouteId={activeRouteId}
+                ambulancePosition={ambulancePos}
+                signalStates={signalStates}
+                onSignalClick={handlePreemptSignal}
+                onSelectRoute={(rId) => setActiveRouteId(rId)}
+                isSimulating={isSimulating}
+                weather={formData.weather}
+                onManualProgressChange={handleManualProgressChange}
               />
             </div>
           )}

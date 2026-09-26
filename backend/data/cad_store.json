@@ -1,0 +1,44 @@
+{
+  "activePreemptions": {
+    "SIG-101": {
+      "signalId": "SIG-101",
+      "timestamp": "2026-09-26T04:18:32.575Z",
+      "expiresAt": 1790396344575,
+      "unitId": "MED-4",
+      "source": "EVP_GEOFENCE_AUTO",
+      "intersectionName": "Van Ness & Post St",
+      "etaSeconds": 17,
+      "durationSeconds": 32,
+      "ntcipMessageId": "SRM-1790396312575-229",
+      "tmcStatus": "SIMULATED_MUNICIPAL_ACK"
+    }
+  },
+  "vehicleTelemetry": {
+    "MED-4": {
+      "unitId": "MED-4",
+      "lat": 37.78,
+      "lng": -122.421,
+      "speedMph": 52,
+      "heading": 180,
+      "altitude": 0,
+      "accuracy": 3.5,
+      "lastPing": "2026-09-26T04:18:16.014Z"
+    }
+  },
+  "dispatchLogs": [
+    {
+      "id": "CAD-1001",
+      "timestamp": "2026-09-26T04:18:32.575Z",
+      "type": "EVP_MUNICIPAL_PREEMPTION_GRANT",
+      "signalId": "SIG-101",
+      "unitId": "MED-4",
+      "intersectionName": "Van Ness & Post St",
+      "speedMph": 45,
+      "distanceMeters": 350,
+      "sirenActive": true,
+      "tmcStatus": "SIMULATED_MUNICIPAL_ACK",
+      "note": "NTCIP 1202 Preemption Call locked. Green wave corridor active for MED-4."
+    }
+  ],
+  "incidentCounter": 1001
+}
