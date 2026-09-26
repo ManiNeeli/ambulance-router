@@ -608,6 +608,76 @@ body {
   flex-wrap: wrap;
 }
 
+/* Header Page Navigation Bar */
+.header-nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background-color: var(--bg-well);
+  padding: 0.25rem 0.35rem;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.nav-page-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border: 1.5px solid transparent;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.nav-page-link:hover {
+  color: var(--color-dark);
+  border-color: var(--color-dark);
+  background-color: var(--color-white);
+  transform: translateY(-1px);
+}
+
+.nav-page-link.active {
+  background-color: var(--color-yellow);
+  color: var(--color-dark);
+  border: 1.5px solid var(--color-dark);
+  box-shadow: var(--shadow-solid-sm);
+}
+
+/* Global Mission Status Ribbon */
+.global-mission-hud {
+  background: var(--color-white);
+  border-bottom: 2px solid var(--color-dark);
+  padding: 0.55rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.global-mission-hud-metrics {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.global-mission-hud-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
 .header-pill-info {
   display: flex;
   align-items: center;
@@ -824,6 +894,40 @@ body {
 
 /* Tablet Proportions (768px to 1024px) */
 @media (max-width: 1024px) {
+  .main-app-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
+
+  .header-nav-bar {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .header-nav-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-page-link {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.7rem;
+  }
+
+  .header-status-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .global-mission-hud {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
   .hero-landing-wrapper {
     padding: 1rem;
   }

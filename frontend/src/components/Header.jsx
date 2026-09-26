@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Siren, Clock, ShieldCheck, Zap } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import {
+  Siren,
+  Clock,
+  Zap,
+  Map,
+  Navigation,
+  Activity,
+  Radio,
+  BarChart3,
+  Server,
+  Sparkles
+} from 'lucide-react';
 
 export default function Header({ apiOnline }) {
   const [time, setTime] = useState(new Date());
@@ -8,6 +20,16 @@ export default function Header({ apiOnline }) {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const navItems = [
+    { to: '/', label: 'Live Map', icon: <Map size={15} />, end: true },
+    { to: '/routes', label: 'Turn-by-Turn', icon: <Navigation size={15} /> },
+    { to: '/vitals', label: 'Patient Vitals', icon: <Activity size={15} /> },
+    { to: '/radio', label: 'CAD Intercom', icon: <Radio size={15} /> },
+    { to: '/analytics', label: 'Safety Matrix', icon: <BarChart3 size={15} /> },
+    { to: '/enterprise', label: 'Enterprise CAD', icon: <Server size={15} /> },
+    { to: '/overview', label: 'Overview', icon: <Sparkles size={15} /> }
+  ];
 
   return (
     <header className="main-app-header">
@@ -31,12 +53,27 @@ export default function Header({ apiOnline }) {
         </div>
       </div>
 
+      {/* Primary Page Navigation Bar */}
+      <nav className="header-nav-bar" aria-label="Main Navigation">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            className={({ isActive }) => `nav-page-link ${isActive ? 'active' : ''}`}
+          >
+            {item.icon}
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
+      </nav>
+
       {/* Operational Stats & Engine Status */}
       <div className="header-status-controls">
         {/* Preemption Protocol Badge */}
         <div className="header-pill-info">
           <Zap size={14} color="#D71920" />
-          <span>EVP Geofence: <strong>400m Active</strong></span>
+          <span>EVP: <strong>400m Active</strong></span>
         </div>
 
         {/* Live Traffic Badge */}
@@ -48,8 +85,8 @@ export default function Header({ apiOnline }) {
               boxShadow: '0 0 8px #00f5a0'
             }}
           />
-          <span style={{ fontWeight: 800, color: '#00f5a0' }}>
-            MAPBOX LIVE TRAFFIC
+          <span style={{ fontWeight: 800, color: '#00b875' }}>
+            LIVE TRAFFIC
           </span>
         </div>
 
@@ -62,7 +99,7 @@ export default function Header({ apiOnline }) {
             }}
           />
           <span style={{ fontWeight: 800, color: apiOnline ? '#08B7BA' : '#D71920' }}>
-            {apiOnline ? 'ROUTER ONLINE' : 'ENGINE OFFLINE'}
+            {apiOnline ? 'ONLINE' : 'OFFLINE'}
           </span>
         </div>
 
