@@ -39,9 +39,9 @@ function loadDefaultRoutes() {
       "Charminar Heritage Incident Zone"
     ],
     routeOptions: [
-      { name: "Route A - Lakdikapul & Abids Arterial", baseMinutes: 10, passesSchoolZone: true, passesHighway: false },
-      { name: "Route B - PVNR Expressway Corridor", baseMinutes: 13, passesSchoolZone: false, passesHighway: true },
-      { name: "Route C - Secretariat & Tank Bund Bypass", baseMinutes: 15, passesSchoolZone: false, passesHighway: false }
+      { id: "route-a-main-st", name: "Route A - Lakdikapul & Abids Arterial", baseMinutes: 10, passesSchoolZone: true, passesHighway: false },
+      { id: "route-b-highway-bypass", name: "Route B - PVNR Expressway Corridor", baseMinutes: 13, passesSchoolZone: false, passesHighway: true },
+      { id: "route-c-residential-shortcut", name: "Route C - Secretariat & Tank Bund Bypass", baseMinutes: 15, passesSchoolZone: false, passesHighway: false }
     ]
   };
 }
@@ -204,8 +204,15 @@ function evaluateRoutes({
       recommendationScore = (safetyScore * 0.85) + ((25 - adjustedMinutes) * 1.0);
     }
 
+    const resolvedId = route.id || (
+      route.name.includes('Route A') ? 'route-a-main-st' :
+      route.name.includes('Route B') ? 'route-b-highway-bypass' :
+      route.name.includes('Route C') ? 'route-c-residential-shortcut' :
+      route.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    );
+
     return {
-      id: route.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      id: resolvedId,
       name: route.name,
       baseMinutes: route.baseMinutes,
       adjustedMinutes,

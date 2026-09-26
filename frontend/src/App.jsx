@@ -69,7 +69,23 @@ export default function App() {
     inSchoolZone: false
   });
 
-  const activeCorridor = corridorData?.corridors?.[activeRouteId];
+  // Resilient corridor resolver preventing undefined routes
+  const resolveCorridor = (cData, routeId) => {
+    if (!cData?.corridors) return null;
+    if (routeId && cData.corridors[routeId]) return cData.corridors[routeId];
+    if (routeId) {
+      const lower = String(routeId).toLowerCase();
+      for (const [k, v] of Object.entries(cData.corridors)) {
+        if (k.toLowerCase() === lower) return v;
+        if (lower.includes('route-a') && k.includes('route-a')) return v;
+        if (lower.includes('route-b') && k.includes('route-b')) return v;
+        if (lower.includes('route-c') && k.includes('route-c')) return v;
+      }
+    }
+    return Object.values(cData.corridors)[0] || null;
+  };
+
+  const activeCorridor = resolveCorridor(corridorData, activeRouteId);
 
   const addLog = (message, type = 'info') => {
     const time = new Date().toLocaleTimeString();
@@ -256,9 +272,18 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         setRecommendationData(data);
-        const topId = data.recommendedRoute?.id;
-        if (topId) {
-          setActiveRouteId(topId);
+        if (data.corridors && Object.keys(data.corridors).length > 0) {
+          setCorridorData(prev => ({
+            ...prev,
+            corridors: {
+              ...(prev?.corridors || {}),
+              ...data.corridors
+            }
+          }));
+        }
+        const topId = data.recommendedRoute?.id || 'route-a-main-st';
+        setActiveRouteId(topId);
+        if (data.recommendedRoute?.name) {
           addLog(`AI Recommendation: ${data.recommendedRoute.name} (${data.recommendedRoute.adjustedMinutes}m ETA)`, 'arrive');
         }
         setApiOnline(true);
@@ -431,6 +456,18 @@ export default function App() {
   }, [isSimulating, simSpeed, autoPreempt, audioEnabled, voiceEnabled, activeCorridor, formData.vehicleType, formData.hospital]);
 
   const handleStart = () => {
+    if (simProgress >= 0.99) {
+      setSimProgress(0);
+      if (activeCorridor?.waypoints?.length) {
+        const p1 = activeCorridor.waypoints[0];
+        const p2 = activeCorridor.waypoints[1] || p1;
+        setAmbulancePos({
+          lat: p1[0],
+          lng: p1[1],
+          bearing: calculateBearing(p1[0], p1[1], p2[0], p2[1])
+        });
+      }
+    }
     setIsSimulating(true);
     const unitTitle = formData.vehicleType === 'fire_truck' ? 'Fire Tender 01' : '108 ALS Ambulance';
     addLog(`🚨 EMERGENCY TRANSIT LAUNCHED: ${unitTitle} dispatched to ${formData.hospital} under Code 3 Priority.`, 'alert');

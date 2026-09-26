@@ -14,6 +14,94 @@
   },
   "dispatchLogs": [
     {
+      "id": "CAD-1031",
+      "timestamp": "2026-09-26T05:39:17.144Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Madhapur Fire Station",
+      "hospital": "Apollo Hospitals (Jubilee Hills)",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Lakdikapul & Abids Arterial",
+      "safetyScore": 85,
+      "adjustedMinutes": 11
+    },
+    {
+      "id": "CAD-1030",
+      "timestamp": "2026-09-26T05:39:08.448Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Secretariat & Tank Bund Bypass",
+      "safetyScore": 90,
+      "adjustedMinutes": 17
+    },
+    {
+      "id": "CAD-1029",
+      "timestamp": "2026-09-26T05:38:12.079Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Secretariat & Tank Bund Bypass",
+      "safetyScore": 90,
+      "adjustedMinutes": 17
+    },
+    {
+      "id": "CAD-1028",
+      "timestamp": "2026-09-26T05:38:01.002Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Secretariat & Tank Bund Bypass",
+      "safetyScore": 90,
+      "adjustedMinutes": 17
+    },
+    {
+      "id": "CAD-1027",
+      "timestamp": "2026-09-26T05:37:49.037Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Secretariat & Tank Bund Bypass",
+      "safetyScore": 90,
+      "adjustedMinutes": 17
+    },
+    {
+      "id": "CAD-1026",
+      "timestamp": "2026-09-26T05:34:25.304Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Secretariat & Tank Bund Bypass",
+      "safetyScore": 90,
+      "adjustedMinutes": 17
+    },
+    {
+      "id": "CAD-1025",
+      "timestamp": "2026-09-26T05:34:08.740Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Secretariat & Tank Bund Bypass",
+      "safetyScore": 90,
+      "adjustedMinutes": 17
+    },
+    {
+      "id": "CAD-1024",
+      "timestamp": "2026-09-26T05:34:08.725Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route C - Secretariat & Tank Bund Bypass",
+      "safetyScore": 90,
+      "adjustedMinutes": 17
+    },
+    {
       "id": "CAD-1023",
       "timestamp": "2026-09-26T05:28:19.979Z",
       "type": "EVP_MUNICIPAL_PREEMPTION_GRANT",
@@ -273,5 +361,5 @@
       "note": "NTCIP 1202 Preemption Call locked. Green wave corridor active for MED-4."
     }
   ],
-  "incidentCounter": 1023
+  "incidentCounter": 1031
 }

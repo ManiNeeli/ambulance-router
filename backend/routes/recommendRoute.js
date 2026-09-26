@@ -232,6 +232,34 @@ router.post('/recommend-route', async (req, res) => {
       }
     }
 
+    // Build dynamic corridors so the UI map displays the exact road geometry for this origin/destination
+    const dynamicCorridors = {};
+    const routeKeys = ["route-a-main-st", "route-b-highway-bypass", "route-c-residential-shortcut"];
+
+    if (liveRouting && liveRouting.success && liveRouting.routes?.length > 0) {
+      liveRouting.routes.forEach((r, idx) => {
+        const k = routeKeys[idx] || `route-${idx + 1}`;
+        dynamicCorridors[k] = {
+          id: k,
+          name: evaluation.evaluatedRoutes[idx]?.name || r.name,
+          distanceMiles: r.distanceMiles,
+          baseMinutes: r.baseMinutes,
+          waypoints: r.waypoints,
+          maneuvers: r.maneuvers || [],
+          signals: corridorData?.corridors?.[k]?.signals || []
+        };
+      });
+    }
+
+    // Fill any missing corridors with calibrated defaults
+    if (corridorData?.corridors) {
+      routeKeys.forEach(k => {
+        if (!dynamicCorridors[k] && corridorData.corridors[k]) {
+          dynamicCorridors[k] = corridorData.corridors[k];
+        }
+      });
+    }
+
     // Generate plain-language dispatcher explanation (real LLM or heuristic fallback)
     const aiExplanation = await generateDispatcherExplanation(evaluation);
 
@@ -251,6 +279,7 @@ router.post('/recommend-route', async (req, res) => {
       timestamp: new Date().toISOString(),
       recommendedRoute: evaluation.recommendedRoute,
       allRoutes: evaluation.evaluatedRoutes,
+      corridors: dynamicCorridors,
       aiExplanation,
       liveRouting: liveRouting ? {
         provider: liveRouting.provider,

@@ -82,8 +82,11 @@ export default function InteractiveLeafletMap({
 
   const handleFitOverview = () => {
     const map = mapInstanceRef.current;
-    const activeCorridor = corridorData?.corridors?.[activeRouteId];
-    if (!map || !activeCorridor?.waypoints) return;
+    if (!map || !corridorData?.corridors) return;
+    const activeCorridor = corridorData.corridors[activeRouteId]
+      || Object.values(corridorData.corridors).find(c => c.id === activeRouteId)
+      || Object.values(corridorData.corridors)[0];
+    if (!activeCorridor?.waypoints?.length) return;
     const bounds = L.latLngBounds(activeCorridor.waypoints);
     map.fitBounds(bounds, { padding: [40, 40], animate: true });
   };
@@ -177,7 +180,11 @@ export default function InteractiveLeafletMap({
     // 4. Corridors with Electric Hyper-Lime Highlight
     if (corridorData.corridors) {
       Object.entries(corridorData.corridors).forEach(([key, corridor]) => {
-        const isActive = (key === activeRouteId);
+        const isActive = (key === activeRouteId) ||
+          (corridor.id && corridor.id === activeRouteId) ||
+          (key.includes('route-a') && String(activeRouteId).includes('route-a')) ||
+          (key.includes('route-b') && String(activeRouteId).includes('route-b')) ||
+          (key.includes('route-c') && String(activeRouteId).includes('route-c'));
 
         // Base route line
         const polyline = L.polyline(corridor.waypoints, {

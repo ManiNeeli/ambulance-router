@@ -18,18 +18,21 @@
   ],
   "routeOptions": [
     {
+      "id": "route-a-main-st",
       "name": "Route A - Lakdikapul & Abids Arterial",
       "baseMinutes": 10,
       "passesSchoolZone": true,
       "passesHighway": false
     },
     {
+      "id": "route-b-highway-bypass",
       "name": "Route B - PVNR Expressway Corridor",
       "baseMinutes": 13,
       "passesSchoolZone": false,
       "passesHighway": true
     },
     {
+      "id": "route-c-residential-shortcut",
       "name": "Route C - Secretariat & Tank Bund Bypass",
       "baseMinutes": 15,
       "passesSchoolZone": false,
