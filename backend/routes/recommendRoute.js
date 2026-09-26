@@ -324,11 +324,15 @@ router.post('/recommend-route', async (req, res) => {
         distanceMiles: evaluatedRoute.distanceMiles || matchingLive?.distanceMiles || 4.0,
         baseMinutes: evaluatedRoute.baseMinutes || matchingLive?.baseMinutes || 10,
         adjustedMinutes: evaluatedRoute.adjustedMinutes,
+        trafficDurationMinutes: matchingLive?.trafficDurationMinutes || evaluatedRoute.baseMinutes,
+        liveDelayMinutes: matchingLive?.liveDelayMinutes || 0,
         safetyScore: evaluatedRoute.safetyScore,
         safetyLevel: evaluatedRoute.safetyLevel,
         passesSchoolZone: evaluatedRoute.passesSchoolZone,
         passesHighway: evaluatedRoute.passesHighway,
         waypoints,
+        trafficSegments: matchingLive?.trafficSegments || [],
+        congestionSummary: matchingLive?.congestionSummary || null,
         maneuvers,
         signals
       };

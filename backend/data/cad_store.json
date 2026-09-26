@@ -14,6 +14,182 @@
   },
   "dispatchLogs": [
     {
+      "id": "CAD-1065",
+      "timestamp": "2026-09-26T06:55:13.051Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 22.6
+    },
+    {
+      "id": "CAD-1064",
+      "timestamp": "2026-09-26T06:53:47.272Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 22.6
+    },
+    {
+      "id": "CAD-1063",
+      "timestamp": "2026-09-26T06:53:47.252Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 22.6
+    },
+    {
+      "id": "CAD-1062",
+      "timestamp": "2026-09-26T06:48:26.984Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Direct Arterial Corridor",
+      "safetyScore": 90,
+      "adjustedMinutes": 9.9
+    },
+    {
+      "id": "CAD-1061",
+      "timestamp": "2026-09-26T06:45:41.513Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Madhapur Fire Station",
+      "hospital": "Cyber Towers Incident Zone",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Direct Arterial Corridor",
+      "safetyScore": 90,
+      "adjustedMinutes": 5
+    },
+    {
+      "id": "CAD-1060",
+      "timestamp": "2026-09-26T06:42:53.041Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Apollo Hospitals (Jubilee Hills)",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Direct Arterial Corridor",
+      "safetyScore": 90,
+      "adjustedMinutes": 7.6
+    },
+    {
+      "id": "CAD-1059",
+      "timestamp": "2026-09-26T06:42:45.456Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "NIMS Hospital (Punjagutta)",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 7.3
+    },
+    {
+      "id": "CAD-1058",
+      "timestamp": "2026-09-26T06:42:17.751Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Direct Arterial Corridor",
+      "safetyScore": 90,
+      "adjustedMinutes": 9.9
+    },
+    {
+      "id": "CAD-1057",
+      "timestamp": "2026-09-26T06:30:23.785Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "GVK EMRI 108 Central EMS Base",
+      "hospital": "Apollo Hospitals (Jubilee Hills)",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 17.2
+    },
+    {
+      "id": "CAD-1056",
+      "timestamp": "2026-09-26T06:29:42.702Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Madhapur Fire Station",
+      "hospital": "Apollo Hospitals (Jubilee Hills)",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 18.6
+    },
+    {
+      "id": "CAD-1055",
+      "timestamp": "2026-09-26T06:29:40.461Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Madhapur Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 40.4
+    },
+    {
+      "id": "CAD-1054",
+      "timestamp": "2026-09-26T06:29:34.218Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 22.5
+    },
+    {
+      "id": "CAD-1053",
+      "timestamp": "2026-09-26T06:29:34.210Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Punjagutta Fire Station",
+      "hospital": "Osmania General Hospital",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 22.5
+    },
+    {
+      "id": "CAD-1052",
+      "timestamp": "2026-09-26T06:29:01.931Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Telangana Secretariat Fire Command",
+      "hospital": "Apollo Hospitals (Jubilee Hills)",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 21.6
+    },
+    {
+      "id": "CAD-1051",
+      "timestamp": "2026-09-26T06:29:01.033Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Madhapur Fire Station",
+      "hospital": "AIG Hospitals (Gachibowli)",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 12.8
+    },
+    {
+      "id": "CAD-1050",
+      "timestamp": "2026-09-26T06:29:00.520Z",
+      "type": "ROUTE_RECOMMENDATION_ISSUED",
+      "startLocation": "Gowliguda Fire Station",
+      "hospital": "Charminar Heritage Incident Zone",
+      "patientCondition": "critical",
+      "recommendedRoute": "Route A - Mapbox Live Traffic Arterial",
+      "safetyScore": 90,
+      "adjustedMinutes": 13.1
+    },
+    {
       "id": "CAD-1049",
       "timestamp": "2026-09-26T06:27:09.722Z",
       "type": "ROUTE_RECOMMENDATION_ISSUED",
@@ -559,5 +735,5 @@
       "note": "NTCIP 1202 Preemption Call locked. Green wave corridor active for MED-4."
     }
   ],
-  "incidentCounter": 1049
+  "incidentCounter": 1065
 }

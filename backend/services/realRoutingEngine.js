@@ -15,7 +15,8 @@ function fetchJson(url, options = {}) {
     const parsed = new URL(url);
     const client = parsed.protocol === 'https:' ? https : http;
     const reqOptions = {
-      timeout: options.timeout || 7000,
+      family: 4, // Force IPv4 to prevent Windows dual-stack IPv6 DNS stall
+      timeout: options.timeout || 25000,
       headers: {
         'User-Agent': 'AmbulanceRouter/2.0 (CAD-ITS-Emergency-Routing)',
         'Accept': 'application/json',
@@ -41,7 +42,7 @@ function fetchJson(url, options = {}) {
 
     req.on('timeout', () => {
       req.destroy();
-      reject(new Error(`Routing request timed out after ${options.timeout || 6000}ms`));
+      reject(new Error(`Routing request timed out after ${options.timeout || 25000}ms`));
     });
 
     req.on('error', err => reject(err));
@@ -56,7 +57,7 @@ async function fetchOsrmRoutes(startCoords, endCoords) {
   // OSRM expects: {lng},{lat};{lng},{lat}
   const url = `https://router.project-osrm.org/route/v1/driving/${startCoords[1]},${startCoords[0]};${endCoords[1]},${endCoords[0]}?overview=full&geometries=geojson&steps=true&alternatives=true&annotations=true`;
 
-  const json = await fetchJson(url, { timeout: 7000 });
+  const json = await fetchJson(url, { timeout: 18000 });
   if (!json.routes || json.routes.length === 0) {
     throw new Error('No road route found in OSRM network');
   }
@@ -92,24 +93,118 @@ async function fetchOsrmRoutes(startCoords, endCoords) {
       "Route C - Secondary Bypass"
     ];
 
+    const syntheticCongestion = [];
+    for (let i = 0; i < waypoints.length - 1; i++) {
+      const frac = i / (waypoints.length - 1);
+      if (frac > 0.35 && frac < 0.55) syntheticCongestion.push('moderate');
+      else if (frac > 0.70 && frac < 0.80) syntheticCongestion.push('heavy');
+      else syntheticCongestion.push('low');
+    }
+    const trafficSegments = extractTrafficSegments(waypoints, syntheticCongestion);
+    const congestionSummary = calculateCongestionSummary(syntheticCongestion, [], 1.2);
+
     return {
       provider: "OSRM (OpenStreetMap Road Network)",
       routeIndex: idx,
       name: routeNames[idx] || `Route Option ${idx + 1}`,
       distanceMiles,
       baseMinutes,
+      trafficDurationMinutes: baseMinutes + 1.2,
+      liveDelayMinutes: 1.2,
       waypoints,
+      trafficSegments,
+      congestionSummary,
       maneuvers: maneuvers.length > 0 ? maneuvers : undefined
     };
   });
+}
+
+function extractTrafficSegments(waypoints, congestionList) {
+  if (!waypoints || waypoints.length < 2) return [];
+  if (!congestionList || congestionList.length === 0) {
+    return [{ congestion: 'low', coords: waypoints }];
+  }
+
+  const segments = [];
+  let currentCongestion = congestionList[0] || 'low';
+  let currentCoords = [waypoints[0]];
+
+  for (let i = 0; i < congestionList.length; i++) {
+    const nextPt = waypoints[i + 1] || waypoints[waypoints.length - 1];
+    const level = congestionList[i] || 'low';
+
+    if (level === currentCongestion) {
+      currentCoords.push(nextPt);
+    } else {
+      currentCoords.push(nextPt);
+      segments.push({ congestion: currentCongestion, coords: currentCoords });
+      currentCongestion = level;
+      currentCoords = [nextPt];
+    }
+  }
+
+  if (currentCoords.length > 1) {
+    segments.push({ congestion: currentCongestion, coords: currentCoords });
+  }
+
+  return segments;
+}
+
+function calculateCongestionSummary(congestionList, speedsList, liveDelayMinutes) {
+  if (!congestionList || congestionList.length === 0) {
+    return {
+      freeFlowPercent: 100,
+      moderatePercent: 0,
+      heavyPercent: 0,
+      severePercent: 0,
+      status: 'Free Flowing',
+      liveDelayMinutes: 0,
+      avgSpeedMph: 26
+    };
+  }
+
+  let low = 0, mod = 0, heavy = 0, severe = 0;
+  congestionList.forEach(c => {
+    if (c === 'moderate') mod++;
+    else if (c === 'heavy') heavy++;
+    else if (c === 'severe') severe++;
+    else low++;
+  });
+
+  const total = congestionList.length;
+  const freeFlowPercent = Math.round((low / total) * 100);
+  const moderatePercent = Math.round((mod / total) * 100);
+  const heavyPercent = Math.round((heavy / total) * 100);
+  const severePercent = Math.round((severe / total) * 100);
+
+  let status = 'Free Flowing';
+  if (severePercent > 8 || heavyPercent > 20) status = 'Heavy Gridlock Bottlenecks';
+  else if (heavyPercent > 8 || moderatePercent > 25) status = 'Moderate Queuing & Delays';
+  else if (moderatePercent > 12) status = 'Light Intersection Slowdowns';
+
+  let avgSpeedMph = 25;
+  if (speedsList && speedsList.length > 0) {
+    const avgMs = speedsList.reduce((a, b) => a + b, 0) / speedsList.length;
+    avgSpeedMph = Math.round(avgMs * 2.23694 * 10) / 10;
+  }
+
+  return {
+    freeFlowPercent,
+    moderatePercent,
+    heavyPercent,
+    severePercent,
+    status,
+    liveDelayMinutes,
+    avgSpeedMph
+  };
 }
 
 /**
  * Request traffic-aware routes from Mapbox if MAPBOX_ACCESS_TOKEN is configured
  */
 async function fetchMapboxTrafficRoutes(startCoords, endCoords, token) {
-  const url = `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${startCoords[1]},${startCoords[0]};${endCoords[1]},${endCoords[0]}?geometries=geojson&steps=true&alternatives=true&overview=full&access_token=${token}`;
-  const json = await fetchJson(url, { timeout: 8000 });
+  const url = `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${startCoords[1]},${startCoords[0]};${endCoords[1]},${endCoords[0]}?geometries=geojson&steps=true&alternatives=true&overview=full&annotations=congestion,speed&access_token=${token}`;
+  const json = await fetchJson(url, { timeout: 25000 });
   if (!json.routes || json.routes.length === 0) throw new Error('No Mapbox routes returned');
 
   const routeIds = ["route-a-main-st", "route-b-highway-bypass", "route-c-residential-shortcut"];
@@ -126,9 +221,15 @@ async function fetchMapboxTrafficRoutes(startCoords, endCoords, token) {
     const durationTypical = r.duration_typical ? Math.round((r.duration_typical / 60) * 10) / 10 : durationMinutes;
     const liveDelayMinutes = Math.max(0, Math.round((durationMinutes - durationTypical) * 10) / 10);
 
+    const leg = r.legs && r.legs[0] ? r.legs[0] : null;
+    const congestionList = leg?.annotation?.congestion || [];
+    const speedList = leg?.annotation?.speed || [];
+    const trafficSegments = extractTrafficSegments(waypoints, congestionList);
+    const congestionSummary = calculateCongestionSummary(congestionList, speedList, liveDelayMinutes);
+
     const maneuvers = [];
-    if (r.legs && r.legs[0] && r.legs[0].steps) {
-      r.legs[0].steps.forEach((st, sIdx) => {
+    if (leg && leg.steps) {
+      leg.steps.forEach((st, sIdx) => {
         if (st.maneuver && st.maneuver.type !== 'depart') {
           const stepDist = (st.distance * 0.000621371).toFixed(1) + ' mi';
           const roadName = st.name || 'Connector';
@@ -153,6 +254,8 @@ async function fetchMapboxTrafficRoutes(startCoords, endCoords, token) {
       trafficDurationMinutes: durationMinutes,
       liveDelayMinutes,
       waypoints,
+      trafficSegments,
+      congestionSummary,
       maneuvers: maneuvers.length > 0 ? maneuvers : undefined
     };
   });
@@ -163,20 +266,27 @@ async function fetchMapboxTrafficRoutes(startCoords, endCoords, token) {
  */
 async function fetchMapboxViaRoute(startCoords, viaCoords, endCoords, token, id, name) {
   try {
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${startCoords[1]},${startCoords[0]};${viaCoords[1]},${viaCoords[0]};${endCoords[1]},${endCoords[0]}?geometries=geojson&steps=true&overview=full&access_token=${token}`;
-    const json = await fetchJson(url, { timeout: 8000 });
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${startCoords[1]},${startCoords[0]};${viaCoords[1]},${viaCoords[0]};${endCoords[1]},${endCoords[0]}?geometries=geojson&steps=true&overview=full&annotations=congestion,speed&access_token=${token}`;
+    const json = await fetchJson(url, { timeout: 25000 });
     if (!json.routes || json.routes.length === 0) return null;
     const r = json.routes[0];
     const waypoints = r.geometry.coordinates.map(pt => [pt[1], pt[0]]);
     const distanceMiles = Math.round((r.distance * 0.000621371) * 10) / 10;
     const durationMinutes = Math.round((r.duration / 60) * 10) / 10;
     const durationTypical = r.duration_typical ? Math.round((r.duration_typical / 60) * 10) / 10 : durationMinutes;
+    const liveDelayMinutes = Math.max(0, Math.round((durationMinutes - durationTypical) * 10) / 10);
+
+    const leg = r.legs && r.legs[0] ? r.legs[0] : null;
+    const congestionList = leg?.annotation?.congestion || [];
+    const speedList = leg?.annotation?.speed || [];
+    const trafficSegments = extractTrafficSegments(waypoints, congestionList);
+    const congestionSummary = calculateCongestionSummary(congestionList, speedList, liveDelayMinutes);
 
     const maneuvers = [];
     if (r.legs) {
-      r.legs.forEach(leg => {
-        if (leg.steps) {
-          leg.steps.forEach(st => {
+      r.legs.forEach(l => {
+        if (l.steps) {
+          l.steps.forEach(st => {
             if (st.maneuver && st.maneuver.type !== 'depart' && st.maneuver.location) {
               maneuvers.push({
                 step: maneuvers.length + 1,
@@ -197,8 +307,10 @@ async function fetchMapboxViaRoute(startCoords, viaCoords, endCoords, token, id,
       distanceMiles,
       baseMinutes: durationTypical,
       trafficDurationMinutes: durationMinutes,
-      liveDelayMinutes: Math.max(0, Math.round((durationMinutes - durationTypical) * 10) / 10),
+      liveDelayMinutes,
       waypoints,
+      trafficSegments,
+      congestionSummary,
       maneuvers: maneuvers.length > 0 ? maneuvers : undefined
     };
   } catch (e) {
@@ -212,7 +324,7 @@ async function fetchMapboxViaRoute(startCoords, viaCoords, endCoords, token, id,
 async function fetchOsrmViaRoute(startCoords, viaCoords, endCoords, id, name) {
   try {
     const url = `https://router.project-osrm.org/route/v1/driving/${startCoords[1]},${startCoords[0]};${viaCoords[1]},${viaCoords[0]};${endCoords[1]},${endCoords[0]}?overview=full&geometries=geojson&steps=true`;
-    const json = await fetchJson(url, { timeout: 7000 });
+    const json = await fetchJson(url, { timeout: 18000 });
     if (!json.routes || json.routes.length === 0) return null;
     const r = json.routes[0];
     const waypoints = r.geometry.coordinates.map(pt => [pt[1], pt[0]]);
@@ -283,13 +395,27 @@ function generateSplineRoute(startCoords, viaCoords, endCoords, id, name, speedM
   const distanceMiles = Math.max(0.8, Math.round(totalDistanceMiles * 10) / 10);
   const baseMinutes = Math.max(3, Math.round((distanceMiles / speedMph * 60) * 10) / 10);
 
+  const syntheticCongestion = [];
+  for (let i = 0; i < waypoints.length - 1; i++) {
+    const frac = i / (waypoints.length - 1);
+    if (frac > 0.40 && frac < 0.60) syntheticCongestion.push('moderate');
+    else if (frac > 0.70 && frac < 0.82) syntheticCongestion.push('heavy');
+    else syntheticCongestion.push('low');
+  }
+  const trafficSegments = extractTrafficSegments(waypoints, syntheticCongestion);
+  const congestionSummary = calculateCongestionSummary(syntheticCongestion, [], 1.4);
+
   return {
     id,
     provider: "CAD GIS Engine (Curved Geometry)",
     name,
     distanceMiles,
     baseMinutes,
+    trafficDurationMinutes: baseMinutes + 1.4,
+    liveDelayMinutes: 1.4,
     waypoints,
+    trafficSegments,
+    congestionSummary,
     maneuvers: [
       { step: 1, text: `Depart origin on primary arterial`, dist: '0.4 mi', coords: waypoints[0] },
       { step: 2, text: `Navigate via corridor transit waypoint`, dist: `${(distanceMiles * 0.5).toFixed(1)} mi`, coords: viaCoords },

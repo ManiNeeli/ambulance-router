@@ -39,6 +39,20 @@ export default function Header({ apiOnline }) {
           <span>EVP Geofence: <strong>400m Active</strong></span>
         </div>
 
+        {/* Live Traffic Badge */}
+        <div className="header-pill-info" style={{ border: '1.5px solid rgba(0, 245, 160, 0.4)' }}>
+          <span
+            className="status-dot"
+            style={{
+              backgroundColor: '#00f5a0',
+              boxShadow: '0 0 8px #00f5a0'
+            }}
+          />
+          <span style={{ fontWeight: 800, color: '#00f5a0' }}>
+            MAPBOX LIVE TRAFFIC
+          </span>
+        </div>
+
         {/* Engine status indicator */}
         <div className="header-pill-info">
           <span

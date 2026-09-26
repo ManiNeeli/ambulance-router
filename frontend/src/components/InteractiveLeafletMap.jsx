@@ -24,16 +24,25 @@ export default function InteractiveLeafletMap({
     markers: [],
     polylines: [],
     flowLines: [],
+    trafficSegments: [],
     ambulanceMarker: null,
     schoolZoneLayer: null
   });
 
   const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
 
-  const [mapTheme, setMapTheme] = useState('streets');
+  const [mapTheme, setMapTheme] = useState('traffic');
   const [showTrafficFlow, setShowTrafficFlow] = useState(true);
 
+  const activeCorridor = corridorData?.corridors?.[activeRouteId]
+    || (corridorData?.corridors && Object.values(corridorData.corridors).find(c => c.id === activeRouteId))
+    || (corridorData?.corridors && Object.values(corridorData.corridors)[0])
+    || null;
+
   const tileUrls = {
+    traffic: MAPBOX_TOKEN
+      ? `https://api.mapbox.com/styles/v1/mapbox/traffic-day-v2/tiles/512/{z}/{x}/{y}@2x?access_token=${MAPBOX_TOKEN}`
+      : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     streets: MAPBOX_TOKEN
       ? `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/512/{z}/{x}/{y}@2x?access_token=${MAPBOX_TOKEN}`
       : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -44,8 +53,8 @@ export default function InteractiveLeafletMap({
   };
 
   const createTileLayer = (theme) => {
-    const isMapbox = Boolean(MAPBOX_TOKEN) && (theme === 'streets' || theme === 'satellite');
-    return L.tileLayer(tileUrls[theme] || tileUrls.streets, {
+    const isMapbox = Boolean(MAPBOX_TOKEN) && (theme === 'traffic' || theme === 'streets' || theme === 'satellite');
+    return L.tileLayer(tileUrls[theme] || tileUrls.traffic, {
       maxZoom: 19,
       tileSize: isMapbox ? 512 : 256,
       zoomOffset: isMapbox ? -1 : 0,
@@ -141,6 +150,8 @@ export default function InteractiveLeafletMap({
     layersRef.current.polylines = [];
     layersRef.current.flowLines.forEach(l => map.removeLayer(l));
     layersRef.current.flowLines = [];
+    layersRef.current.trafficSegments.forEach(l => map.removeLayer(l));
+    layersRef.current.trafficSegments = [];
     layersRef.current.markers.forEach(m => map.removeLayer(m));
     layersRef.current.markers = [];
     if (layersRef.current.schoolZoneLayer) {
@@ -272,8 +283,16 @@ export default function InteractiveLeafletMap({
       });
     }
 
-    // 4. Corridors with Electric Hyper-Lime Highlight
+    // 4. Corridors with Live Traffic Congestion & Route Outlines
     if (corridorData.corridors) {
+      const congestionPalette = {
+        low: '#00f5a0',      // Free flow (lime-green)
+        moderate: '#FFB91A', // Moderate slowdown (amber-yellow)
+        heavy: '#ff7a00',    // Heavy congestion (deep orange)
+        severe: '#ff2a5f',   // Severe gridlock (bright red)
+        unknown: '#08B7BA'   // Nominal arterial (cyan)
+      };
+
       Object.entries(corridorData.corridors).forEach(([key, corridor]) => {
         const isActive = (key === activeRouteId) ||
           (corridor.id && corridor.id === activeRouteId) ||
@@ -281,45 +300,110 @@ export default function InteractiveLeafletMap({
           (key.includes('route-b') && String(activeRouteId).includes('route-b')) ||
           (key.includes('route-c') && String(activeRouteId).includes('route-c'));
 
-        // Base route line
-        const polyline = L.polyline(corridor.waypoints, {
-          color: isActive ? '#08B7BA' : '#94A3B8',
-          weight: isActive ? 7 : 3.5,
-          opacity: isActive ? 1.0 : 0.5,
-          dashArray: isActive ? null : '6, 6'
-        }).addTo(map);
-
-        polyline.on('click', (e) => {
-          if (!isActive) {
-            if (onSelectRoute) onSelectRoute(key);
-            return;
-          }
-          if (onManualProgressChange && corridor.waypoints?.length > 1) {
-            let closestIdx = 0;
-            let minD = 999999;
-            corridor.waypoints.forEach((wp, i) => {
-              const d = Math.hypot(wp[0] - e.latlng.lat, wp[1] - e.latlng.lng);
-              if (d < minD) {
-                minD = d;
-                closestIdx = i;
-              }
-            });
-            const frac = closestIdx / (corridor.waypoints.length - 1);
-            onManualProgressChange(frac);
-          }
-        });
-
-        layersRef.current.polylines.push(polyline);
-
-        // Flow overlay on active route
-        if (isActive && showTrafficFlow) {
-          const flowPolyline = L.polyline(corridor.waypoints, {
-            color: '#FFB91A',
-            weight: 3.5,
-            opacity: 0.95,
-            className: 'leaflet-corridor-flow'
+        if (isActive) {
+          // Dark underlay casing for high-contrast visibility against map tiles
+          const underlay = L.polyline(corridor.waypoints, {
+            color: '#080d1a',
+            weight: 9.5,
+            opacity: 0.92,
+            lineCap: 'round',
+            lineJoin: 'round'
           }).addTo(map);
-          layersRef.current.flowLines.push(flowPolyline);
+
+          underlay.on('click', (e) => {
+            if (onManualProgressChange && corridor.waypoints?.length > 1) {
+              let closestIdx = 0;
+              let minD = 999999;
+              corridor.waypoints.forEach((wp, i) => {
+                const d = Math.hypot(wp[0] - e.latlng.lat, wp[1] - e.latlng.lng);
+                if (d < minD) { minD = d; closestIdx = i; }
+              });
+              onManualProgressChange(closestIdx / (corridor.waypoints.length - 1));
+            }
+          });
+          layersRef.current.polylines.push(underlay);
+
+          // If live traffic segments are available, render color-coded real-time congestion
+          if (corridor.trafficSegments && corridor.trafficSegments.length > 0) {
+            corridor.trafficSegments.forEach(seg => {
+              if (!seg.coords || seg.coords.length < 2) return;
+              const segColor = congestionPalette[seg.congestion] || '#00f5a0';
+              const segPoly = L.polyline(seg.coords, {
+                color: segColor,
+                weight: 6.5,
+                opacity: 1.0,
+                lineCap: 'round',
+                lineJoin: 'round'
+              }).addTo(map);
+
+              const desc = seg.congestion === 'severe' ? '🔴 Severe Bottleneck (Stop & Go)' :
+                           seg.congestion === 'heavy' ? '🟠 Heavy Traffic Congestion' :
+                           seg.congestion === 'moderate' ? '🟡 Moderate Queueing / Slowdown' :
+                           '🟢 Free Flowing Live Traffic';
+
+              segPoly.bindTooltip(`
+                <div style="font-family: inherit; font-size: 11px; padding: 2px;">
+                  <div style="font-weight: 800; color: ${segColor};">${desc}</div>
+                  <div style="font-size: 10px; color: #94a3b8;">Mapbox Live Traffic Telematics</div>
+                </div>
+              `, { sticky: true, className: 'custom-leaflet-tooltip' });
+
+              segPoly.on('click', (e) => {
+                if (onManualProgressChange && corridor.waypoints?.length > 1) {
+                  let closestIdx = 0;
+                  let minD = 999999;
+                  corridor.waypoints.forEach((wp, i) => {
+                    const d = Math.hypot(wp[0] - e.latlng.lat, wp[1] - e.latlng.lng);
+                    if (d < minD) { minD = d; closestIdx = i; }
+                  });
+                  onManualProgressChange(closestIdx / (corridor.waypoints.length - 1));
+                }
+              });
+
+              layersRef.current.trafficSegments.push(segPoly);
+            });
+          } else {
+            // Fallback solid active route line
+            const activeLine = L.polyline(corridor.waypoints, {
+              color: '#08B7BA',
+              weight: 6.5,
+              opacity: 1.0
+            }).addTo(map);
+            layersRef.current.polylines.push(activeLine);
+          }
+
+          // Flow pulse overlay on active route
+          if (showTrafficFlow) {
+            const flowPolyline = L.polyline(corridor.waypoints, {
+              color: '#ffffff',
+              weight: 2.5,
+              opacity: 0.9,
+              dashArray: '8, 12',
+              className: 'leaflet-corridor-flow'
+            }).addTo(map);
+            layersRef.current.flowLines.push(flowPolyline);
+          }
+        } else {
+          // Inactive candidate route
+          const polyline = L.polyline(corridor.waypoints, {
+            color: '#64748b',
+            weight: 3.5,
+            opacity: 0.55,
+            dashArray: '5, 6'
+          }).addTo(map);
+
+          polyline.on('click', () => {
+            if (onSelectRoute) onSelectRoute(key);
+          });
+
+          polyline.bindTooltip(`
+            <div style="font-family: inherit; font-size: 11px;">
+              <div style="font-weight: 800; color: #94a3b8;">Click to switch to ${corridor.name}</div>
+              <div style="font-size: 10px; color: #cbd5e1;">${corridor.distanceMiles} mi • ~${corridor.adjustedMinutes || corridor.baseMinutes} min</div>
+            </div>
+          `, { sticky: true, className: 'custom-leaflet-tooltip' });
+
+          layersRef.current.polylines.push(polyline);
         }
       });
     }
@@ -471,67 +555,136 @@ export default function InteractiveLeafletMap({
     <div style={{ position: 'relative', width: '100%', height: '460px', borderRadius: '14px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
       <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
 
-      {/* Top Map Controls */}
+      {/* Top Map Controls & Live Traffic Telematics */}
       <div style={{
         position: 'absolute',
         top: '12px',
         left: '12px',
         zIndex: 500,
         display: 'flex',
-        gap: '0.5rem',
-        alignItems: 'center'
+        flexDirection: 'column',
+        gap: '0.45rem',
+        maxWidth: 'calc(100% - 70px)'
       }}>
-        <div style={{
-          background: 'var(--bg-card)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '8px',
-          padding: '0.3rem',
-          display: 'flex',
-          gap: '0.25rem'
-        }}>
-          <button
-            type="button"
-            onClick={() => setMapTheme('streets')}
-            className={`tab-btn ${mapTheme === 'streets' ? 'active' : ''}`}
-            style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', fontWeight: 800 }}
-          >
-            🗺️ Mapbox Streets HD
-          </button>
-          <button
-            type="button"
-            onClick={() => setMapTheme('satellite')}
-            className={`tab-btn ${mapTheme === 'satellite' ? 'active' : ''}`}
-            style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem' }}
-          >
-            🛰️ Mapbox Satellite HD
-          </button>
-          <button
-            type="button"
-            onClick={() => setMapTheme('osm')}
-            className={`tab-btn ${mapTheme === 'osm' ? 'active' : ''}`}
-            style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem' }}
-          >
-            🌐 OpenStreetMap
-          </button>
+        {/* Row 1: Themes & Atmosphere */}
+        <div style={{ display: 'flex', gap: '0.45rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{
+            background: 'var(--bg-card)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: '8px',
+            padding: '0.25rem',
+            display: 'flex',
+            gap: '0.25rem'
+          }}>
+            <button
+              type="button"
+              onClick={() => setMapTheme('traffic')}
+              className={`tab-btn ${mapTheme === 'traffic' ? 'active' : ''}`}
+              style={{
+                padding: '0.35rem 0.65rem',
+                fontSize: '0.74rem',
+                fontWeight: 800,
+                backgroundColor: mapTheme === 'traffic' ? '#00f5a0' : 'transparent',
+                color: mapTheme === 'traffic' ? '#080d1a' : 'inherit'
+              }}
+            >
+              🚦 Mapbox Live Traffic HD
+            </button>
+            <button
+              type="button"
+              onClick={() => setMapTheme('streets')}
+              className={`tab-btn ${mapTheme === 'streets' ? 'active' : ''}`}
+              style={{ padding: '0.35rem 0.65rem', fontSize: '0.72rem' }}
+            >
+              🗺️ Streets HD
+            </button>
+            <button
+              type="button"
+              onClick={() => setMapTheme('satellite')}
+              className={`tab-btn ${mapTheme === 'satellite' ? 'active' : ''}`}
+              style={{ padding: '0.35rem 0.65rem', fontSize: '0.72rem' }}
+            >
+              🛰️ Satellite HD
+            </button>
+            <button
+              type="button"
+              onClick={() => setMapTheme('osm')}
+              className={`tab-btn ${mapTheme === 'osm' ? 'active' : ''}`}
+              style={{ padding: '0.35rem 0.65rem', fontSize: '0.72rem' }}
+            >
+              🌐 OSM
+            </button>
+          </div>
+
+          {/* Weather Indicator */}
+          <div style={{
+            background: 'var(--bg-card)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: '8px',
+            padding: '0.4rem 0.65rem',
+            fontSize: '0.72rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            color: 'var(--text-secondary)'
+          }}>
+            {weather === 'rain' ? <CloudRain size={13} color="#38bdf8" /> : weather === 'snow' ? <Snowflake size={13} color="#c084fc" /> : <Sun size={13} color="#ff9100" />}
+            <span style={{ fontWeight: 800 }}>{weather.toUpperCase()} ATMOSPHERE</span>
+          </div>
         </div>
 
-        {/* Weather Indicator */}
-        <div style={{
-          background: 'var(--bg-card)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '8px',
-          padding: '0.45rem 0.75rem',
-          fontSize: '0.75rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.35rem',
-          color: 'var(--text-secondary)'
-        }}>
-          {weather === 'rain' ? <CloudRain size={14} color="#38bdf8" /> : weather === 'snow' ? <Snowflake size={14} color="#c084fc" /> : <Sun size={14} color="#ff9100" />}
-          <span style={{ fontWeight: 800 }}>{weather.toUpperCase()} ATMOSPHERE</span>
-        </div>
+        {/* Row 2: Live Traffic Telematics HUD Bar */}
+        {activeCorridor && (
+          <div style={{
+            background: 'rgba(8, 13, 26, 0.94)',
+            backdropFilter: 'blur(12px)',
+            border: '1.5px solid rgba(0, 245, 160, 0.35)',
+            borderRadius: '8px',
+            padding: '0.45rem 0.8rem',
+            fontSize: '0.72rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+            color: '#ffffff',
+            flexWrap: 'wrap'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <span className="animate-ping" style={{ display: 'inline-block', width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#00f5a0' }} />
+              <strong style={{ color: '#00f5a0', letterSpacing: '0.04em' }}>MAPBOX LIVE TRAFFIC:</strong>
+              <span style={{ color: activeCorridor.congestionSummary?.heavyPercent > 10 ? '#ff7a00' : activeCorridor.congestionSummary?.moderatePercent > 20 ? '#FFB91A' : '#00f5a0', fontWeight: 800 }}>
+                {activeCorridor.congestionSummary?.status || 'Real-Time Dynamic Feed'}
+              </span>
+            </div>
+
+            <span style={{ color: '#334155' }}>|</span>
+
+            {/* Delay & Flow Speed */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span>Delay: <strong style={{ color: (activeCorridor.liveDelayMinutes || 0) > 0 ? '#ff7a00' : '#00f5a0' }}>+{(activeCorridor.liveDelayMinutes || 0).toFixed(1)}m</strong></span>
+              <span>Flow Speed: <strong>{activeCorridor.congestionSummary?.avgSpeedMph || 22} MPH</strong></span>
+            </div>
+
+            {/* Congestion Segments Legend */}
+            <span style={{ color: '#334155' }}>|</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.67rem' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: '#00f5a0' }} />
+                Clear {activeCorridor.congestionSummary?.freeFlowPercent ? `(${activeCorridor.congestionSummary.freeFlowPercent}%)` : ''}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: '#FFB91A' }} />
+                Moderate
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: '#ff2a5f' }} />
+                Congested
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Floating Action Buttons */}
