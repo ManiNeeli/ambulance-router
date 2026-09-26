@@ -2,7 +2,7 @@
 
 > **Every second counts in emergency response — but the fastest route on paper isn’t always the safest route on the streets.**
 
-Built as a next-generation Computer-Aided Dispatch (CAD) prototype, **SwiftAid** is an intelligent navigation copilot designed for 911/EMS dispatchers and paramedic crews. It evaluates candidate corridors not just by raw minutes, but by real-world safety hazards — active school zones, weather hydroplaning, traffic gridlock, and patient urgency.
+Built as a next-generation Computer-Aided Dispatch (CAD) prototype, **SwiftAid** is an intelligent navigation copilot designed for 108/EMS dispatchers and paramedic crews. It evaluates candidate corridors not just by raw minutes, but by real-world safety hazards — active school zones, weather hydroplaning, traffic gridlock, and patient urgency.
 
 When seconds matter, it actively clears the path ahead using **Emergency Vehicle Preemption (EVP)**, locking traffic signals green and moving traffic to the curb before the ambulance even reaches the intersection.
 
